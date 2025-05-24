@@ -147,13 +147,17 @@ const useAuth = () => {
 
   const editProfile = async (firstName, lastName, phone) => {
     const { _patch } = useAPI()
+    console.log(firstName, lastName, phone);
+    
     const response = await _patch(apiEndpoints.UPDATE_PROFILE, {
       first_name: firstName,
       last_name: lastName,
       phone: phone
     })
+    console.log(response);
+    
     if(response) {
-      return response.data
+      return response
     }
     return null
   }

@@ -147,23 +147,19 @@ const onConfirmEditProfile = async () => {
     data.value.phone
   )
   if (response) {
-  try {
-    await getDataProfile()
-    const { notify } = useNotify();
-    notify('Cập nhật thành công', 'success')
-    data.value.modeEdit = false;
-  } catch (err) {
-    console.log(err);
-    const { notify } = useNotify()
-    notify('Cập nhật thất bại', 'error')
-  } finally {
-    setTimeout(() => {
-      gettingData.value = false;
-    }, 200)
+    try {
+      await getDataProfile()
+      const { notify } = useNotify();
+      notify('Cập nhật profile thành công', 'success')
+      data.value.modeEdit = false;
+    } finally {
+      setTimeout(() => {
+        gettingData.value = false;
+      }, 200)
+    }
+  } else {
+    gettingData.value = false
   }
-} else {
-  gettingData.value = false
-}
 }
 
 const logOut = () => {

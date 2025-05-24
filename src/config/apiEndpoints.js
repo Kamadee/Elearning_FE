@@ -4,7 +4,7 @@ const apiEndpoints = {
   AUTH_REGISTER: '/api/customer/register',
   VERIFY_EMAIL: 'api/customer/verify',
   GET_PROFILE: '/api/customer/profile',
-  UPDATE_PROFILE: '/api/customer/update',
+  UPDATE_PROFILE: '/api/customer/update-profile',
   FORGOT_PASSWORD: "/api/customer/forgot-password",
   RESET_PASSWORD: "/api/customer/reset-password",
   GET_POST_LIST: '/api/post/list',
