@@ -84,6 +84,8 @@ const { notify } = useNotify();
 const login = async () => {
   loadingStates.value.login = true
   try {
+    console.log(data.value.email, data.value.password);
+    
     const response = await useAuth().login(data.value.email, data.value.password)
     if(response) {
       notify('Đăng nhập thành công', 'success')

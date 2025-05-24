@@ -206,13 +206,12 @@ const handleClickCard = async (id) => {
 }
 
 .slide-container {
-  display: flex;
-  justify-content: center; /* Căn giữa nếu cần */
+  width: 100%;
   padding: 20px;
 }
 
 .swiper-slide {
-  display: flex; /* Đảm bảo box chiếm không gian đúng */
-  justify-content: center; /* Căn giữa nội dung bên trong slide */
+  display: flex;
+  justify-content: center;
 }
 </style>

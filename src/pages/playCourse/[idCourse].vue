@@ -1,11 +1,16 @@
 <template>
   <div class="wrapper">
     <div class="play-header">
-      <LeftOutlined /><div class="btn-route" @click="backCourse(data.dataCourse.id)">Quay lại</div>
-      <div> | </div>
-      <div class="btn-route" @click="backHome">Trang chủ</div>
-      <div> | </div>
-      <div class="title-course" v-if="data.dataCourse.title">{{ data.dataCourse.title }}</div>
+      <div>
+        <LeftOutlined /><div class="btn-route" @click="backCourse(data.dataCourse.id)">Quay lại</div>
+        <div> | </div>
+        <div class="btn-route" @click="backHome">Trang chủ</div>
+        <div> | </div>
+        <div class="title-course" v-if="data.dataCourse.title">{{ data.dataCourse.title }}</div>
+      </div>
+      <div>
+
+      </div>
     </div>
     <div class="play-content">
       <div class="screen-video">
@@ -16,7 +21,7 @@
         <div class="item-video" v-for="(video, index) in data.dataCourse.videos" :key="index"
          @click="getVimeo(video.id)" v-loading="loadingVideo[video.id]" :class="{ 'is-active': data.currentVideo == video.id }">
           <img class="thumbnail-video" :src="video.video_thumbnail">
-          <div class="title-video">{{ video.video_title }}</div>
+          <div class="title-video truncate">{{ video.video_title }}</div>
         </div>
       </div>
     </div>
@@ -41,6 +46,7 @@ const data = ref({
 const theme = ref({
   heightVideo: '100%',
 })
+
 const router = useRouter()
 const route = useRoute()
 
@@ -103,7 +109,7 @@ onUpdated((id) => {
   } finally {
     setTimeout(() => {
       loadingVideo.value[id] = false
-    }, 2000);
+    }, 2000)
   }
 })
 </script>

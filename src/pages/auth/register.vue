@@ -103,11 +103,9 @@ const register = async () => {
       data.value.password)
       
     if(response) {
-      const { notify } = useNotify();
-      notify('Đăng ký thành công', 'sucess')
-      goRouter('/login');
-      data.value.verifyCode = response.user.confirmation_code
-      emits("sign-up", data.value);
+      const { notify } = useNotify()
+      notify('Kiểm tra mã xác minh trong email của bạn', 'success')
+      goRouter('/verifi-register')
     }
   } catch (err) {
     console.log('❌ Validate thất bại', err);

@@ -2,6 +2,7 @@
 const apiEndpoints = {
   AUTH_TOKEN: '/api/customer/login',
   AUTH_REGISTER: '/api/customer/register',
+  VERIFY_EMAIL: 'api/customer/verify',
   GET_PROFILE: '/api/customer/profile',
   UPDATE_PROFILE: '/api/customer/update',
   FORGOT_PASSWORD: "/api/customer/forgot-password",

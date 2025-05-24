@@ -24,14 +24,12 @@ const useAuth = () => {
     }
   };
 
-  // const getToken = () => {
-  //   return localStorage.getItem('Authorization');
-  // };
-
   const login = async (email, password) => {
     const { _post } = useAPI()
     try {
-      const response = await _post(apiEndpoints.AUTH_TOKEN, { email, password });
+      const response = await _post('/api/customer/login', { email: email, password: password });
+      
+      
       if (response.status === 200) {
         const token = response.access_token;
         const expiration = jwtDecode(token).exp * 1000;
@@ -42,7 +40,7 @@ const useAuth = () => {
         
         return authUser;
       } else {
-        handleError(response);
+        // handleError(response);
         return null;
       }
     } catch (error) {
@@ -51,14 +49,21 @@ const useAuth = () => {
   };
   
   const handleError = (error) => {
+    const response = error.response?.data
+    console.log(response);
+    
     let messages = [];
-    const { status, data } = error.response;
-    if (status === 404) {
-      messages = [data.error || 'Resource not found.'];
-    } else if (status === 422) {
-      messages = data.errors ? Object.values(data.errors).flat() : ['Validation failed.'];
+    if (response?.status === 404) {
+      messages = [response?.error || 'Resource not found.'];
+    } else if (response?.status === 422) {
+      const validatorError = response?.errors
+      if(validatorError) {
+        const emailValidate = validatorError.email || []
+        const passValidate = validatorError.password || []
+        messages = [...emailValidate, ...passValidate]
+      }
     } else {
-      messages = [data.error || 'An unexpected error occurred.'];
+      messages = [response?.error || 'Password is incorrect'];
     }
     messages.forEach(msg => {
       notify(msg, 'error');
@@ -79,13 +84,21 @@ const useAuth = () => {
       if(response.status === 201) {
         return response
       } else {
-        handleError(response);
-          return null;
+        // handleError(response);
+        return null;
       }
     } catch (error) {
       handleError(error)
     }
-    
+  }
+
+  const verifyEmail = async (verifyCode) => {
+    const { _post } = useAPI()
+    const response = await _post('/api/customer/verify', {code: verifyCode,})
+    if(response) {
+      return response
+    }
+    return null
   }
 
   const logOut = async () => {
@@ -148,6 +161,7 @@ const useAuth = () => {
   return { 
     login,
     register,
+    verifyEmail,
     logOut,
     getDataProfile,
     editProfile,

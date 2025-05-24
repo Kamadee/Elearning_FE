@@ -93,7 +93,7 @@
 <script setup>
 import  useAuth from '@/composables/useAuth';
 import  { useCounterStore } from '@/stores/authStore'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useNotify } from '@/composables/useNotify';
 
 const data = ref({
@@ -105,25 +105,33 @@ const data = ref({
   email: "",
   modeEdit: false
 })
-console.log(data);
-
 
 const getDataProfile = async () => {
-  console.log(11);
-  
   const response = await useAuth().getDataProfile()
-  console.log(response);
-  
   if(response) {
-    data.value.firstName = response.first_name;
-    data.value.lastName = response.last_name;
-    data.value.fullName = response.first_name + response.last_name;
-    data.value.phone = response.phone;
-    data.value.email = response.email;
+    data.value.firstName = response.first_name
+    data.value.lastName = response.last_name
+    data.value.fullName = response.first_name + response.last_name
+    data.value.phone = response.phone
+    data.value.email = response.email
   }
 }
 
-getDataProfile();
+const getDataOrders = async () => {
+  const response = await useAuth().getDataProfile()
+  if(response) {
+    data.value.firstName = response.first_name
+    data.value.lastName = response.last_name
+    data.value.fullName = response.first_name + response.last_name
+    data.value.phone = response.phone
+    data.value.email = response.email
+  }
+}
+
+onMounted(() => {
+  getDataProfile()
+  getDataOrders()
+})
 
 function onEditProfile() {
   data.value.modeEdit = true

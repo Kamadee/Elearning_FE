@@ -111,6 +111,14 @@ const router = createRouter({
       }
     },
     {
+      path: '/verifi-register',
+      name: 'verifi-register',
+      component: () => import('@/pages/auth/verifi-register.vue'),
+      meta: {
+        requiresAuth: false,
+      }
+    },
+    {
       path: '/forgot-password',
       name: 'forgot-password',
       component: ForgotPassword,
@@ -142,11 +150,8 @@ router.beforeEach(async (to, from, next) => {
   
   const isTokenExpired = () => {
     // console.log(localStorage.getItem('tokenExpiry'));
-    
     if(localStorage.getItem('tokenExpiry')) {
       const expiryTime = localStorage.getItem('tokenExpiry');
-      console.log(expiryTime);
-      
       return expiryTime && Date.now() >= Number(expiryTime);
     }
   };

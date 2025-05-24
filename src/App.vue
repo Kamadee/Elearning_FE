@@ -19,7 +19,7 @@ onMounted(() => {
 const route = useRoute();
 const isAuthLayout = computed(() => {
   // chỉ định luôn những page nào sẽ dùng authLayout
-  return ['login', 'register', 'forgot-password'].includes(route.name);
+  return ['login', 'register', 'forgot-password', 'verifi-register'].includes(route.name);
 })
 const isFullScreenLayout = computed(() => {
   return ['play-course'].includes(route.name)

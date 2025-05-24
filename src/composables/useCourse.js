@@ -17,7 +17,6 @@ const useCourse = () => {
     return null
   };
   
-
   const getDetailCourse = async (id) => {
     const { _get } = useAPI()
     const response = await _get(`/api/course/detail/${id}`, {}, {
@@ -26,7 +25,6 @@ const useCourse = () => {
         'X-Redirect-On-401': 'false'
       }
     })
-    console.log(response);
     
     if(response) {
       return response.data
