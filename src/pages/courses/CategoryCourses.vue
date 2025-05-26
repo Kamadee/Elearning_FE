@@ -11,17 +11,16 @@
 <script setup>
 import ListCourses from '@/components/course/ListCourses.vue'
 import BannerCategory from '@/components/course/BannerCategory.vue'
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 
 const data = ref(null)
 const route = useRoute()
 
-const rawCategory = route.params.category
-if(rawCategory) {
-  var categoryCourse = rawCategory.charAt(0).toUpperCase() + rawCategory.slice(1);
+watch(() => route.params.category, (newCategory) => {
+  var categoryCourse = newCategory.charAt(0).toUpperCase() + newCategory.slice(1);
   data.value = categoryCourse
-}
+})
 </script>
 <style scoped>
 .category-course {
