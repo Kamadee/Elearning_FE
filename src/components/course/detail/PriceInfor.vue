@@ -66,7 +66,10 @@ const addCourse = async (id) => {
   loadingStates.value = true;
   try {
     if(isAuthenticated.value) {
+      console.log(id);
       const response = await useCart().addCourse(id, true)
+      console.log(response);
+      
       if(response) {
         const { notify } = useNotify()
         notify(`${response.message}: Thêm giỏ hàng thành công`, 'success')

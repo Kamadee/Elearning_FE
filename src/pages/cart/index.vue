@@ -23,7 +23,7 @@ import NoData from '@/components/NoData.vue'
 import CheckoutCart from '@/components/cart/CheckoutCart.vue'
 import useCart from '@/composables/useCart'
 import { useNotify } from '@/composables/useNotify'
-import { ref } from "vue"
+import { onMounted, ref } from "vue"
 
 const data = ref({
   cartData: [],
@@ -34,10 +34,13 @@ const getDataCarts = async () => {
   const response = await useCart().getDataCarts()
   if(response) {
     data.value.cartData = response.contents
-    data.value.prices = response.contents.map((content) => content.price)
+    data.value.prices = response.contents.map((item) => item.price)
+    console.log(data.value.prices);
   }
 }
-getDataCarts()
+onMounted(() => {
+  getDataCarts()
+})
 
 const loadingStates = ref({})
 const removeItem = async (id) => {

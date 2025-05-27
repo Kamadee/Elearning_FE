@@ -1,7 +1,7 @@
 <template>
   <div class="card-course">
     <div class="right-card">
-      <img :src="replaceUrlImage(cartData.course.thumbnail)" class="thumbnail-course">
+      <img :src="replaceUrlImage(cartData.course.thumbnail) " class="thumbnail-course">
       <span class="title-course">{{ cartData.course.title }}</span>
     </div>
     <div class="left-card">
@@ -24,6 +24,7 @@ const props = defineProps({
     required: true
   }
 })
+
 
 const emit = defineEmits(['removeItem'])
 const removeItem = () => {
