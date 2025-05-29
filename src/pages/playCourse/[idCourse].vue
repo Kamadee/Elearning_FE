@@ -1,16 +1,9 @@
 <template>
   <div class="wrapper">
     <div class="play-header">
-      <div>
-        <LeftOutlined /><div class="btn-route" @click="backCourse(data.dataCourse.id)">Quay lại</div>
-        <div> | </div>
-        <div class="btn-route" @click="backHome">Trang chủ</div>
-        <div> | </div>
-        <div class="title-course" v-if="data.dataCourse.title">{{ data.dataCourse.title }}</div>
-      </div>
-      <div>
-
-      </div>
+      <LeftOutlined /><div class="btn-route" @click="backCourse(data.dataCourse.id)">Quay lại |</div>
+      <div class="btn-route" @click="backHome">Trang chủ |</div>
+      <div class="title-course" v-if="data.dataCourse.title">{{ data.dataCourse.title }}</div>
     </div>
     <div class="play-content">
       <div class="screen-video">
@@ -130,7 +123,7 @@ onUpdated((id) => {
 }
 
 .play-header {
-  z-index: 10;
+  color: #fff;
   position: relative;
   height: 90px;
   width: 100%;
