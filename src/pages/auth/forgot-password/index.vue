@@ -1,38 +1,20 @@
 <template>
-<!-- <a-row class="form-forgot" justify="center" align="middle" style="min-height: 100vh;">
-  <a-col :xs="24" :sm="16" :md="10" :lg="8">
-    <div class="form-container">
-      <a-form class="form-child" :model="data" :rules="rules" @submit.prevent="forgotPass()"> 
-        <h3>Bạn quên mật khẩu?</h3>
-        <a-form-item name="email" class="email-input">
-          <label for="">Địa chỉ email</label>
-          <a-input placeholder="example@gmail.com" v-model:value="data.email"></a-input>
-        </a-form-item>
-        <a-form-item >
-          <a-button class="btn-forgot" type="primary" html-type="submit">Gửi yêu cầu reset</a-button>
-        </a-form-item>
-      </a-form>
-    </div>
-  </a-col>
-</a-row> -->
-
- <section class="register_section" v-loading="loadingStates.forgotPass">
-    <div class="register_wrapper">
-      <a-row class="register-container" justify="center" align="middle">
-        <a-col xs={24} sm={12} md={8}>
-          <h3>Nhập email</h3>
-          <a-form :model="data" :rules="rules" ref="formRef" @submit.prevent="sendLinkReset()">
-            <a-form-item name="email">
-              <a-input class="input-forgot" v-model:value="data.email"/>
-            </a-form-item>
-
-            <a-form-item>
-              <a-button type="primary" html-type="submit" :disabled="loadingStates.forgotPass">Xác nhận</a-button>
-            </a-form-item>
-          </a-form>
-        </a-col>
-      </a-row>
-    </div>
+<section class="register_section" v-loading="loadingStates.forgotPass">
+  <div class="register_wrapper">
+    <a-row class="register-container" justify="center" align="middle">
+      <a-col xs={24} sm={12} md={8}>
+        <h3>Nhập email</h3>
+        <a-form :model="data" :rules="rules" ref="formRef" @submit.prevent="sendLinkReset()">
+          <a-form-item name="email">
+            <a-input class="input-forgot" v-model:value="data.email"/>
+          </a-form-item>
+          <div style="display: flex; justify-content: center;">
+            <a-button type="primary" html-type="submit" :disabled="loadingStates.forgotPass">Xác nhận</a-button>
+          </div>
+        </a-form>
+      </a-col>
+    </a-row>
+  </div>
   </section>
 </template>
 
@@ -62,12 +44,12 @@ const sendLinkReset = async () => {
   try {
     const response = await useAuth().forgotPass(data.value.email)
     if(response) {
-    const { notify } = useNotify();
-    notify(response.message, 'sucess')
-    router.push('/password-reset');
+      const { notify } = useNotify()
+      notify('Kiểm tra email để đặt lại mật khẩu', 'success')
+      router.push('/password-reset')
     }
   } catch (err) {
-    console.log('❌ Validate thất bại', err);
+    console.log(err)
   } finally {
     setTimeout(() => {
       loadingStates.value.forgotPass = false
@@ -81,21 +63,11 @@ body {
   background-color: #f7f9fa;
 }
 
-.register_section {
-  width: 100%;
-  height: 100vh;
-  background: url('/images/Login-Image.jpg') no-repeat center center;
-  background-size: cover;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
 .register_wrapper {
   width: 100%;
   max-width: 500px;
   background: #fff;
-  padding: 10px;
+  padding: 40px;
   border-radius: 8px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }

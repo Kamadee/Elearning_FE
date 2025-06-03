@@ -111,27 +111,27 @@ const useAuth = () => {
     return false
   }
 
-  
   const forgotPass = async (email) => {
     const { _post } = useAPI()
     const response = await _post(apiEndpoints.FORGOT_PASSWORD, {
       email: email
     });
     if(response) {
-      return response.data
+      return response
     }
     return null
   }
   
-  const resetPass = async (email, password, token) => {
+  const resetPass = async (email, password, password_confirmation, token) => {
     const { _post } = useAPI()
     const response = await _post(apiEndpoints.RESET_PASSWORD, {
       email: email,
       password: password,
+      password_confirmation: password_confirmation,
       token: token
     });
     if(response) {
-      return response.data
+      return response
     }
     return null
   }

@@ -123,16 +123,6 @@ body {
   background-color: #f7f9fa;
 }
 
-/* .register_section {
-  width: 100%;
-  height: 100vh;
-  background: url('/images/Login-Image.jpg') no-repeat center center;
-  background-size: cover;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-} */
-
 .register_wrapper {
   width: 100%;
   max-width: 400px;

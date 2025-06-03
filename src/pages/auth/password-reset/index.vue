@@ -1,142 +1,120 @@
 <template>
-<a-row class="form-forgot" justify="center" align="middle" style="min-height: 100vh;">
-  <a-col :xs="24" :sm="16" :md="10" :lg="8">
-    <div class="form-container">
-      <a-form class="form-child" :model="data" :rules="rules" @submit.prevent="resetPass()"> 
-        <h3>Thay đổi mật khẩu</h3>
-        <a-form-item name="password" class="email-input">
-          <label for="">Mật khẩu</label>
-          <a-input type="password" placeholder="Tối thiểu 6 ký tự"></a-input>
-        </a-form-item>
-        <a-form-item name="re_password" class="email-input">
-          <label for="">Xác nhận mật khẩu</label>
-          <a-input type="password"></a-input>
-        </a-form-item>
-        <a-form-item >
-          <a-button class="btn-forgot" type="primary" html-type="submit">Xác nhận</a-button>
-        </a-form-item>
-      </a-form>
+<section class="register_section" v-loading="loadingStates.reserPass">
+    <div class="register_wrapper">
+      <a-row class="register-container" justify="center" align="middle">
+        <a-col xs={24} sm={12} md={8}>
+          <h3>Thay đổi mật khẩu</h3>
+          <a-form :model="data" :rules="rules" ref="formRef" @submit.prevent="resetPass()">
+            <a-form-item name="password">
+              <label for="password">Mật khẩu mới</label>
+              <a-input type="password" v-model:value="data.password" placeholder="Tối thiểu 6 ký tự"/>
+            </a-form-item>
+
+            <a-form-item name="re_password">
+              <label for="re_password">Xác nhận mật khẩu</label>
+              <a-input type="password" v-model:value="data.password_confirmation" />
+            </a-form-item>
+
+            <div style="display: flex; justify-content: center;">
+              <a-button type="primary" html-type="submit" :disabled="loadingStates.reserPass">Xác nhận</a-button>
+            </div>
+          </a-form>
+        </a-col>
+      </a-row>
     </div>
-  </a-col>
-</a-row>
-  
+  </section>  
 </template>
 
 <script setup>
 import  useAuth from '@/composables/useAuth';
 import { useNotify } from '@/composables/useNotify';
-import { useGoRouter } from '@/utils/goRouter';
 import { ref } from 'vue'
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
-const router = useRouter()
+const route = useRoute()
 const data = ref({
   password: "",
-  re_password: "",
-  email: router.query.email,
-  token: router.query.token
+  password_confirmation: "",
+  email: route.query.email,
+  token: route.query.token
 })
 
-const { goRouter } = useGoRouter()
-const gettingData = ref(false)
-const errorMsg = ref('')
-
-
-const validate2 = () => {
-  if(data.value.re_password !== data.value.password) {
-    return Promise.reject('Mật khẩu chưa khớp')
-  } else {
-    return Promise.resolve()
-  }
-}
-
-const rules = {
-  password: [
-    { required: true, message: "Vui lòng nhập mật khẩu", trigger: 'blur' },
-  ],
-  re_password: [
-    { validator: validate2, trigger: 'change' },
-  ],
-}
+const router = useRouter()
+const loadingStates = ref({
+  reserPass: false
+})
 
 const resetPass = async () => {
+  loadingStates.value.reserPass = true
   try {
-    const response = await useAuth().resetPass(data.value.email, data.value.password, data.value.token)
+    const response = await useAuth().resetPass(data.value.email, data.value.password, data.value.password_confirmation, data.value.token)
     if(response) {
-    const { notify } = useNotify();
-    notify(response.message, 'sucess')
-    goRouter('/login');
+      const { notify } = useNotify();
+      notify('Đặt lại mật khẩu thành công', 'success')
+      router.push('/login');
     }
   } catch (err) {
-    if (err.errorFields) {
-      console.log('❌ Validate thất bại', err);
-      return;
-    }
-    errorMsg.value = "Có lỗi xảy ra: " + err.message;
     console.log(err);
-    
-    useNotify('error', errorMsg.value);
   } finally {
     setTimeout(() => {
-      gettingData.value = false
+      loadingStates.value.reserPass = false
     }, 200)
   }
 }
 </script>
 
 <style scoped>
-.form-forgot {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  /* box-sizing: border-box; */
+body {
+  background-color: #f7f9fa;
 }
 
-.form-container {
-  border: 1px solid black;
-  border-radius: 5px;
-  box-shadow: -3px 3px 10px rgba(0, 0, 0, 0.1);
-  padding: 40px 80px;
+.register_wrapper {
+  width: 100%;
+  max-width: 400px;
+  background: #fff;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
-.form-child {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+h3 {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 25px;
+  text-align: center;
 }
 
-.ant-form-item {
-  /* width: 100%; */
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+.btn-google {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  color: #555;
 }
 
-.ant-form-item label {
-  align-self: flex-start;
-  margin-bottom: 8px;
+.btn-google:hover {
+  background-color: #f8f9fa;
 }
 
-.ant-input {
-  width: 230px;
+.form-check-input:checked {
+  background-color: #5624d0;
+  border-color: #5624d0;
 }
 
-.email-input {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+.btn-primary {
+  background-color: #a435f0;
+  border-color: #a435f0;
 }
 
-.btn-forgot {
-  width: 230px;
+.btn-primary:hover {
+  background-color: #8710d8;
+  border-color: #8710d8;
 }
 
-.ant-input {
-  width: 230px;
+a {
+  color: #5624d0;
+  text-decoration: none;
 }
 
-.btn-forgot {
-  width: 230px;
+a:hover {
+  text-decoration: underline;
 }
 </style>
