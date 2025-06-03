@@ -1,5 +1,5 @@
 <template>
-    <div class="container user-profile">
+    <div class="container user-profile" v-loading="isLoading">
       <div class="main-body" v-loading="gettingData">
         <!-- Breadcrumb -->
         <nav aria-label="breadcrumb" class="main-breadcrumb">
@@ -86,16 +86,19 @@
             </div>
           </div>
         </div>
-
       </div>
+      <OwnCourses :courseData="data.ownCourseData"/>
    </div>
 </template>
 <script setup>
+import OwnCourses from '@/components/course/OwnCourses.vue'
 import  useAuth from '@/composables/useAuth';
 import  { useCounterStore } from '@/stores/authStore'
 import { onMounted, ref } from 'vue'
 import { useNotify } from '@/composables/useNotify';
+import useCart from '@/composables/useCart';
 
+const isLoading = ref(false);
 const data = ref({
   isAuthenticated: useCounterStore().isLogged,
   firstName: "",
@@ -103,7 +106,9 @@ const data = ref({
   fullName: "",
   phone: null,
   email: "",
-  modeEdit: false
+  modeEdit: false,
+  orderList: [],
+  ownCourseData: []
 })
 
 const getDataProfile = async () => {
@@ -117,20 +122,34 @@ const getDataProfile = async () => {
   }
 }
 
-const getDataOrders = async () => {
-  const response = await useAuth().getDataProfile()
+const getPaymentHistoryList = async () => {
+  const response = await useCart().getPaymentHistoryList()
   if(response) {
-    data.value.firstName = response.first_name
-    data.value.lastName = response.last_name
-    data.value.fullName = response.first_name + response.last_name
-    data.value.phone = response.phone
-    data.value.email = response.email
+    data.value.orderList = response.orders.filter((order) => order.status === 3).map((order) => order.id)
+    getCourseDataForOrders(data.value.orderList)
+  }
+}
+
+const getCourseDataForOrders = async (orderList) => {
+  const promises = orderList.map((orderId) => useCart().getHistoryDetail(orderId))
+
+  try {
+    const res = await Promise.all(promises)
+    const courseData = res.flatMap(r => r.courses)
+    data.value.ownCourseData = courseData
+  } catch(e) {
+    console.log(e);
+  } finally {
+    isLoading.value = false;
   }
 }
 
 onMounted(() => {
-  getDataProfile()
-  getDataOrders()
+  isLoading.value = true;
+  setTimeout(() => {
+    getDataProfile()
+    getPaymentHistoryList()
+  })
 })
 
 function onEditProfile() {
@@ -169,3 +188,9 @@ const logOut = () => {
   location.reload()
 }
 </script>
+
+<style scoped>
+.main-body {
+  margin-bottom: 40px;
+}
+</style>

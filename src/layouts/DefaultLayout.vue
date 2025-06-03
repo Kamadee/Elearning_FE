@@ -1,7 +1,7 @@
 <template>
   <div class="wrapper">
     <div class="navbar"><TopNavbar /></div>
-    <div class="main"><router-view /></div>
+    <div class="main"><router-view :key="$route.fullPath"/></div>
     <div class="footer"><Footer /></div>
   </div>
 </template>
@@ -9,7 +9,6 @@
 <script setup>
 import TopNavbar from '../components/dashboard/TopNavbar.vue';
 import Footer from '../components/dashboard/Footer.vue';
-
 </script>
 <style scoped>
 .wrapper {

@@ -51,12 +51,45 @@ const useCart = () => {
     return null
   }
 
+  const getHistoryDetail = async (id) => {
+    const { _get } = useAPI()
+    const response = await _get('/api/customer/orders/' + `${id}`)
+    if (response) {
+      return response.data
+    }
+    return null
+  }
+
+  const updateOrderStatus = async (payload) => {
+    const { _get } = useAPI()
+    const { vnp_SecureHash, vnp_TmnCode,vnp_TransactionNo, vnp_Amount, vnp_BankCode, vnp_TxnRef, vnp_ResponseCode, vnp_PayDate, vnp_TransactionStatus, vnp_BankTranNo, vnp_CardType, vnp_OrderInfo } = payload
+    const response = await _get('/api/payment/response', {
+      vnp_SecureHash, vnp_Amount, vnp_TransactionNo, vnp_TmnCode, vnp_BankCode, vnp_TxnRef, vnp_ResponseCode, vnp_PayDate, vnp_TransactionStatus, vnp_BankTranNo, vnp_CardType, vnp_OrderInfo
+    })
+    if (response) {
+      return response
+    }
+    return null
+  }
+
+  const getOrderByCode = async (code) => {
+    const { _get } = useAPI()
+    const response = await _get('/api/customer/orders_code/' + `${code}`)
+    if (response) {
+      return response.data
+    }
+    return null
+  }
+
   return {
     addCourse,
     getDataCarts,
     removeItem,
     createPayment,
-    getPaymentHistoryList
+    getPaymentHistoryList,
+    getHistoryDetail,
+    updateOrderStatus,
+    getOrderByCode
   }
 }
 export default useCart

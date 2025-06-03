@@ -5,7 +5,8 @@ export const useCounterStore = defineStore('auth', {
     token: localStorage.getItem('Authorization') || null,
     dataSearch: [],
     keySearch: "",
-    inCart: false
+    inCart: false,
+    gettingData: false
   }),
   getters: {
     isLogged: (state) => !!state.token,
@@ -17,7 +18,10 @@ export const useCounterStore = defineStore('auth', {
     },
     getInCart(state) {
       return state.inCart
-    }
+    },
+    getGettingData(state) {
+      return state.gettingData
+    },
   },
   actions: {
     setToken(token) {
@@ -31,6 +35,9 @@ export const useCounterStore = defineStore('auth', {
     },
     setInCart(inCart) {
       this.inCart = inCart
+    },
+    setGettingData(value) {
+      this.gettingData = value
     },
     removeToken() {
       this.token = null;

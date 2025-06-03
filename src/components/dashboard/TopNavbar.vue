@@ -117,7 +117,7 @@ onMounted(() => {
     getDataCart()
   } 
 })
-const cartItemCount = computed(() => data.value.cartData.length)
+// const cartItemCount = computed(() => data.value.cartData.length)
 
 const logOut = () => {
   useAuth().logOut()
@@ -230,5 +230,11 @@ a {
 .navbar-user .user-icon {
   font-size: 20px;
   cursor: pointer;
+}
+
+@media screen (max-width: 767px) {
+  .navbar-container {
+    flex-direction: column;
+  }
 }
 </style>

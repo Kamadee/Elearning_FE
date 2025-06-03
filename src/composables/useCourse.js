@@ -66,12 +66,26 @@ const useCourse = () => {
     return null
   }
 
+  const getDataOrders = async () => {
+    const { _get } = useAPI()
+    const response = await _get('/api/customer/orders', {
+      headers: {
+        'X-Requires-Auth': 'false'
+      }
+    })
+    if (response) {
+      return response.data
+    }
+    return null
+  }
+
   return { 
     getDataCourses,
     getDetailCourse,
     addCourse,
     getVimeo,
-    getCourseTop
+    getCourseTop,
+    getDataOrders
   }
 }
 export default useCourse

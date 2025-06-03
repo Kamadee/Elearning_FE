@@ -9,12 +9,8 @@
 import AuthLayout from '@/layouts/AuthLayout.vue';
 import DefaultLayout from '@/layouts/DefaultLayout.vue';
 import FullScreenLayout from '@/layouts/FullScreenLayout.vue';
-import { computed, onMounted } from "vue";
+import { computed } from "vue";
 import { useRoute } from 'vue-router';
-
-onMounted(() => {
-  console.log(document.getElementById('app'))
-})
 
 const route = useRoute();
 const isAuthLayout = computed(() => {
