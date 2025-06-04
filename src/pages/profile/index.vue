@@ -149,7 +149,7 @@ onMounted(() => {
   setTimeout(() => {
     getDataProfile()
     getPaymentHistoryList()
-  })
+  }, 200)
 })
 
 function onEditProfile() {

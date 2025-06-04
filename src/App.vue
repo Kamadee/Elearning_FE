@@ -15,7 +15,7 @@ import { useRoute } from 'vue-router';
 const route = useRoute();
 const isAuthLayout = computed(() => {
   // chỉ định luôn những page nào sẽ dùng authLayout
-  return ['login', 'register', 'forgot-password', 'verifi-register'].includes(route.name);
+  return ['login', 'register', 'forgot-password', 'password-reset', 'verifi-register'].includes(route.name);
 })
 const isFullScreenLayout = computed(() => {
   return ['play-course'].includes(route.name)
