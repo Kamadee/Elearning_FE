@@ -18,6 +18,10 @@ import 'swiper/css/navigation'
 import 'swiper/css/pagination'
 import 'swiper/css/scrollbar'
 
+//Responsive CSS
+import './assets/css/nav-bar-responsive.css'
+import './assets/css/content-default-layout.css'
+
 import {
   ShoppingCartOutlined,
   UserOutlined,
@@ -27,7 +31,8 @@ import {
   EyeInvisibleOutlined,
   DeleteOutlined,
   LeftOutlined,
-  MenuOutlined
+  MenuOutlined,
+  CloseCircleOutlined
 } from '@ant-design/icons-vue'
 import Toast from 'vue-toastification';
 import 'vue-toastification/dist/index.css';
@@ -64,5 +69,6 @@ app.component('EyeInvisibleOutlined', EyeInvisibleOutlined)
 app.component('DeleteOutlined', DeleteOutlined)
 app.component('LeftOutlined', LeftOutlined)
 app.component('MenuOutlined', MenuOutlined)
+app.component('CloseCircleOutlined', CloseCircleOutlined)
 
 app.mount('#app')

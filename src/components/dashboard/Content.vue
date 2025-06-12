@@ -4,29 +4,30 @@
       autoplay
       :autoplay-speed="10000"
     >
-      <div>
-        <img class="banner" src="/images/banner-dashboard(1).jpg" alt="banner1" />
+      <div class="banner">
+        <img src="/images/banner-dashboard(1).jpg" alt="banner1" />
       </div>
-      <div>
-        <img class="banner" src="/images/banner-dashboard(2).jpg" alt="banner2" />
+      <div class="banner">
+        <img src="/images/banner-dashboard(2).jpg" alt="banner2" />
       </div>
     </a-carousel>
 
-    <div class="content-first">
+    <div class="content-first"> 
       <div class="let-start">
         <h2>Let's start learning</h2>
         <span>My learning</span>
       </div>
-
       <div class="explore">
-        <h3>Explore our course collection</h3>
-        <p>Choose from a vast selection of courses on the latest in-demand skills to achieve your goals.</p>
+        <div class="explore-text">
+          <h3>Explore our course collection</h3>
+          <p>Choose from a vast selection of courses on the latest in-demand skills to achieve your goals.</p>
+        </div>
         <button><span>Explore courses</span></button>
       </div>
 
       <div class="training">
         <p><span>Training 2 or more people?</span>Get your team access to Udemy's top 27,000+ courses</p>
-        <div style="display: flex; gap: 8px">
+        <div class="double-btn">
           <button class="udemy">Get Udemy Business</button>
           <button class="dismiss">Dismiss</button>
         </div>
@@ -92,7 +93,7 @@ const handleClickCard = async (id) => {
 
 
 <style scoped>
-.banner {
+.banner img {
   width: 100%;
   height: 400px;
   object-fit: contain;
@@ -166,13 +167,20 @@ const handleClickCard = async (id) => {
 }
 
 .training {
-  height: 72px;
+  min-height: 72px;
   display: flex;
   justify-content: space-between;
   border-radius: 8px;
   background-color: #16161d;
   align-items: center;
   padding: 16px;
+  width: 100%;
+}
+
+.double-btn {
+  display: flex;
+  gap: 8px;
+  width: 100%;
 }
 
 .training p {
@@ -193,6 +201,7 @@ const handleClickCard = async (id) => {
   font-weight: 700;
   border: none;
   padding: 8px 15px;
+  width: 180px;
 }
 
 .dismiss {
@@ -203,6 +212,7 @@ const handleClickCard = async (id) => {
   font-weight: 700;
   border: 1px solid #fff;
   padding: 8px 15px;
+  width: 85px;
 }
 
 .slide-container {

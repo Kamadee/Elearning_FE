@@ -8,7 +8,7 @@
         </div>
         <div v-else>
           <div class="sale-price">{{ formatCurrency(props.courseData.sale_off_price) }}</div>
-          <button class="button-incart" v-if="checkExistCart(props.courseData.id)" disabled v-loading="loadingStates" @click="removeItem(props.courseData.id)">Đã thêm vào giỏ</button>
+          <button class="button-incart" v-if="checkExistCart(props.courseData.id)" v-loading="loadingStates" @click="removeItem(props.courseData.id)">Đã thêm vào giỏ</button>
           <button class="button-cart" v-else v-loading="loadingStates"  @click="addCourse(props.courseData.id)">Đăng ký ngay</button>
         </div>
       </div>
@@ -26,7 +26,7 @@ import useCart from '@/composables/useCart';
 import { useNotify } from '@/composables/useNotify';
 import  { useCounterStore } from '@/stores/authStore'
 import { useRouter, useRoute } from 'vue-router';
-import { computed, onMounted, ref } from "vue"
+import { computed, onMounted, ref, watch } from "vue"
 
 const props = defineProps({
   courseData: {
@@ -34,6 +34,14 @@ const props = defineProps({
     required: true
   }
 })
+
+const stores = useCounterStore()
+const isAuthenticated = computed(() => stores.isLogged)
+const router = useRouter()
+const route = useRoute()
+const id = route.params.idCourse
+
+const loadingStates = ref(false)
 
 const data = ref({
   listCartId: [],
@@ -44,24 +52,25 @@ const getDataCarts = async () => {
   if(response) {
     data.value.listCartId = response.contents.map(content => content.course.id)
   }
+  return response.contents
 }
+
 onMounted(() => {
-  getDataCarts()
+  if(isAuthenticated.value) {
+    getDataCarts()
+  }
 })
 
-const checkExistCart = (id) => { return data.value.listCartId.some((cartId) => cartId == id) }
+const checkExistCart = (id) => { return data.value.listCartId.includes(id) }
+
+watch(() => route.params.idCourse, (newId) => {
+  checkExistCart(newId)
+})
 
 const canWatchVideo = computed(() => {
   return props.courseData.is_bought || props.courseData.sale_off_price == 0
 })
 
-const stores = useCounterStore()
-const isAuthenticated = computed(() => stores.isLogged)
-const router = useRouter()
-const route = useRoute()
-const id = route.params.idCourse
-
-const loadingStates = ref(false)
 const addCourse = async (id) => {
   loadingStates.value = true;
   try {
@@ -73,7 +82,7 @@ const addCourse = async (id) => {
       if(response) {
         const { notify } = useNotify()
         notify(`${response.message}: Thêm giỏ hàng thành công`, 'success')
-        router.push('/cart')
+        await getDataCarts()
       }
     } else {
       router.push('/login')
@@ -86,17 +95,15 @@ const addCourse = async (id) => {
 }
 
 const removeItem = async (id) => {
-  console.log('okkk');
-  console.log(id);
-  
   loadingStates.value = true
   try {
-    const response = await useCart().removeItem(id)
-    console.log(response);
-    
+    const contents = await getDataCarts()
+    const cartId = contents.filter((content) => content.course.id == id).map((content) => content.id)
+    const response = await useCart().removeItem(cartId)
     if(response) {
       const { notify } = useNotify()
       notify(`${response.message}: Xóa khỏi giỏ thành công`, 'success')
+      await getDataCarts()
     }
   } finally {
     setTimeout(() => {

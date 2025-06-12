@@ -1,12 +1,15 @@
 <template>
    <a-layout-header class="custom-navbar">
     <div class="navbar-container">
+      <!-- MenuOutlined -->
+      <MenuOutlined class="menu-outlined" @click="openSidebar"/>
+
       <!-- Logo -->
       <router-link to="/" class="navbar-logo">
         <img src="https://www.udemy.com/staticx/udemy/images/v7/logo-udemy.svg" alt="Logo" />
       </router-link>
-
-      <!-- Search -->
+      
+      <!-- Search for PC -->
       <div class="navbar-search">
         <a-input
           placeholder="Tìm kiếm khóa học..."
@@ -22,7 +25,7 @@
         </a-input>
       </div>
 
-      <!-- Menu Items -->
+      <!-- Menu Items PC -->
       <div class="navbar-menu">
         <a-dropdown>
           <a class="navbar-link">Khóa học</a>
@@ -37,6 +40,21 @@
 
         <router-link to="/blog" class="navbar-link">Bài viết</router-link>
 
+        <!-- Search for Mobile -->
+        <SearchOutlined class="navbar-search-mobile" @click="toggleOpenSearch"/>
+        <a-input
+          placeholder="Tìm kiếm khóa học..."
+          allow-clear
+          size="large"
+          class="mobile-search"
+          @keyup.enter="handleClickSearch"
+          v-model:value="data.keySearch"
+        >
+          <!-- <template #suffix>
+            <SearchOutlined @click="handleClickSearch"/>
+          </template> -->
+        </a-input>
+       
         <!-- Cart -->
         <router-link to="/cart" class="navbar-cart">
           <Badge v-if="isAuthenticated" :count="cartItemCount" :show-zero="true" offset="[0, 5]">
@@ -73,13 +91,25 @@
 </template>
 
 <script setup>
-import { computed, ref, onMounted, watch  } from "vue"
+import { computed, ref, onMounted  } from "vue"
 import  { useCounterStore } from '@/stores/authStore'
-import  useAuth from '@/composables/useAuth';
+import useAuth from '@/composables/useAuth';
 // import  useCourse from '@/composables/useCourse';
 import { useRouter } from 'vue-router';
 import useCart from "@/composables/useCart";
 import useCourse from "@/composables/useCourse";
+
+const stores = useCounterStore()
+const isAuthenticated = computed(() => stores.isLogged)
+
+const  emit = defineEmits(['send-data'])
+const openSidebar = () => {
+  stores.setIsOpenSidebar(true)
+  const isOpenSidebar = stores.getIsOpenSidebar
+  console.log(isOpenSidebar);
+  
+  emit('send-data', isOpenSidebar)
+}
 
 const links = ref([
   { name: 'profile', path: '/profile'},
@@ -93,9 +123,6 @@ const categories = ref([
   { name: 'Pilates', path: '/courses/pilates'},
   { name: 'Dance', path: '/courses/dance'},
 ]);
-
-const stores = useCounterStore()
-const isAuthenticated = computed(() => stores.isLogged) ;
 
 const data = ref({
   cartData: [],
@@ -160,10 +187,19 @@ const handleSearch = async (keySearch, page = data.value.page) => {
   }
 }
 
-
 const handleClickSearch = async () => {
   data.value.page = 1
   await handleSearch(data.value.keySearch, 1)
+}
+
+const toggleOpenSearch = () => {
+  const isOpen = !stores.getIsOpenSearch
+  stores.setIsOpenSearch(isOpen)
+  if(stores.getIsOpenSearch === true) {
+    document.querySelector('.mobile-search').style.display = 'block'
+  } else {
+    document.querySelector('.mobile-search').style.display = ''
+  }
 }
 </script>
 
@@ -182,8 +218,12 @@ a {
 .custom-navbar {
   background: white;
   box-shadow: 0 2px 8px #f0f1f2;
-  padding: 0 32px;
+  padding: 0 10px;
   width: 100%;
+}
+
+.menu-outlined {
+  display: none;
 }
 
 .navbar-container {
@@ -193,7 +233,7 @@ a {
 }
 
 .navbar-logo img {
-  height: 40px;
+ height: 40px; 
 }
 
 .navbar-search {
@@ -201,15 +241,24 @@ a {
   margin: 0 24px;
 }
 
+.navbar-search-mobile {
+  display: none;
+}
+
 .search-input {
   border-radius: 999px;
   padding-right: 36px;
+}
+
+.mobile-search {
+  display: none !important;
 }
 
 .navbar-menu {
   display: flex;
   align-items: center;
   gap: 16px;
+  position: relative;
 }
 
 .navbar-link {
@@ -230,11 +279,5 @@ a {
 .navbar-user .user-icon {
   font-size: 20px;
   cursor: pointer;
-}
-
-@media screen (max-width: 767px) {
-  .navbar-container {
-    flex-direction: column;
-  }
 }
 </style>
