@@ -3,6 +3,7 @@ import { defineStore } from 'pinia';
 export const useCounterStore = defineStore('auth', {
   state: () => ({
     token: localStorage.getItem('Authorization') || null,
+    userInfo: JSON.parse(localStorage.getItem('userInfo')) || null,
     dataSearch: [],
     keySearch: "",
     inCart: false,
@@ -12,6 +13,7 @@ export const useCounterStore = defineStore('auth', {
   }),
   getters: {
     isLogged: (state) => !!state.token,
+    getUser: (state) => state.userInfo,
     getDataSearch(state) {
       return state.dataSearch
     },
@@ -34,6 +36,9 @@ export const useCounterStore = defineStore('auth', {
   actions: {
     setToken(token) {
       this.token = token;
+    },
+    setUser(user) {
+      this.userInfo = user;
     },
     setDataSearch(dataSearch) {
       this.dataSearch = dataSearch

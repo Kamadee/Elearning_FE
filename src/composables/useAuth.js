@@ -7,19 +7,20 @@ import { jwtDecode } from 'jwt-decode'
 import { useNotify } from '@/composables/useNotify'
 
 const useAuth = () => {
+  const stores = useCounterStore()
   const { notify } = useNotify()
-  const authUser = reactive({ value: null });
+  const authUser = reactive({ value: null })
   const setUser = (user) => {
     if (user) {
-      authUser.value = user;
+      stores.setUser(user)
     } else {
-      console.error("User is undefined");
+      console.error("User is undefined")
     }
   };
 
   const setAuthenticated = (token, expiresTime) => {
     if (token) {
-      localStorage.setItem('Authorization', 'Bearer ' + token);
+      localStorage.setItem('Authorization', 'Bearer ' + token)
       localStorage.setItem('tokenExpiry',  expiresTime.toString())
     }
   };
@@ -27,34 +28,34 @@ const useAuth = () => {
   const login = async (email, password) => {
     const { _post } = useAPI()
     try {
-      const response = await _post('/api/customer/login', { email: email, password: password });
+      const response = await _post('/api/customer/login', { email: email, password: password })
       
       
       if (response.status === 200) {
         const token = response.access_token;
         const expiration = jwtDecode(token).exp * 1000;
   
-        setAuthenticated(token, expiration);
-        useCounterStore().setToken(token);
-        setUser(response.user)
-        
-        return authUser;
+        setAuthenticated(token, expiration)
+        useCounterStore().setToken(token)
+        useCounterStore().setUser(response.user)
+        localStorage.setItem('userInfo', JSON.stringify(response.user))
+        return authUser
       } else {
         // handleError(response);
-        return null;
+        return null
       }
     } catch (error) {
-        handleError(error);
+        handleError(error)
     }
   };
   
   const handleError = (error) => {
     const response = error.response?.data
-    console.log(response);
+    console.log(response)
     
     let messages = [];
     if (response?.status === 404) {
-      messages = [response?.error || 'Resource not found.'];
+      messages = [response?.error || 'Resource not found.']
     } else if (response?.status === 422) {
       const validatorError = response?.errors
       if(validatorError) {
@@ -63,12 +64,12 @@ const useAuth = () => {
         messages = [...emailValidate, ...passValidate]
       }
     } else {
-      messages = [response?.error || 'Password is incorrect'];
+      messages = [response?.error || 'Password is incorrect']
     }
     messages.forEach(msg => {
-      notify(msg, 'error');
-    });
-  };
+      notify(msg, 'error')
+    })
+  }
 
   const register = async (first_name, last_name, email, password) => {
     const { _post } = useAPI()
@@ -79,13 +80,13 @@ const useAuth = () => {
         email: email,
         password: password
       });
-      console.log(response);
+      console.log(response)
       
       if(response.status === 201) {
         return response
       } else {
         // handleError(response);
-        return null;
+        return null
       }
     } catch (error) {
       handleError(error)
@@ -106,6 +107,8 @@ const useAuth = () => {
     if(authToken) {
       localStorage.removeItem('Authorization')
       localStorage.removeItem('tokenExpiry')
+      useCounterStore.setUser(null)
+      localStorage.removeItem('userInfo')
       return true
     }
     return false
@@ -147,14 +150,14 @@ const useAuth = () => {
 
   const editProfile = async (firstName, lastName, phone) => {
     const { _patch } = useAPI()
-    console.log(firstName, lastName, phone);
+    console.log(firstName, lastName, phone)
     
     const response = await _patch(apiEndpoints.UPDATE_PROFILE, {
       first_name: firstName,
       last_name: lastName,
       phone: phone
     })
-    console.log(response);
+    console.log(response)
     
     if(response) {
       return response

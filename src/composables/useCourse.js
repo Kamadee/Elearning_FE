@@ -79,13 +79,43 @@ const useCourse = () => {
     return null
   }
 
+  const addReview = async (rating, comment, id) => {
+    const { _post } = useAPI()
+    const response = await _post(`/api/course/review/add/${id}`, {
+      course_id: id,
+      comment: comment,
+      rate: rating
+    })
+    if (response) {
+      return response
+    }
+    return null
+  }
+
+  const getDataReview = async (id, page, perPage) => {
+    const { _get } = useAPI()
+    const response = await _get(`/api/course/reiview/${id}`, {
+      page: page,
+      per_page: perPage,
+      headers: {
+        'X-Requires-Auth': 'false'
+      }
+    })
+    if (response) {
+      return response.data
+    }
+    return null
+  }
+
   return { 
     getDataCourses,
     getDetailCourse,
     addCourse,
     getVimeo,
     getCourseTop,
-    getDataOrders
+    getDataOrders,
+    addReview,
+    getDataReview
   }
 }
 export default useCourse

@@ -7,6 +7,9 @@
       <div class="related-container">
         <RelatedCourse :categoryList="data.categoryList"/>
       </div>
+      <div class="review-contaner">
+        <ReviewCourse />
+      </div>
     </div>
   </div>
 </template>
@@ -15,6 +18,7 @@
 import BannerCourse from '@/components/course/detail/BannerCourse.vue'
 import ContentCourse from '@/components/course/detail/ContentCourse.vue'
 import RelatedCourse from '@/components/course/detail/RelatedCourse.vue'
+import ReviewCourse from '@/components/course/detail/ReviewCourse.vue'
 import useCourse from '@/composables/useCourse';
 import { ref, watchEffect, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
@@ -67,6 +71,11 @@ watchEffect(() => {
 }
 
 .related-container {
+  display: flex;
+  width: 744px;
+}
+
+.review-contaner {
   display: flex;
   width: 744px;
 }
