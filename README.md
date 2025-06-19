@@ -1,35 +1,13 @@
-# elearning_fe
+# Elearning Landing Page (Frontend)
 
-This template should help get you started developing with Vue 3 in Vite.
+Giao diện trang khóa học trực tuyến của nền tảng Elearning. Xây dựng bằng Vue 3 và sử dụng component-based structure.
 
-## Recommended IDE Setup
+## 📦 Công nghệ
+- Vue 3 + Vite
+- Ant Design Vue
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+## 🚀 Cách chạy dự án
 
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-## Project Setup
-
-```sh
+```bash
 npm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
 npm run dev
-```
-
-### Compile and Minify for Production
-
-```sh
-npm run build
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-npm run lint
-```
