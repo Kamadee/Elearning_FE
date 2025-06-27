@@ -107,6 +107,24 @@ const useCourse = () => {
     return null
   }
 
+  const getCategoryBestOfUser = async () => {
+    const { _get } = useAPI()
+    const response = await _get('/api/course/customer/best-category')
+    if (response) {
+      return response.data
+    }
+    return null
+  }
+
+  const getNewCourses = async (id) => {
+    const { _get } = useAPI()
+    const response = await _get(`/api/course/notifications/new-courses/${id}`)
+    if (response) {
+      return response.data
+    }
+    return null
+  }
+
   return { 
     getDataCourses,
     getDetailCourse,
@@ -115,7 +133,9 @@ const useCourse = () => {
     getCourseTop,
     getDataOrders,
     addReview,
-    getDataReview
+    getDataReview,
+    getCategoryBestOfUser,
+    getNewCourses
   }
 }
 export default useCourse

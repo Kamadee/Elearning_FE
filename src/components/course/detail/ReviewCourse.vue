@@ -51,8 +51,8 @@
         </a-button>
       </div>
     </a-form>
-    <div v-if="data.dataReview.length > 0">
-      <div class="list-review" v-for="(review, index) in data.dataReview" :key="index">
+    <div class="list-review" v-if="data.dataReview.length > 0">
+      <div v-for="(review, index) in data.dataReview" :key="index">
         <ItemReview :reviewData="review" />
       </div>
     </div>
@@ -178,6 +178,12 @@ onMounted(() => {
 .star {
   font-size: 10px;
   display: flex;
+}
+
+.list-review {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
 }
 
 .non-review {

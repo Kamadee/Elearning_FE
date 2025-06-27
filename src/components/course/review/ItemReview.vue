@@ -1,7 +1,7 @@
 <template>
   <div class="card-review">
     <div class="right-card">
-      <img src="/images/img-signin.cba9a972.jpg" class="thumbnail-course">
+      <img src="/images/avatar-clone.jpg" class="thumbnail-course">
     </div>
     <div class="left-card">
       <div class="title-course">{{ props.reviewData.customer.first_name }}</div>

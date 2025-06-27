@@ -39,9 +39,12 @@
         </a-dropdown>
 
         <router-link to="/blog" class="navbar-link">Bài viết</router-link>
-
+        <AntBadge v-if="isAuthenticated && !isNotificationSeen" :count="1" @click="watchNotification" :show-zero="true" offset="[0, 5]">
+          <Notification :coursesNew="data.coursesNew" />
+        </AntBadge>
+        <Notification v-else :coursesNew="data.coursesNew" />
         <!-- Search for Mobile -->
-        <SearchOutlined class="navbar-search-mobile" @click="toggleOpenSearch"/>
+        <SearchOutlined class="navbar-search-mobile" @click="toggleOpenSearch" />
         <a-input
           placeholder="Tìm kiếm khóa học..."
           allow-clear
@@ -57,12 +60,12 @@
        
         <!-- Cart -->
         <router-link to="/cart" class="navbar-cart">
-          <Badge v-if="isAuthenticated" :count="cartItemCount" :show-zero="true" offset="[0, 5]">
+          <AntBadge v-if="isAuthenticated" :count="cartCount" :show-zero="true" offset="[0, 5]">
             <ShoppingCartOutlined class="icon" />
-          </Badge>
-          <Badge v-else offset="[0, 5]">
+          </AntBadge>
+          <AntBadge v-else offset="[0, 5]">
             <ShoppingCartOutlined class="icon" />
-          </Badge>
+          </AntBadge>
         </router-link>
 
         <!-- User -->
@@ -91,13 +94,14 @@
 </template>
 
 <script setup>
-import { computed, ref, onMounted  } from "vue"
+import { computed, ref, onMounted, watchEffect, watch  } from "vue"
 import  { useCounterStore } from '@/stores/authStore'
 import useAuth from '@/composables/useAuth';
 // import  useCourse from '@/composables/useCourse';
 import { useRouter } from 'vue-router';
 import useCart from "@/composables/useCart";
 import useCourse from "@/composables/useCourse";
+import Notification from '@/components/serviceType/notification/index.vue'
 
 const stores = useCounterStore()
 const isAuthenticated = computed(() => stores.isLogged)
@@ -106,8 +110,6 @@ const  emit = defineEmits(['send-data'])
 const openSidebar = () => {
   stores.setIsOpenSidebar(true)
   const isOpenSidebar = stores.getIsOpenSidebar
-  console.log(isOpenSidebar);
-  
   emit('send-data', isOpenSidebar)
 }
 
@@ -130,7 +132,9 @@ const data = ref({
   dataSearch: [],
   page: 1,
   per_page: 12,
-  total: 0
+  total: 0,
+  categoryId: "",
+  coursesNew: [],
 })
 const getDataCart = async () => {
   const response = await useCart().getDataCarts()
@@ -139,12 +143,53 @@ const getDataCart = async () => {
   }
 }
 
-onMounted(() => {
+// Xử lý chức năng Notification khóa học vừa dc thêm mới (sẽ dc lựa chọn theo các khóa học khớp với category
+// khóa học mà bạn mua nhiều nhất)
+const getCategoryBestOfUser = async () => {
+  const response = await useCourse().getCategoryBestOfUser()
+  if(response) {
+    data.value.categoryId = response
+  }
+}
+
+const getNewCourses = async () => {
+  const response = await useCourse().getNewCourses(data.value.categoryId)
+  const existingIds = new Set(data.value.coursesNew.map(course => course.id))
+  const result = response.filter(course => !existingIds.has(course.id))
+  return result
+}
+
+const isNotificationSeen = ref(localStorage.getItem('isNotificationSeen') === 'true')
+
+watch(isNotificationSeen, (newVal) => {
+  localStorage.setItem('isNotificationSeen', newVal.toString())
+})
+const pendingCourse = ref([])
+
+const watchNotification = () => {
+  isNotificationSeen.value = true
+  data.value.coursesNew.push(...pendingCourse.value)
+  pendingCourse.value = []
+}
+
+onMounted(async () => {
   if(isAuthenticated.value) {
     getDataCart()
-  } 
+    await getCategoryBestOfUser()
+    await getNewCourses()
+    setInterval(async () => {
+      const response = await getNewCourses()
+      if(response.length > 0) {
+        const newObjCourse = response.map((res) => { return { ...res, isSeen: false}})
+        pendingCourse.value = [...newObjCourse]
+        isNotificationSeen.value = false
+      }
+    }, 10000)
+  }
 })
-// const cartItemCount = computed(() => data.value.cartData.length)
+
+// const notificationCount = computed(() => data.value.coursesNew.length)
+const cartCount = computed(() => data.value.cartData.length)
 
 const logOut = () => {
   useAuth().logOut()

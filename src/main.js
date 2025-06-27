@@ -18,6 +18,12 @@ import 'swiper/css/navigation'
 import 'swiper/css/pagination'
 import 'swiper/css/scrollbar'
 
+// Jquery
+// import 'bootstrap-star-rating/css/star-rating.css';
+// import 'bootstrap-star-rating/js/star-rating';
+// import $ from 'jquery'
+// window.$ = window.jQuery = $
+
 //Responsive CSS
 import './assets/css/nav-bar-responsive.css'
 import './assets/css/content-default-layout.css'
@@ -32,8 +38,10 @@ import {
   DeleteOutlined,
   LeftOutlined,
   MenuOutlined,
-  CloseCircleOutlined
+  CloseCircleOutlined,
+  BellOutlined, 
 } from '@ant-design/icons-vue'
+import { Badge } from 'ant-design-vue'
 import Toast from 'vue-toastification';
 import 'vue-toastification/dist/index.css';
 
@@ -70,5 +78,7 @@ app.component('DeleteOutlined', DeleteOutlined)
 app.component('LeftOutlined', LeftOutlined)
 app.component('MenuOutlined', MenuOutlined)
 app.component('CloseCircleOutlined', CloseCircleOutlined)
+app.component('BellOutlined', BellOutlined)
+app.component('AntBadge', Badge)
 
 app.mount('#app')
