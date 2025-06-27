@@ -9,7 +9,8 @@ export const useCounterStore = defineStore('auth', {
     inCart: false,
     gettingData: false,
     isOpenSidebar: false,
-    isOpenSearch: false
+    isOpenSearch: false,
+    isDropDown: false
   }),
   getters: {
     isLogged: (state) => !!state.token,
@@ -31,6 +32,9 @@ export const useCounterStore = defineStore('auth', {
     },
     getIsOpenSearch(state) {
       return state.isOpenSearch
+    },
+    getIsDropDown(state) {
+      return state.isDropDown
     },
   },
   actions: {
@@ -57,6 +61,9 @@ export const useCounterStore = defineStore('auth', {
     },
     setIsOpenSearch(value) {
       this.isOpenSearch = value
+    },
+    setIsDropDown(value) {
+      this.isDropDown = value
     },
     removeToken() {
       this.token = null;
