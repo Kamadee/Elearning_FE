@@ -7,7 +7,7 @@
           <div class="card-course">
             <div class="thumbnail-course"><img :src="replaceUrlImage(course?.thumbnail || '')"></div>
             <div class="title-course">{{ course.title }}</div>
-            <div class="author-course">{{ course.author }}</div>
+            <div class="author-course">{{ course.authorDescription }}</div>
             <div class="price">
               <div class="sale-price">{{ formatCurrency(course.sale_off_price) }}</div>
               <div class="original-price"><del>{{ formatCurrency(course.original_price) }}</del></div>
