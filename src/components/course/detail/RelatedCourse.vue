@@ -132,6 +132,11 @@ const handleClickCard = async (id) => {
   margin-top: 8px;
   line-height: 1.4;
   color: #333;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .author-course {
