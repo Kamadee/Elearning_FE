@@ -39,11 +39,14 @@
         </a-dropdown>
 
         <router-link to="/blog" class="navbar-link">Bài viết</router-link>
-        <AntBadge v-if="isAuthenticated && !isNotificationSeen" :count="1" @click="watchNotification" :show-zero="true" offset="[0, 5]">
-          <Notification :coursesNew="data.coursesNew" />
-        </AntBadge>
-        <Notification v-else :coursesNew="data.coursesNew" />
-        <!-- Search for Mobile -->
+
+        <div class="navbar-notification">
+          <AntBadge v-if="isAuthenticated && !isNotificationSeen" :count="1" @click="watchNotification" :show-zero="true" offset="[0, 5]">
+            <Notification :coursesNew="data.coursesNew" />
+          </AntBadge>
+          <Notification v-else :coursesNew="data.coursesNew" />
+        </div>
+          <!-- Search for Mobile -->
         <SearchOutlined class="navbar-search-mobile" @click="toggleOpenSearch" />
         <a-input
           placeholder="Tìm kiếm khóa học..."
@@ -52,12 +55,8 @@
           class="mobile-search"
           @keyup.enter="handleClickSearch"
           v-model:value="data.keySearch"
-        >
-          <!-- <template #suffix>
-            <SearchOutlined @click="handleClickSearch"/>
-          </template> -->
-        </a-input>
-       
+        ></a-input>
+      
         <!-- Cart -->
         <router-link to="/cart" class="navbar-cart">
           <AntBadge v-if="isAuthenticated" :count="cartCount" :show-zero="true" offset="[0, 5]">
@@ -314,6 +313,16 @@ a {
 
 .navbar-link:hover {
   color: #1890ff;
+}
+
+.navbar-notification {
+  margin-top: -5px;
+}
+
+.navbar-cart {
+  display: flex;
+  align-items: center;
+  height: 100%;
 }
 
 .navbar-cart .icon {
