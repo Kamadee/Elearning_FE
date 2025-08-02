@@ -78,9 +78,12 @@ const markAsSeen = (course) => {
   top: 30px;
   padding: 20px 15px;
   z-index: 100;
-  background-color: rgb(27, 26, 26);
+  color: black;
+  font-weight: bold !important;
+  background-color: white;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgb(183, 183, 183);
   border-radius: 15px;
-  color: white;
   overflow-y: auto;
   scroll-behavior: smooth;
 }

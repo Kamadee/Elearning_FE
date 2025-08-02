@@ -13,7 +13,7 @@ import ListBlog from '@/components/serviceType/blog/ListBlog.vue'
 .banner-blog {
   width: 100%;
   height: 309px;
-  object-fit: contain;
+  object-fit: cover;
 }
 /* Tablet */
 @media (max-width: 1024px) {

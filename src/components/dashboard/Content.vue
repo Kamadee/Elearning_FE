@@ -1,46 +1,25 @@
 <template>
   <div class="content-wrapper">
-    <a-carousel
-      autoplay
-      :autoplay-speed="10000"
-    >
-      <div class="banner">
-        <img src="/images/banner-dashboard(1).jpg" alt="banner1" />
-      </div>
-      <div class="banner">
-        <img src="/images/banner-dashboard(2).jpg" alt="banner2" />
-      </div>
-    </a-carousel>
+    <div class="banner">
+      <img :src="imageSrc" alt="banner1" />
+    </div>
 
     <div class="content-first"> 
-      <div class="let-start">
-        <h2>Let's start learning</h2>
-        <span>My learning</span>
-      </div>
-      <div class="explore">
-        <div class="explore-text">
-          <h3>Explore our course collection</h3>
-          <p>Choose from a vast selection of courses on the latest in-demand skills to achieve your goals.</p>
-        </div>
-        <button><span>Explore courses</span></button>
-      </div>
-
       <div class="training">
-        <p><span>Training 2 or more people?</span>Get your team access to Udemy's top 27,000+ courses</p>
+        <p>Đào tạo 2 người trở lên? Cho phép nhóm của bạn tiếp cận hơn 27.000 khóa học hàng đầu của Udemy</p>
         <div class="double-btn">
-          <button class="udemy">Get Udemy Business</button>
-          <button class="dismiss">Dismiss</button>
+          <button class="udemy">Nhận Udemy Business</button>
+          <button class="dismiss">Học viên</button>
         </div>
       </div>
 
       <div class="top-course">
-        <h2>Top course</h2>
+        <h2>Top khóa học hàng đầu</h2>
         <div class="slide-container">
           <swiper
-            :slides-per-view="4"
-            space-between="16"
             :modules="[Navigation]"
             navigation
+            :breakpoints="breakpoints"
           >
             <swiper-slide v-for="(course, index) in data.hotList" :key="index">
               <ItemHot :course="course" v-loading="loadingStates[course.id]" @clickCard="handleClickCard" />
@@ -54,7 +33,7 @@
 
 <script setup>
 import ItemHot from '@/components/course/ItemHot.vue'
-import { onMounted, ref } from 'vue'
+import { onBeforeMount, onMounted, ref } from 'vue'
 import useCourse from '@/composables/useCourse'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import { Navigation } from 'swiper/modules'
@@ -66,6 +45,34 @@ const data = ref({
   hotList: [],
 })
 
+const breakpoints = {
+  320: {
+    slidesPerView: 1,
+    spaceBetween: 12,
+  },
+  640: {
+    slidesPerView: 2,
+    spaceBetween: 16,
+  },
+  768: {
+    slidesPerView: 3,
+    spaceBetween: 16,
+  },
+  1024: {
+    slidesPerView: 4,
+    spaceBetween: 16,
+  },
+};
+
+const imageSrc = ref('/images/banner-content-desktop.jpg')
+const updateImage = () => {
+  if(window.innerWidth < 768) {
+    imageSrc.value = '/images/banner-content-mobile.jpg'
+  } else {
+    imageSrc.value = '/images/banner-content-desktop.jpg'
+  }
+}
+
 const getCourseTop = async () => {
   const response = await useCourse().getCourseTop()
   if(response) {
@@ -75,6 +82,11 @@ const getCourseTop = async () => {
 
 onMounted(() => {
   getCourseTop()
+  window.addEventListener('resize', updateImage)
+})
+
+onBeforeMount(() => {
+  window.removeEventListener('resize', updateImage)
 })
 
 const loadingStates = ref({})
@@ -87,16 +99,22 @@ const handleClickCard = async (id) => {
       loadingStates.value[id] = false
     }, 2000);
   }
-  
 }
+
+
 </script>
 
 
 <style scoped>
+.content-wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
 .banner img {
   width: 100%;
   height: 400px;
-  object-fit: contain;
+  object-fit: cover;
 }
 
 :deep(.ant-carousel .slick-slide) {
@@ -107,15 +125,16 @@ const handleClickCard = async (id) => {
 }
 
 .content-first {
-  margin: 80px 35px;
+  padding: 40px 35px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 15px;
 }
 
 .let-start {
   display: flex;
   justify-content: space-between;
+  align-items: center;
 }
 
 .let-start h2 {
@@ -167,7 +186,6 @@ const handleClickCard = async (id) => {
 }
 
 .training {
-  min-height: 72px;
   display: flex;
   justify-content: space-between;
   border-radius: 8px;
@@ -179,6 +197,7 @@ const handleClickCard = async (id) => {
 
 .double-btn {
   display: flex;
+  justify-content: flex-end;
   gap: 8px;
   width: 100%;
 }
@@ -212,16 +231,86 @@ const handleClickCard = async (id) => {
   font-weight: 700;
   border: 1px solid #fff;
   padding: 8px 15px;
-  width: 85px;
+  width: 95px;
 }
 
+.top-course h2 {
+  font-family: SuisseWorks;
+  font-size: 35px;
+  font-weight: 700;
+  line-height: 39px;
+}
+:deep(.swiper) {
+  width: 100% !important;
+}
+
+:deep(.swiper-wrapper) {
+  width: 100% !important;
+}
+
+:deep(.swiper-slide) {
+  box-sizing: border-box;
+}
 .slide-container {
   width: 100%;
-  padding: 20px;
 }
 
 .swiper-slide {
   display: flex;
   justify-content: center;
+}
+
+@media screen and (max-width:767px) {
+  .banner {
+    width: 100%;
+    object-fit: contain;
+  }
+  .banner img {
+    height: 200px !important;
+  }
+  .content-first {
+    margin-top: -10px;
+  }
+  .explore-text {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+  .explore-text {
+    flex: 1;
+  }
+  .explore button {
+    white-space: nowrap;
+    height: fit-content;
+    margin-top: 0.5rem;
+  }
+  .let-start h2 {
+    font-size: 25px !important;
+  }
+  .let-start span {
+    font-size: 20px !important;
+    margin-top: -12px;
+  }
+  .training {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    padding: 10px;
+  }
+  .training p {
+    text-align: center;
+  }
+  .double-btn {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  .double-btn button {
+    width: 70% !important;
+  }
 }
 </style>

@@ -64,19 +64,34 @@ watchEffect(() => {
 }
 
 .main-courses {
-  margin: 40px 100px;
   display: flex;
   flex-direction: column;
+  padding: 40px 80px;
   gap: 30px;
 }
 
 .related-container {
   display: flex;
-  width: 744px;
+  width: 65%;
 }
 
 .review-contaner {
   display: flex;
-  width: 744px;
+  width: 65%;
+}
+
+@media screen and (max-width:767px) {
+  .main-courses {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    padding: 10px;
+  }
+  .related-container {
+    width: 100%;
+  }
+  .review-contaner {
+    width: 100%;
+  }
 }
 </style>

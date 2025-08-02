@@ -1,5 +1,31 @@
 <template>
-  <div class="card-course">
+  <!-- Layout Mobile -->
+  <div v-if="isMobile" class="card-course">
+    <div class="right-card" @click="handleClickCard"> 
+      <div>
+        <img :src="replaceUrlImage(props.dataSearch.thumbnail)" class="thumbnail-course">
+      </div>
+      <div>
+        <div class="title-course">{{ props.dataSearch.title }}</div>
+        <div class="author-course">{{ props.dataSearch.author }}</div>
+        <div class="price-course">
+          <div class="price-sale">{{ formatCurrency(props.dataSearch.sale_off_price) }}</div>
+          <div class="price-original"><del>{{ formatCurrency(props.dataSearch.original_price) }}</del></div>
+        </div>
+        <div class="left-card">
+          <button class="btn-watch" v-if="canWatchVideo" @click.stop="onWatchCourse">Xem ngay</button>
+          <div v-else>
+            <button class="btn-exist-cart" v-if="isAuthenticated && checkExistCart(props.dataSearch.id)">Đã thêm giỏ hàng</button>
+            <button class="btn-cart" v-else @click.stop="addCourse(props.dataSearch.id)">Thêm giỏ hàng</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+
+  <!-- Layout PC -->
+  <div v-else class="card-course">
     <div class="right-card" @click="handleClickCard"> 
       <div>
         <img :src="replaceUrlImage(props.dataSearch.thumbnail)" class="thumbnail-course">
@@ -8,7 +34,6 @@
         <div class="title-course">{{ props.dataSearch.title }}</div>
         <div class="description-course">{{ props.dataSearch.description }}</div>
         <div class="author-course">{{ props.dataSearch.author }}</div>
-        <div class="time-course">{{ props.dataSearch.course_duration }}</div>
         <div class="price-course">
           <div class="price-sale">{{ formatCurrency(props.dataSearch.sale_off_price) }}</div>
           <div class="price-original"><del>{{ formatCurrency(props.dataSearch.original_price) }}</del></div>
@@ -31,7 +56,7 @@ import { formatCurrency } from '@/utils/formatCurrency'
 import useCart from '@/composables/useCart';
 import { useNotify } from '@/composables/useNotify';
 import  { useCounterStore } from '@/stores/authStore'
-import { computed, ref, onMounted } from "vue"
+import { computed, ref, onMounted, onBeforeMount } from "vue"
 import { useRouter } from 'vue-router';
 
 const props = defineProps({
@@ -47,6 +72,14 @@ const data = ref({
 
 const stores = useCounterStore()
 const isAuthenticated = computed(() => stores.isLogged);
+const isMobile = ref(false)
+const updateLayout = () => {
+  if(window.innerWidth < 768) {
+    isMobile.value = true
+  } else {
+    isMobile.value = false
+  }
+}
 
 const getDataCarts = async () => {
   if(isAuthenticated.value) {
@@ -65,6 +98,11 @@ onMounted(() => {
   if(isAuthenticated.value) {
     getDataCarts()
   }
+  window.addEventListener('resize', updateLayout)
+})
+
+onBeforeMount(() => {
+  window.removeEventListener('resize', updateLayout)
 })
 
 const emit = defineEmits(['ClickCard'])
@@ -140,6 +178,11 @@ const onWatchCourse = async () => {
 .title-course {
   font-weight: bold;
   font-size: 18px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .left-card {
@@ -203,5 +246,20 @@ const onWatchCourse = async () => {
 .btn-cart:hover {
   background-color: rgb(230, 197, 9);
   color: black;
+}
+@media screen and (max-width:767px) {
+  .card-course {
+    display: flex;
+    justify-content: flex-start;
+    gap: 140px;
+    border-top: 1px solid #d3d3d3;
+    padding: 15px 15px;
+    border: 1px solid rgb(210, 210, 210);
+    border-radius: 10px;
+  }
+  .thumbnail-course {
+    width: 70px;
+    height: 70px;
+  }
 }
 </style>

@@ -1,8 +1,7 @@
 <template>
   <div class="cart-wrapper">
     <div class="list-course" v-if="data.cartData.length > 0">
-      <h1 style="font-weight: bold">Shopping cart</h1>
-      <h3 class="count-cart">Có {{ data.cartData.length }} trong giỏ hàng</h3>
+      <h1 style="font-weight: bold; text-align: center;">Giỏ hàng</h1>
       <div class="card-course" v-for="(cart, index) in data.cartData" :key="index">
         <ItemCart :cartData="cart" v-loading="loadingStates[cart.id]" @removeItem="removeItem"/>
       </div>
@@ -35,7 +34,6 @@ const getDataCarts = async () => {
   if(response) {
     data.value.cartData = response.contents
     data.value.prices = response.contents.map((item) => item.price)
-    console.log(data.value.prices);
   }
 }
 onMounted(() => {
@@ -64,7 +62,7 @@ const removeItem = async (id) => {
 
 <style scoped>
 .cart-wrapper {
-  margin: 35px 60px;
+  padding: 35px 60px;
   display: flex;
   gap: 40px;
 }
@@ -93,5 +91,13 @@ const removeItem = async (id) => {
   padding: 20px;
   border-radius: 8px;
   height: 130px;
-} 
+}
+
+@media screen and (max-width:767px) {
+  .cart-wrapper {
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+  }
+}
 </style>

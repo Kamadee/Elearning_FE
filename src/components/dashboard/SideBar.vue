@@ -1,24 +1,34 @@
 <template>
   <div class="sidebar-mobile">
     <div class="sidebar-user">
-      <a-menu v-if="isAuthenticated">
-        <a-menu-item v-for="(link, i) in links" :key="i">
-          <router-link :to="link.path" class="link-item">{{ link.name }}</router-link>
-        </a-menu-item>
-        <a-menu-item @click="logOut()">Đăng xuất</a-menu-item>
-      </a-menu>
-      <router-link v-else class="link-item" to="/login">Đăng nhập</router-link>
+      <div class="user-infor" v-if="isAuthenticated">
+        <button @click="goProfile" class="link-profile">
+          <div class="avatar"><UserOutlined /></div>
+          <div class="user-name">Hi {{ userInfo.first_name + '' + userInfo.last_name }}</div>
+        </button>
+        <div style="padding: 10px" :class="{ 'seleccted-menu': currentPath == 'history' }">
+          <router-link to="/history" @click="handleLinkClick" class="navbar-link">History</router-link>
+        </div>
+        <!-- <a-menu-item @click="logOut()">Đăng xuất</a-menu-item> -->
+      </div>
+      <div v-else style="display: flex; flex-direction: column;">
+        <router-link  class="link-item" to="/login">Đăng nhập</router-link>
+        <router-link class="link-item" to="/register">Đăng ký</router-link>
+      </div>
     </div>
+    <hr>
 
     <div class="sidebar-menu">
       <div class="navbar-link">Khóa học</div>
       <a-menu>
-        <a-menu-item v-for="(category, i) in categories" :key="i">
-          <router-link class="link-item" :to="category.path">{{ category.name }}</router-link>
+        <a-menu-item v-for="(category, i) in categories" :key="i" :class="{ 'seleccted-menu': currentTypeCourse == category.name }">
+          <router-link class="link-item" :to="category.path" @click="handleLinkClick">{{ category.name }}</router-link>
         </a-menu-item>
       </a-menu>
-
-      <router-link to="/blog" class="navbar-link">Bài viết</router-link>
+    </div>
+    <hr>
+    <div style="padding: 10px;" :class="{ 'seleccted-menu': currentPath == 'blog' }">
+      <router-link to="/blog" @click="handleLinkClick" class="navbar-link">Bài viết</router-link>
     </div>
   </div>
 </template>
@@ -26,16 +36,7 @@
 <script setup>
 import { computed, ref  } from "vue"
 import  { useCounterStore } from '@/stores/authStore'
-// import useAuth from '@/composables/useAuth';
-// // import  useCourse from '@/composables/useCourse';
-import { useRouter } from 'vue-router';
-// import useCart from "@/composables/useCart";
-// import useCourse from "@/composables/useCourse";
-
-const links = ref([
-  { name: 'profile', path: '/profile'},
-  { name: 'history', path: '/history'},
-]);
+import { useRoute, useRouter } from "vue-router";
 
 const categories = ref([
   { name: 'Fitness', path: '/courses/fitness'},
@@ -46,7 +47,24 @@ const categories = ref([
 ]);
 
 const stores = useCounterStore()
+const router = useRouter()
+const route = useRoute()
 const isAuthenticated = computed(() => stores.isLogged)
+const userInfo = computed(() => stores.getUser)
+
+const handleLinkClick = () => {
+  stores.setIsOpenSidebar(false)
+}
+const goProfile = () => {
+  handleLinkClick()
+  router.push('/profile')
+}
+const currentPath = () => {
+  route.path.split('/')[1]
+}
+const currentTypeCourse = () => {
+  route.path.split('/')[2]
+}
 </script>
 
 
@@ -54,38 +72,69 @@ const isAuthenticated = computed(() => stores.isLogged)
 .sidebar-mobile {
   display: flex;
   flex-direction: column;
-  gap: 30px;
   position: relative;
   background-color: #fff;
   color: black;
   width: 281px;
   height: 100vh;
-  padding: 20px;
   top: 0px;
 }
 .sidebar-user .user-icon {
   font-size: 20px;
   cursor: pointer;
-  border-bottom: 1px solid gray;
+}
+.user-infor {
+  display: flex;
+  flex-direction: column;
+}
+.link-profile {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-start;
+  align-items: center;
+  border: none;
+  background-color: rgb(248, 245, 245);
+  padding: 10px;
 }
 .navbar-link {
   color: rgba(0, 0, 0, 0.85);
   font-weight: 600;
   cursor: pointer;
-  border-bottom: 1px solid gray;
   text-decoration: none;
 }
 .navbar-link:hover {
   color: #1890ff;
 }
+.avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: black;
+  color: white;
+  border-radius: 100%;
+  width: 55px;
+  height: 55px;
+}
 .link-item {
   text-decoration: none;
-  color: black;
+  color: #A435E0;
+  padding: 5px 10px;
+}
+.sidebar-menu {
+  padding: 10px;
 }
 .close-circle {
   position: absolute;
   right: -50px;
   top: 30px;
   font-size: 40px;
+}
+hr {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+.seleccted-menu {
+  color: #A435E0;
+  font-weight: bold;
 }
 </style>

@@ -3,7 +3,6 @@
     <div class="card-blog" @click="handleClickCard">
       <div class="thumbnail-blog"><img :src="replaceUrlImage(blog.thumbnail)" alt=""></div>
       <div class="title-blog">{{ blog.title }}</div>
-      <div class="description-blog">{{ blog.description }}</div>
   </div>
   </div>
 </template>
@@ -27,14 +26,14 @@ const handleClickCard = () => {
 <style scoped>
 .card-wrapper {
   width: 100%;
-  height: 100%;
+  height: 250px;
 }
 .card-blog {
   height: 100%;
   display: flex;
   flex-direction: column;
   background-color: #fff;
-  border: 1px solid #eee;
+  border: 1px solid rgb(171, 169, 169);
   border-radius: 8px;
   overflow: hidden;
   transition: box-shadow 0.3s;

@@ -47,15 +47,7 @@
           <Notification v-else :coursesNew="data.coursesNew" />
         </div>
           <!-- Search for Mobile -->
-        <SearchOutlined class="navbar-search-mobile" @click="toggleOpenSearch" />
-        <a-input
-          placeholder="Tìm kiếm khóa học..."
-          allow-clear
-          size="large"
-          class="mobile-search"
-          @keyup.enter="handleClickSearch"
-          v-model:value="data.keySearch"
-        ></a-input>
+        <SearchOutlined class="icon-search-mobile" @click="toggleOpenSearch" />
       
         <!-- Cart -->
         <router-link to="/cart" class="navbar-cart">
@@ -89,11 +81,11 @@
       </div>
     </div>
   </a-layout-header>
-
+  
 </template>
 
 <script setup>
-import { computed, ref, onMounted, watchEffect, watch  } from "vue"
+import { computed, ref, onMounted, watch  } from "vue"
 import  { useCounterStore } from '@/stores/authStore'
 import useAuth from '@/composables/useAuth';
 // import  useCourse from '@/composables/useCourse';
@@ -237,13 +229,7 @@ const handleClickSearch = async () => {
 }
 
 const toggleOpenSearch = () => {
-  const isOpen = !stores.getIsOpenSearch
-  stores.setIsOpenSearch(isOpen)
-  if(stores.getIsOpenSearch === true) {
-    document.querySelector('.mobile-search').style.display = 'block'
-  } else {
-    document.querySelector('.mobile-search').style.display = ''
-  }
+  stores.setIsOpenSearch(true)
 }
 </script>
 
@@ -282,14 +268,17 @@ a {
 
 .navbar-search {
   flex-grow: 1;
+  display: flex;
+  justify-content: center;
   margin: 0 24px;
 }
 
-.navbar-search-mobile {
+.icon-search-mobile {
   display: none;
 }
 
 .search-input {
+  width: 70%;
   border-radius: 999px;
   padding-right: 36px;
 }
@@ -317,6 +306,7 @@ a {
 
 .navbar-notification {
   margin-top: -5px;
+  cursor: pointer;
 }
 
 .navbar-cart {

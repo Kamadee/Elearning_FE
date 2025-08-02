@@ -145,16 +145,16 @@ h3 {
   transform: translateX(25px);
 }
 .fui-checkbox-toggle .toggle-bar {
-  width: 50px;
-  height: 25px;
+  width: 40px;
+  height: 20px;
   background-color: #cbd5e1;
   border-radius: 5rem;
   padding: 3px;
   transition: background-color 0.2s linear;
 }
 .fui-checkbox-toggle .toggle-spin {
-  width: 19px;
-  height: 19px;
+  width: 14px;
+  height: 14px;
   border-radius: 100rem;
   background-color: #fff;
   transition: transform 0.2s linear;

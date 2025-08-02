@@ -2,18 +2,25 @@
   .navbar-container {
     display: flex;
     justify-content: space-between;
+    position: relative
   }
   .menu-outlined {
     display: block !important;
   }
   .navbar-logo {
     margin: 0 auto;
+    position: absolute;
+    left: 50%; /* Đặt phần tử ở giữa */
+    transform: translateX(-50%);
+  }
+  .navbar-notification {
+    display: none;
   }
   .navbar-logo img {
     height: 30px !important;
    }
   .navbar-search {
-    display: none;
+    display: none !important;
   }
   .navbar-user {
     display: none;
@@ -21,7 +28,7 @@
   .navbar-menu .navbar-link {
     display: none;
   }
-  .navbar-search-mobile {
+  .icon-search-mobile {
     display: block !important;
   }
   .mobile-search {

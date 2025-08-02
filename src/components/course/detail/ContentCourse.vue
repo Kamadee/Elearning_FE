@@ -2,7 +2,7 @@
   <div class="content-wrapper">
     <div class="content-left">
       <div class="course-tile"></div>
-      <a-tabs v-model:activeKey="activeKey">
+      <a-tabs style="width: 100%;" v-model:activeKey="activeKey">
         <a-tab-pane key="1" tab="Tổng quan">
           <p>{{ courseData.description }}</p>
         </a-tab-pane>
@@ -73,7 +73,6 @@ const lectures = computed(() =>
 .content-wrapper {
   display: flex;
   gap: 35px;
-  /* margin: 40px 100px; */
 }
 
 .content-left {
@@ -82,6 +81,23 @@ const lectures = computed(() =>
 
 .content-right {
   flex: 2;
+}
+@media screen and (max-width:767px) {
+  .main-courses {
+    padding: 10px;
+  }
+  .content-wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    /* align-items: center; */
+    gap: 35px;
+  }
+  .content-left {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
 }
 </style>
 

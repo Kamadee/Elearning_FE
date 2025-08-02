@@ -1,33 +1,37 @@
-<template>
-  <div class="wrapper">
-    <div class="navbar"><TopNavbar @send-data="handleDataFromNav"/></div>
-    <div
-      v-if="isOpenSidebar"
-      class="overlay"
-      @click="handleDataFromNav(false)"
-    ></div>
-    <div class="sidebar"><SideBar v-if="isOpenSidebar"/></div>
-    <div class="main"><router-view :key="$route.fullPath"/></div>
-    <div class="footer"><Footer /></div>
-  </div>
-</template>
+  <template>
+    <div class="wrapper">
+      <div class="navbar"><TopNavbar @send-data="handleDataFromNav"/></div>
+      <div
+        v-if="isOpenSidebar"
+        class="overlay"
+        @click="handleDataFromNav(false)"
+      ></div>
+      <div class="sidebar"><SideBar v-if="isOpenSidebar"/></div>
+      <div class="main"><router-view :key="$route.fullPath"/></div>
+      <div class="footer"><Footer /></div>
+      <SearchMobile v-if="isOpenSearch" class="search-container-mobile"/>
+    </div>
+  </template>
 
 <script setup>
-import { ref } from 'vue'
-import TopNavbar from '../components/dashboard/TopNavbar.vue';
-import Footer from '../components/dashboard/Footer.vue';
-import SideBar from '../components/dashboard/SideBar.vue';
+import { computed, ref, watch } from 'vue'
+import  { useCounterStore } from '@/stores/authStore'
+import TopNavbar from '../components/dashboard/TopNavbar.vue'
+import Footer from '../components/dashboard/Footer.vue'
+import SideBar from '../components/dashboard/SideBar.vue'
+import SearchMobile from '@/components/search/SearchMobile.vue'
 
-const isOpenSidebar = ref(false)
+const isOpenSidebar = computed(() => stores.getIsOpenSidebar)
+const stores = useCounterStore()
+const isOpenSearch = computed(() => stores.getIsOpenSearch)
 
 const handleDataFromNav = (value) => {
-  isOpenSidebar.value = value
-  if(isOpenSidebar.value) {
-    document.body.style.overflow = 'hidden'
-  } else {
-    document.body.style.overflow = ''
-  }
+  stores.setIsOpenSidebar(value)
 }
+
+watch(() => stores.getIsOpenSidebar, (newVal) => {
+  document.body.style.overflow = newVal ? 'hidden' : ''
+})
 </script>
 <style scoped>
 .wrapper {
@@ -67,5 +71,11 @@ const handleDataFromNav = (value) => {
 .footer {
   flex-shrink: 0;
 }
-
+.search-container-mobile {
+  background-color: white;
+  min-height: 100vh;
+  width: 100%;
+  position: fixed;
+  z-index: 10000;
+}
 </style>

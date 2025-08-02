@@ -1,24 +1,23 @@
 <template>
   <div class="related-course-container">
-    <p>Khóa học liên quan</p>
-    <a-row :gutter="[16, 16]">
-      <a-col :xs="24" :sm="12" :md="6" v-for="(course, index) in data.relatedCourses" :key="index" style="display:flex;">
-        <div class="card-wrapper" v-loading="loadingStates[course.id]" @click="handleClickCard(course.id)">
-          <div class="card-course">
-            <div class="thumbnail-course"><img :src="replaceUrlImage(course?.thumbnail || '')"></div>
-            <div class="title-course">{{ course.title }}</div>
-            <div class="author-course">{{ course.author }}</div>
-            <div class="price">
-              <div class="sale-price">{{ formatCurrency(course.sale_off_price) }}</div>
-              <div class="original-price"><del>{{ formatCurrency(course.original_price) }}</del></div>
-            </div>
-            <div class="category-list">
-              <div class="category-course" v-for="(category, index) in course.course_categories" :key="index">{{ category.category_name }}</div>
-            </div>
-          </div>
+    <p style="font-weight: bold;">Khóa học liên quan</p>
+    <ul v-for="(course, index) in data.relatedCourses" :key="index">
+      <li class="items" v-loading="loadingStates[course.id]" @click="handleClickCard(course.id)">
+        <div class="thumbnail-course"><img :src="replaceUrlImage(course?.thumbnail || '')"></div>
+        <div class="title-main">
+          <div class="title-course">{{ course.title }}</div>
+          <div class="author-course">{{ course.author }}</div>
         </div>
-      </a-col>
-    </a-row>
+        <div class="price">
+          <div class="sale-price">{{ formatCurrency(course.sale_off_price) }}</div>
+          <div class="original-price"><del>{{ formatCurrency(course.original_price) }}</del></div>
+        </div>
+        <div class="category-list">
+          <div class="category-course" v-for="(category, index) in course.course_categories" :key="index">{{ category.category_name }}</div>
+        </div>
+      </li>
+      <hr style="margin-bottom: 10px">
+    </ul>
   </div>
 </template>
 
@@ -52,7 +51,7 @@ const getCoursesRelated = async (page = data.value.page) => {
   }
   const response = await useCourse().getDataCourses(filterData)
   if(response) {
-    data.value.relatedCourses = response.data
+    data.value.relatedCourses = response.data.slice(0, 4)
     data.value.page = response.current_page
     data.value.per_page = response.per_page
     data.value.total = response.total
@@ -86,12 +85,9 @@ const handleClickCard = async (id) => {
 }
 </script>
  <style scoped>
- .card-wrapper {
+.card-course {
   width: 100%;
   height: 380px;
-}
-.card-course {
-  height: 100%;
   display: flex;
   flex-direction: column;
   background-color: #fff;
@@ -106,30 +102,29 @@ const handleClickCard = async (id) => {
   box-shadow: 0 8px 10px rgba(62, 62, 62, 0.1);
 }
 
-.thumbnail-course {
-  flex: 0 0 66.6666%;
-  overflow: hidden;
+.items {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
+  gap: 15px;
 }
-
+.thumbnail-cours {
+  flex: 1;
+}
 .thumbnail-course img {
-  width: 100%;
-  height: 100%;
+  width: 65px;
+  height: 65px;
   object-fit: cover;
-  border-radius: 6px;
   transition: transform 0.3s ease;
 }
-
-.thumbnail-course img:hover {
-  transform: scale(1.15);
+.title-main {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
-
 .title-course {
   font-weight: bold;
   font-size: 16px;
-  margin-top: 8px;
   line-height: 1.4;
   color: #333;
   display: -webkit-box;
@@ -138,31 +133,24 @@ const handleClickCard = async (id) => {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-
-.author-course {
-  color: gray;
-  font-size: 12px;
-}
-
 .price {
+  flex: 1;
   display: flex;
-  gap: 10px;
+  justify-content: center;
+  flex-direction: column;
 }
-
 .sale-price {
   font-weight: bold;
 }
-
 .original-price {
   color: gray;
 }
-
 .category-list {
+  flex: 1;
   display: flex;
-  gap: 8px;
-  margin-top: 8px;
+  justify-content: center;
+  align-items: center;
 }
-
 .category-course {
   background-color: rgba(8, 239, 46, 0.2);
   color: rgb(71, 16, 147);
@@ -174,5 +162,15 @@ const handleClickCard = async (id) => {
 
 .category-course:hover {
   transform: scale(1.05);
+}
+
+@media screen and (max-width:767px) {
+  .related-course-container {
+    width: 100%;
+    margin-top: 20px;
+  }
+  ul {
+    margin-left: -20px;
+  }
 }
  </style>

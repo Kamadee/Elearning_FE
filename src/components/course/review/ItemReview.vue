@@ -35,6 +35,7 @@ const props = defineProps({
 <style scoped>
 .card-review {
   display: flex;
+  width: 100%;
   gap: 30px;
   border-top: 1px solid #d3d3d3;
   padding: 15px 15px;

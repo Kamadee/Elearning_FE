@@ -3,9 +3,7 @@
     <div class="card-course">
       <div class="thumbnail-course"><img :src="replaceUrlImage(props.courseData?.thumbnail || '')"></div>
       <div>
-        <div v-if="canWatchVideo" @click="onWatchCourse">
-          <button  class="button-watch">Xem ngay</button>
-        </div>
+        <button v-if="canWatchVideo" @click="onWatchCourse" class="button-watch">Xem ngay</button>
         <div v-else>
           <div class="sale-price">{{ formatCurrency(props.courseData.sale_off_price) }}</div>
           <button class="button-incart" v-if="checkExistCart(props.courseData.id)" v-loading="loadingStates" @click="removeItem(props.courseData.id)">Đã thêm vào giỏ</button>
@@ -225,7 +223,6 @@ const onWatchCourse = async () => {
 }
 
 .button-watch {
-  position: relative;
   align-items: center;
   display: inline-flex;
   background-color: #28a745;
@@ -243,5 +240,13 @@ const onWatchCourse = async () => {
   background-color: rgba(137, 45, 225, 0.8);
   /* transform: scale(1.05); */
   box-shadow: 0 4px 20px rgba(137, 45, 225, 0.5);
+}
+@media screen and (max-width:767px) {
+  .card-course {
+    height: 50%;
+  }
+  .thumbnail-course {
+    display: none;
+  }
 }
 </style>

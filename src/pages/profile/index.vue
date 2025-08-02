@@ -34,7 +34,7 @@
                     <h6 class="mb-0">First Name</h6>
                   </div>
                   <div class="col-sm-9 text-secondary" v-if="data.modeEdit">
-                    <input type="text" class="w-100" v-model="data.firstName">
+                    <input type="text" class="w-100 form-control border-secondary" v-model="data.firstName">
                   </div>
                   <div class="col-sm-9 text-secondary" v-else>
                     {{ data.firstName }}
@@ -46,7 +46,7 @@
                     <h6 class="mb-0">Last Name</h6>
                   </div>
                   <div class="col-sm-9 text-secondary" v-if="data.modeEdit">
-                    <input type="text" class="w-100" v-model="data.lastName">
+                    <input type="text" class="w-100 form-control border-secondary" v-model="data.lastName">
                   </div>
                   <div class="col-sm-9 text-secondary" v-else>
                     {{ data.lastName }}
@@ -67,7 +67,7 @@
                     <h6 class="mb-0">Phone</h6>
                   </div>
                   <div class="col-sm-9 text-secondary" v-if="data.modeEdit">
-                    <input type="text" class="w-100" v-model="data.phone">
+                    <input type="text" class="w-100 form-control border-secondary" v-model="data.phone">
                   </div>
                   <div class="col-sm-9 text-secondary" v-else>
                     {{ data.phone }}
@@ -92,13 +92,13 @@
 </template>
 <script setup>
 import OwnCourses from '@/components/course/OwnCourses.vue'
-import  useAuth from '@/composables/useAuth';
+import  useAuth from '@/composables/useAuth'
 import  { useCounterStore } from '@/stores/authStore'
 import { onMounted, ref } from 'vue'
-import { useNotify } from '@/composables/useNotify';
-import useCart from '@/composables/useCart';
+import { useNotify } from '@/composables/useNotify'
+import useCart from '@/composables/useCart'
 
-const isLoading = ref(false);
+const isLoading = ref(false)
 const data = ref({
   isAuthenticated: useCounterStore().isLogged,
   firstName: "",

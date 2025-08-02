@@ -2,14 +2,14 @@
   <div class="card-course">
     <div class="right-card">
       <img :src="replaceUrlImage(cartData.course.thumbnail) " class="thumbnail-course">
-      <span class="title-course">{{ cartData.course.title }}</span>
+      <p class="title-course">{{ cartData.course.title }}</p>
     </div>
     <div class="left-card">
-      <DeleteOutlined @click="removeItem" style="cursor:pointer"/>
       <div class="price-course">
         <div class="price-sale">{{ formatCurrency(cartData.price) }}</div>
         <div class="price-original"><del>{{ formatCurrency(cartData.course.original_price) }}</del></div>
       </div>
+      <a class="remove-item" @click="removeItem" style="cursor:pointer">Xóa</a>
     </div>
   </div>
 </template>
@@ -35,27 +35,45 @@ const removeItem = () => {
 <style scoped>
 .card-course {
   display: flex;
-  justify-content: space-between;
   gap: 10px;
   border-top: 1px solid #d3d3d3;
   padding: 15px 0;
 }
 
 .right-card {
+  flex: 4;
+  max-width: 700px;
   display: flex;
   gap: 10px;
 }
 
 .thumbnail-course {
   object-fit: cover;
-  width: 120px;
+  width: 70px;
   height: 70px;
 }
-
+.remove-item {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background-color: white;
+}
 .left-card {
-  display: inline-flex;
-  justify-content: space-between;
-  gap: 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.title-course {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .price-course {
@@ -69,5 +87,10 @@ const removeItem = () => {
 
 .price-original {
   color: gray;
+}
+@media screen and (max-width:767px) {
+  .right-card {
+    max-width: 350px;
+  }
 }
 </style>

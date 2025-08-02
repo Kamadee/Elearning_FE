@@ -1,6 +1,6 @@
 export const replaceUrlImage = (url) => {
   const isAbsoluteUrl = /^https?:\/\/(www\.)?([\w-]+\.)+\w+/.test(url);
-  const baseUrl = import.meta.env.VITE_API_BASE_LOCAL || 'https://www.elearning-cms.site';
+  const baseUrl = import.meta.env.VITE_API_BASE_LOCAL || 'http://localhost:8000';
 
   if (isAbsoluteUrl) {
     return url;

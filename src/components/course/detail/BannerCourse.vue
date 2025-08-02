@@ -1,7 +1,7 @@
 <template>
   <div class="course-banner">
     <div class="title-box">
-      <div class="title-course">{{ props.courseData.title }}</div>
+      <p class="title-course"><span>Fitness | </span>{{ props.courseData.title }}</p>
     </div>
     <div class="banner-image" @click="handleClickCard"
     :style="{ backgroundImage: `url(${replaceUrlImage(props.courseData.banner || '')})` }"></div>
@@ -19,8 +19,14 @@ const props = defineProps({
 </script>
 
 <style scoped>
+span {
+  text-decoration: underline;
+}
+p {
+  margin-bottom: 0;
+  text-decoration: underline;
+}
 .course-banner {
-  padding: 24px 0 0;
   background-color: #313131;
   line-height: 24px;
 }
@@ -34,15 +40,20 @@ const props = defineProps({
 }
 
 .title-box {
+  height: 30px;
   display: flex;
-  margin: 20px 75px;
-  padding: 0 32px;
+  align-items: center;
+  padding: 20px;
 }
 
 .title-course {
-  font-size: 24px;
+  font-size: 14px;
   font-weight: 500;
   color: #fff;
-  text-transform: uppercase;
+}
+@media screen and (max-width:767px) {
+  .banner-image {
+    height: 180px;
+  }
 }
 </style>

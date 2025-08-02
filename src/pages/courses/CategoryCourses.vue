@@ -18,7 +18,7 @@ const data = ref(null)
 const route = useRoute()
 
 watch(() => route.params.category, (newCategory) => {
-  var categoryCourse = newCategory.charAt(0).toUpperCase() + newCategory.slice(1);
+  var categoryCourse = newCategory.charAt(0).toUpperCase() + newCategory.slice(1)
   data.value = categoryCourse
 })
 </script>

@@ -1,6 +1,6 @@
 <template>
   <div class="history-wrapper">
-    <div style="text-align: center; font-weight: bold; font-size: 30px">Lịch sử mua hàng</div>
+    <div style="text-align: center; font-weight: bold; font-size: 20px">Lịch sử mua hàng</div>
     <table class="table">
         <thead>
             <tr>
@@ -10,7 +10,6 @@
                 <th>Thời gian tạo</th>
                 <th>Thời gian thanh toán</th>
                 <th>Tình trạng</th>
-                <th>Hoạt động</th>
             </tr>
         </thead>
         <tbody>
@@ -29,10 +28,10 @@
                       {{ getStatusText(history.status) }}
                   </span>
                 </td>
-                <td><EyeOutlined /></td>
             </tr>
         </tbody>
     </table>
+
   </div>
 </template>
 
@@ -73,7 +72,7 @@ const getStatusText = (status) => {
 
 <style scoped>
 .history-wrapper {
-  margin: 20px 40px;
+  padding: 20px 40px;
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -129,5 +128,13 @@ const getStatusText = (status) => {
   color: white;
   padding: 5px 8px;
   border-radius: 8px;
+}
+@media screen and (max-width:767px) {
+  .history-wrapper {
+    padding: 20px 10px;
+  }
+  th, td {
+    font-size: 10px;
+  }
 }
 </style>

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="total-payment">Total: {{ formatCurrency(totalAmount) }}</div>
+    <div class="total-payment">Tổng: {{ formatCurrency(totalAmount) }}</div>
     <button class="button-cart" @click="createPayment">Thanh toán</button>
   </div>
 </template>

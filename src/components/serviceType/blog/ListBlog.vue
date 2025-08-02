@@ -1,17 +1,8 @@
 <template>
   <div class="blog-container">
-    <a-row :gutter="[16, 16]">
-      <a-col :xs="24" :sm="12" :md="8" v-for="(blog, index) in data.blogList" :key="index" style="display:flex;">
-        <ItemCard :blog="blog" v-loading="loadingStates[blog.id]" @clickCard="handleClickCard"/>
-      </a-col>
-    </a-row>
-    <a-pagination
-      :current="Number(data.page)"
-      :page-size="Number(data.per_page)"
-      :total="Number(data.total)"
-      @change="handlePageChange"
-      style="margin-top: 30px; text-align: center"
-    />
+    <div class="card-blog" v-for="(blog, index) in data.blogList" :key="index" style="display:flex;">
+      <ItemCard :blog="blog" v-loading="loadingStates[blog.id]" @clickCard="handleClickCard"/>
+    </div>
   </div>
 </template>
 
@@ -59,6 +50,26 @@ const handleClickCard = async (id) => {
 
 <style scoped>
 .blog-container {
-  margin: 50px 120px;
+  padding: 40px;
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.card-blog {
+  flex: 0 0 calc((100% - 2 * 16px) / 3);
+}
+@media screen and (max-width: 1024px) {
+  .card-blog {
+    flex: 1 0 calc((100% - 1 * 16px) / 2);
+  }
+}
+@media screen and (max-width: 768px) {
+  .card-blog {
+    flex: 0 0 calc(100%);
+  }
+  .blog-container {
+    padding: 60px;
+  }
 }
 </style>

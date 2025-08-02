@@ -18,10 +18,6 @@
         </div>
       </div>
     </div>
-    <!-- <div class="information-video">
-      <div v-if="data.dataCourse.title">{{ data.dataCourse.title }}</div>
-      <div class="description-video"></div>
-    </div> -->
   </div>
 </template>
 
@@ -82,7 +78,6 @@ const getVimeo = async (id) => {
       loadingScreen.value = false;
     }, 200);
   }
- 
 }
 
 const myIframe = ref('myIframe')

@@ -17,8 +17,10 @@
 
 @media screen and (max-width:767px) {
   .auth-layout { 
-    background: url('/images/warrior.jpg') no-repeat center center !important;
-    background-size: cover;
+    background: url('/images/fitness-banner.jpg');
+    background-repeat: no-repeat !important;
+    background-size: cover !important;
+    background-position: 40% 20% !important;
   }
 }
 </style>

@@ -31,7 +31,7 @@ const loadingSearch = ref(false)
 // mount ở đây chỉ dc chạy duy nhất 1 lần khi component gắn vào dom
 onMounted(async () => {
   loadingSearch.value = true
-  await new Promise(resolve => setTimeout(resolve, 500))
+  await new Promise(resolve => setTimeout(resolve, 2000))
   // Gán các giá trị copy vào cốc
   data.value.dataSearch = [...store.getDataSearch]
   const keyCopy = store.getKeySearch
@@ -68,10 +68,8 @@ const handleClickCard = async (categoryName, id) => {
 
 <style scoped>
 .search-container {
-  margin: 40px 100px;
-  /* display: flex;
-  flex-direction: column; */
-  /* gap: 18px; */
+  padding: 40px 100px;
+  width: 100%;
 }
 
 .filter-search {
@@ -100,5 +98,10 @@ const handleClickCard = async (categoryName, id) => {
   display: flex;
   flex-direction: column;
   gap: 18px;
+}
+@media screen and (max-width:767px) {
+  .search-container {
+    padding: 10px 25px;
+  }
 }
 </style>

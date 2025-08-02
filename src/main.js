@@ -7,6 +7,7 @@ import router from './router'
 import http from "./utils/http.js";
 import 'bootstrap/dist/css/bootstrap.min.css';  
 import './assets/fonts.css';
+import 'font-awesome/css/font-awesome.css';
 import loadingDirective from './plugins/loading.js'
 
 import Antd from 'ant-design-vue';
@@ -39,7 +40,9 @@ import {
   LeftOutlined,
   MenuOutlined,
   CloseCircleOutlined,
-  BellOutlined, 
+  BellOutlined,
+  CloseOutlined,
+  StarOutlined
 } from '@ant-design/icons-vue'
 import { Badge } from 'ant-design-vue'
 import Toast from 'vue-toastification';
@@ -79,6 +82,8 @@ app.component('LeftOutlined', LeftOutlined)
 app.component('MenuOutlined', MenuOutlined)
 app.component('CloseCircleOutlined', CloseCircleOutlined)
 app.component('BellOutlined', BellOutlined)
+app.component('CloseOutlined', CloseOutlined)
+app.component('StarOutlined', StarOutlined)
 app.component('AntBadge', Badge)
 
 app.mount('#app')
