@@ -6,8 +6,7 @@ import { useCounterStore } from '@/stores/authStore'
 import { pinia } from '@/stores/pinia'
 
 const apiClient = axios.create({
-  // baseURL: 'https://www.elearning-cms.site',
-  baseURL: 'http://localhost:8000',
+  baseURL: 'https://www.elearning-cms.site',
   headers: {
     'Content-Type': 'application/json',
     'Accept': '*/*',
