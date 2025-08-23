@@ -1,14 +1,14 @@
 <template>
-  <div class="content-wrapper">
+  <div v-loading="loading" class="content-wrapper">
     <div class="banner">
       <img :src="imageSrc" alt="banner1" />
     </div>
 
     <div class="content-first"> 
       <div class="training">
-        <p>Đào tạo 2 người trở lên? Cho phép nhóm của bạn tiếp cận hơn 27.000 khóa học hàng đầu của Udemy</p>
+        <p>Đào tạo 2 người trở lên? Cho phép nhóm của bạn tiếp cận hơn 27.000 khóa học hàng đầu của eFitness</p>
         <div class="double-btn">
-          <button class="udemy">Nhận Udemy Business</button>
+          <button class="udemy">Nhận eFitness Business</button>
           <button class="dismiss">Học viên</button>
         </div>
       </div>
@@ -44,6 +44,7 @@ import 'swiper/css/navigation'
 const data = ref({
   hotList: [],
 })
+const loading = ref(false)
 
 const breakpoints = {
   320: {
@@ -80,9 +81,12 @@ const getCourseTop = async () => {
   }
 }
 
-onMounted(() => {
+onMounted(async() => {
+  loading.value = true
+  await new Promise(resolve => setTimeout(resolve, 2000))
   getCourseTop()
   window.addEventListener('resize', updateImage)
+  loading.value = false
 })
 
 onBeforeMount(() => {
@@ -220,7 +224,13 @@ const handleClickCard = async (id) => {
   font-weight: 700;
   border: none;
   padding: 8px 15px;
-  width: 180px;
+  max-width: 250px;
+}
+.udemy:hover {
+  background-color: #16161d;
+  color: #fff;
+  border: 1px solid white;
+  transform: none;
 }
 
 .dismiss {
@@ -231,7 +241,13 @@ const handleClickCard = async (id) => {
   font-weight: 700;
   border: 1px solid #fff;
   padding: 8px 15px;
-  width: 95px;
+  max-width: 250px;
+}
+.dismiss:hover {
+  background-color: #fff;
+  color: #16161d;
+  border: 1px solid #16161d;
+  transform: none;
 }
 
 .top-course h2 {

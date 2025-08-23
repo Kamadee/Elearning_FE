@@ -4,7 +4,7 @@
       <div class="course-tile"></div>
       <a-tabs style="width: 100%;" v-model:activeKey="activeKey">
         <a-tab-pane key="1" tab="Tổng quan">
-          <p>{{ courseData.description }}</p>
+          <p v-html="courseData.content"></p>
         </a-tab-pane>
         <a-tab-pane key="2" tab="Nội dung khóa học">
           <h3>Thời gian: {{ courseData.course_duration }}</h3>

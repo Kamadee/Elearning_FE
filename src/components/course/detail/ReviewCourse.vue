@@ -7,14 +7,14 @@
           <span class="display-4 font-weight-bolder">{{ data.average }}</span><br>
           <p>trên 5 <StarOutlined /></p>
         </div>
-        <div id="rating-value" class="flex-grow-1" style="margin-left: 40px">
+        <div id="rating-value" class="">
           <div class="row align-items-center" v-for="(rating, index) in data.ratingData" :key="index"> 
             <div class="col-8">
               <div class="progress" style="height: 10px;">
                 <div class="progress-bar" role="progressbar" :style="{ width: rating.percent + '%' }" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
               </div>
             </div>
-            <div class="col-4 text-right d-flex" style="gap: 20px; align-items: center; font-size: 15px">
+            <div class="col-4 text-right d-flex" style="gap: 20px; align-items: center; font-size: 15px; padding-left: 25px;">
               <a-rate :value="rating.rate" class="star" disabled />
               <div>{{ rating.percent }}%</div>
             </div>
@@ -205,6 +205,7 @@ const updateReviewList = () => {
 .detail-rating {
   display: flex;
   justify-content: center;
+  gap: 30px;
 }
 
 .my-review {

@@ -6,15 +6,19 @@
         <div class="login_box">
           <a-form :model="data" ref="formRef" :rules="rules" @submit.prevent="login()">
             <h3>Login</h3>
+            <div class="test">
+              <span>*email: tahieuthang@gmail.com</span>
+              <span>*pass: 123456</span>
+            </div>
 
             <a-form-item name="email">
               <label for="email">Email</label>
-              <a-input v-model:value="data.email" id="email" placeholder="example@email.com" />
+              <a-input v-model:value="data.email" id="email" placeholder="tahieuthang@gmail.com" />
             </a-form-item>
 
             <a-form-item name="password">
               <label for="password">Mật khẩu</label>
-              <a-input v-model:value="data.password" id="password" :type="passwordVisible ? 'text' : 'password'" placeholder="Mật khẩu">
+              <a-input v-model:value="data.password" id="password" :type="passwordVisible ? 'text' : 'password'" placeholder="123456">
                 <template #suffix>
                   <EyeOutlined v-if="!passwordVisible" @click="passwordVisible = true" style="cursor: pointer;" />
                   <EyeInvisibleOutlined v-else @click="passwordVisible = false" style="cursor: pointer;" />
@@ -161,14 +165,12 @@ h3 {
 }
 .remember-wrapper {
   display: flex;
-  align-items: center; /* Căn giữa theo trục dọc */
-  gap: 12px; /* Khoảng cách giữa checkbox và label */
+  align-items: center;
+  gap: 12px;
 }
-
 .btn-login {
   width: 100%;
 }
-
 #email {
   height: 40px;
   width: 100%;
@@ -176,12 +178,15 @@ h3 {
 #password {
   height: 40px;
 }
-
 .login-form {
   border-radius: black solid 1px;
 }
-
 .forgot-link {
   margin-top: 20px;
+}
+.test {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 </style>

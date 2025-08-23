@@ -9,7 +9,7 @@
               <a-input v-model:value="data.verifyCode"/>
             </a-form-item>
 
-            <a-form-item>
+            <a-form-item style="text-align: center;">
               <a-button type="primary" html-type="submit" :disabled="loadingStates.confirm">Xác nhận</a-button>
             </a-form-item>
           </a-form>

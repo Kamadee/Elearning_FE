@@ -27,12 +27,10 @@ const data = ref({
 })
 const loadingStates = ref({})
 const loadingSearch = ref(false)
-// Dùng vấn đề vòi nước, bình nước, cốc nước để giả bài toán search (ko bị lỗi nhân bản data =))))
-// mount ở đây chỉ dc chạy duy nhất 1 lần khi component gắn vào dom
+
 onMounted(async () => {
   loadingSearch.value = true
   await new Promise(resolve => setTimeout(resolve, 2000))
-  // Gán các giá trị copy vào cốc
   data.value.dataSearch = [...store.getDataSearch]
   const keyCopy = store.getKeySearch
   data.value.keySearch = keyCopy
@@ -43,9 +41,7 @@ watch(
   [() => store.getDataSearch, () => store.getKeySearch],
   async ([newData, newKey]) => {
     loadingSearch.value = true
-
     await new Promise(resolve => setTimeout(resolve, 300)) 
-    // Gán đè giá trị copy mới vào cốc thay cho nước cũ
     data.value.dataSearch = [...newData]
     data.value.keySearch = newKey
     loadingSearch.value = false

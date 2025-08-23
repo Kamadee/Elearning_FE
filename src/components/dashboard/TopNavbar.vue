@@ -6,7 +6,9 @@
 
       <!-- Logo -->
       <router-link to="/" class="navbar-logo">
-        <img src="https://www.udemy.com/staticx/udemy/images/v7/logo-udemy.svg" alt="Logo" />
+        <div class="logo">
+          <span class="e">e</span><span>Fitness</span>
+        </div>
       </router-link>
       
       <!-- Search for PC -->
@@ -51,7 +53,7 @@
       
         <!-- Cart -->
         <router-link to="/cart" class="navbar-cart">
-          <AntBadge v-if="isAuthenticated" :count="cartCount" :show-zero="true" offset="[0, 5]">
+          <AntBadge v-if="isAuthenticated" :count="countCart" :show-zero="true" offset="[0, 5]">
             <ShoppingCartOutlined class="icon" />
           </AntBadge>
           <AntBadge v-else offset="[0, 5]">
@@ -85,14 +87,14 @@
 </template>
 
 <script setup>
-import { computed, ref, onMounted, watch  } from "vue"
+import { computed, ref, onMounted, watch, onUnmounted  } from "vue"
 import  { useCounterStore } from '@/stores/authStore'
-import useAuth from '@/composables/useAuth';
-// import  useCourse from '@/composables/useCourse';
-import { useRouter } from 'vue-router';
-import useCart from "@/composables/useCart";
-import useCourse from "@/composables/useCourse";
+import useAuth from '@/composables/useAuth'
+import { useRouter } from 'vue-router'
+import useCart from "@/composables/useCart"
+import useCourse from "@/composables/useCourse"
 import Notification from '@/components/serviceType/notification/index.vue'
+import emitter from '@/utils/eventBus'
 
 const stores = useCounterStore()
 const isAuthenticated = computed(() => stores.isLogged)
@@ -134,8 +136,7 @@ const getDataCart = async () => {
   }
 }
 
-// Xử lý chức năng Notification khóa học vừa dc thêm mới (sẽ dc lựa chọn theo các khóa học khớp với category
-// khóa học mà bạn mua nhiều nhất)
+// Xử lý chức năng Notification khóa học vừa dc thêm mới
 const getCategoryBestOfUser = async () => {
   const response = await useCourse().getCategoryBestOfUser()
   if(response) {
@@ -165,7 +166,9 @@ const watchNotification = () => {
 
 onMounted(async () => {
   if(isAuthenticated.value) {
-    getDataCart()
+    await getDataCart()
+    console.log(data.value.cartData);
+    
     await getCategoryBestOfUser()
     await getNewCourses()
     setInterval(async () => {
@@ -176,11 +179,15 @@ onMounted(async () => {
         isNotificationSeen.value = false
       }
     }, 10000)
+    emitter.on('updateCountCart', getDataCart)
   }
 })
 
-// const notificationCount = computed(() => data.value.coursesNew.length)
-const cartCount = computed(() => data.value.cartData.length)
+onUnmounted(() => {
+  emitter.off('updateCountCart', getDataCart)
+})
+
+const countCart = computed(() => data.value.cartData?.length || 0)
 
 const logOut = () => {
   useAuth().logOut()
@@ -240,88 +247,87 @@ const toggleOpenSearch = () => {
   box-shadow: 0 0 0 3px rgba(109, 40, 210, 0.2) !important; /* màu tím nhạt */
   outline: none;
 }
-
 a {
   text-decoration: none;
 }
-
 .custom-navbar {
   background: white;
   box-shadow: 0 2px 8px #f0f1f2;
   padding: 0 10px;
   width: 100%;
 }
-
 .menu-outlined {
   display: none;
 }
-
 .navbar-container {
   display: flex;
   align-items: center;
   height: 64px;
 }
-
 .navbar-logo img {
  height: 40px; 
 }
-
 .navbar-search {
   flex-grow: 1;
   display: flex;
   justify-content: center;
   margin: 0 24px;
 }
-
 .icon-search-mobile {
   display: none;
 }
-
 .search-input {
   width: 70%;
   border-radius: 999px;
   padding-right: 36px;
 }
-
 .mobile-search {
   display: none !important;
 }
-
 .navbar-menu {
   display: flex;
   align-items: center;
   gap: 16px;
   position: relative;
 }
-
 .navbar-link {
   color: rgba(0, 0, 0, 0.85);
   font-weight: 500;
   cursor: pointer;
 }
-
 .navbar-link:hover {
   color: #1890ff;
 }
-
 .navbar-notification {
   margin-top: -5px;
   cursor: pointer;
 }
-
 .navbar-cart {
   display: flex;
   align-items: center;
   height: 100%;
 }
-
 .navbar-cart .icon {
   font-size: 20px;
   color: #000;
 }
-
 .navbar-user .user-icon {
   font-size: 20px;
   cursor: pointer;
+}
+.logo {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 35px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+}
+.logo .e {
+  position: relative;
+  color: #a435f0;
+  margin-right: 2px;
+}
+.logo span {
+  color: black;
 }
 </style>

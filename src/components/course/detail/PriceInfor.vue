@@ -25,6 +25,7 @@ import { useNotify } from '@/composables/useNotify';
 import  { useCounterStore } from '@/stores/authStore'
 import { useRouter, useRoute } from 'vue-router';
 import { computed, onMounted, ref, watch } from "vue"
+import emitter from '@/utils/eventBus'
 
 const props = defineProps({
   courseData: {
