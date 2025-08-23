@@ -1,12 +1,6 @@
 <template>
   <div class="detail-wrapper">
     <div class="back-list">
-      <div class="icon-back">
-        <button style="border: none; background-color: white" @click="backBlog">
-          <ArrowLeftOutlined/>
-        </button>
-        <div>Trờ về</div>
-      </div>
       <div class="create-blog">{{ new Date(data.createdAt).toLocaleDateString('vi-VN') }}</div>
     </div>
     <div class="blog-container">
