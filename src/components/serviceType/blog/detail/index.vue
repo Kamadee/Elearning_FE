@@ -6,9 +6,6 @@
     <div class="blog-container">
       <div class="blog-content">
         <div class="blog-title"><h1>{{ data.title }}</h1></div>
-        <div class="blog-thumbnail">
-          <img :src="replaceUrlImage(data.thumbnail)" alt="">
-        </div>
         <div style="display: flex; justify-content: space-between;">
           <div style="display: flex; gap: 8px">
             <div class="blog-tag"
