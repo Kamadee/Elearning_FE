@@ -60,8 +60,6 @@ const handleSearch = async (keySearch, page = data.value.page) => {
       closeSeach()
       router.push('/search')
       data.value.keySearch = ''
-    } else {
-      console.log('vui lòng nhập từ khóa');
     }
   } catch(err) {
     console.error('Lỗi:', err);

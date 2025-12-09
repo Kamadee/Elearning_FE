@@ -35,8 +35,6 @@ const getDetailCourse = async (courseId) => {
   const response = await useCourse().getDetailCourse(courseId)
   if(response) {
     data.value.courseData = response
-    console.log(data.value.courseData);
-    
     const categories = response.course_categories
     const categoriesName = categories.map(category => category.category_name)
     data.value.categoryList = categoriesName

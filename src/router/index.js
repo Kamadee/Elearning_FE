@@ -154,13 +154,11 @@ router.beforeEach(async (to, from, next) => {
   const stores = useCounterStore()
   
   const isTokenExpired = () => {
-    // console.log(localStorage.getItem('tokenExpiry'));
     if(localStorage.getItem('tokenExpiry')) {
       const expiryTime = localStorage.getItem('tokenExpiry');
       return expiryTime && Date.now() >= Number(expiryTime);
     }
   };
-  // console.log(isTokenExpired());
 
   if(isTokenExpired()) {
     localStorage.removeItem('Authorization');

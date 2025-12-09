@@ -167,8 +167,6 @@ const watchNotification = () => {
 onMounted(async () => {
   if(isAuthenticated.value) {
     await getDataCart()
-    console.log(data.value.cartData);
-    
     await getCategoryBestOfUser()
     await getNewCourses()
     setInterval(async () => {
@@ -222,8 +220,6 @@ const handleSearch = async (keySearch, page = data.value.page) => {
       }
       router.push('/search')
       data.value.keySearch = ''
-    } else {
-      console.log('vui lòng nhập từ khóa');
     }
   } catch(err) {
     console.error('Lỗi:', err);

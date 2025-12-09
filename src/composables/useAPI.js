@@ -5,8 +5,16 @@ import qs from 'qs'
 import { useCounterStore } from '@/stores/authStore'
 import { pinia } from '@/stores/pinia'
 
+const getAPIURL = () => {
+  const envUrl = import.meta?.env?.VITE_API_URL
+  if (envUrl) return envUrl
+  return import.meta?.env?.PROD ? 'https://www.elearning-cms.site' : 'http://localhost:8081/'
+}
+
+const API_URL = getAPIURL()
+
 const apiClient = axios.create({
-  baseURL: 'https://www.elearning-cms.site',
+  baseURL: API_URL,
   headers: {
     'Content-Type': 'application/json',
     'Accept': '*/*',

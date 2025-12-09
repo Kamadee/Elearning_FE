@@ -51,8 +51,6 @@ const useAuth = () => {
   
   const handleError = (error) => {
     const response = error.response?.data
-    console.log(response)
-    
     let messages = [];
     if (response?.status === 404) {
       messages = [response?.error || 'Resource not found.']
@@ -80,8 +78,6 @@ const useAuth = () => {
         email: email,
         password: password
       });
-      console.log(response)
-      
       if(response.status === 201) {
         return response
       } else {
@@ -150,15 +146,11 @@ const useAuth = () => {
 
   const editProfile = async (firstName, lastName, phone) => {
     const { _patch } = useAPI()
-    console.log(firstName, lastName, phone)
-    
     const response = await _patch(apiEndpoints.UPDATE_PROFILE, {
       first_name: firstName,
       last_name: lastName,
       phone: phone
     })
-    console.log(response)
-    
     if(response) {
       return response
     }

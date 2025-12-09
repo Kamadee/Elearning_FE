@@ -168,10 +168,6 @@ const getDataReview = async () => {
     data.value.average = response.average
     if(customerInfo) {
       data.value.isReviewed = data.value.dataReview.some((review) => review.customer_id == customerInfo.id) ? true : false
-      console.log(data.value.isReviewed);
-      
-    } else {
-      console.log(111);
     }
   }
 }

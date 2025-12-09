@@ -32,7 +32,6 @@ export default {
 
   // Tùy chỉnh cho SSR (Server-side rendering) nếu cần
   getSSRProps(binding, vnode) {
-    console.log(binding, vnode);
     return {};
   }
 };

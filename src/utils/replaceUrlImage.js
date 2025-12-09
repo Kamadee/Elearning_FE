@@ -1,6 +1,14 @@
 export const replaceUrlImage = (url) => {
   const isAbsoluteUrl = /^https?:\/\/(www\.)?([\w-]+\.)+\w+/.test(url);
-  const baseUrl = import.meta.env.VITE_API_BASE_LOCAL || 'https://www.elearning-cms.site';
+  
+  // Đồng bộ logic với useAPI.js: ưu tiên VITE_API_URL, sau đó mới dùng PROD
+  const getBaseUrl = () => {
+    const envUrl = import.meta?.env?.VITE_API_URL
+    if (envUrl) return envUrl
+    return import.meta?.env?.PROD ? 'https://www.elearning-cms.site' : 'http://localhost:8081/'
+  }
+  
+  const baseUrl = getBaseUrl()
 
   if (isAbsoluteUrl) {
     return url;

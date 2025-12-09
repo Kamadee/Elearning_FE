@@ -48,7 +48,6 @@ const orderStatus = ref('')
 const route = useRoute()
 
 watch(() => route.query, (newQuery) => {
-    console.log(1111);
     updateOrderStatus(newQuery)
 })
 

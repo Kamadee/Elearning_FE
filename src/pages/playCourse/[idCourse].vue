@@ -68,10 +68,7 @@ const getVimeo = async (id) => {
   try {
     data.value.currentVideo = id;
     const response = await useCourse().getVimeo(id)
-    console.log(response);
     data.value.urlIframCurrent = response.vimeo
-    console.log(data.value.urlIframCurrent);
-    
   } catch (error) {
     console.error('Lỗi khi lấy video:', error);
     setTimeout(() => {
