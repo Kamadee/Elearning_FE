@@ -1,15 +1,27 @@
 <template>
   <div class="card-wrapper">
     <div class="card-course" @click="handleClickCard">
-      <div class="thumbnail-course"><img :src="replaceUrlImage(course?.thumbnail || '')"></div>
-      <div class="title-course">{{ course.title }}</div>
-      <div class="author-course">{{ course.author }}</div>
-      <div class="price">
-        <div class="sale-price">{{ formatCurrency(course.sale_off_price) }}</div>
-        <div class="original-price"><del>{{ formatCurrency(course.original_price) }}</del></div>
+      <div class="thumbnail-wrapper">
+        <img :src="replaceUrlImage(course?.thumbnail || '')" :alt="course.title" />
       </div>
-      <div class="category-list">
-        <div class="category-course" v-for="(category, index) in course.course_categories" :key="index">{{ category.category_name }}</div>
+      <div class="course-content">
+        <h3 class="course-title">{{ course.title }}</h3>
+        <p class="course-instructor">{{ course.author }}</p>
+        <div class="course-price">
+          <span class="current-price">{{ formatCurrency(course.sale_off_price) }}</span>
+          <span class="original-price" v-if="course.original_price > course.sale_off_price">
+            {{ formatCurrency(course.original_price) }}
+          </span>
+        </div>
+        <div class="course-badges" v-if="course.course_categories && course.course_categories.length > 0">
+          <span 
+            class="badge" 
+            v-for="(category, index) in course.course_categories.slice(0, 2)" 
+            :key="index"
+          >
+            {{ category.category_name }}
+          </span>
+        </div>
       </div>
     </div>
   </div>
@@ -36,91 +48,107 @@ const handleClickCard = () => {
 <style scoped>
 .card-wrapper {
   width: 100%;
-  height: 450px;
 }
+
 .card-course {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  background-color: #fff;
-  border: 1px solid #eee;
+  background: #fff;
+  border: 1px solid #e0e0e0;
   border-radius: 8px;
   overflow: hidden;
-  transition: box-shadow 0.3s;
-  padding: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  height: 100%;
 }
 
 .card-course:hover {
-  box-shadow: 0 8px 10px rgba(62, 62, 62, 0.1);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+  border-color: #d1d1d1;
 }
 
-.thumbnail-course {
-  flex: 0 0 66.6666%;
+.thumbnail-wrapper {
+  width: 100%;
+  aspect-ratio: 16 / 9;
   overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  background: #f7f9fa;
 }
 
-.thumbnail-course img {
+.thumbnail-wrapper img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: 6px;
   transition: transform 0.3s ease;
 }
 
-.thumbnail-course img:hover {
-  transform: scale(1.15);
+.card-course:hover .thumbnail-wrapper img {
+  transform: scale(1.05);
 }
 
-.title-course {
-  font-weight: bold;
+.course-content {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px !important;
+  flex: 1;
+}
+
+.course-title {
   font-size: 16px;
-  margin-top: 8px;
+  font-weight: 700;
+  color: #1c1d1f;
   line-height: 1.4;
-  color: #333;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
+  margin: 0 0 2px 0 !important;
+  min-height: 44px;
 }
 
-.author-course {
-  color: gray;
-  font-size: 12px;
+.course-instructor {
+  font-size: 13px;
+  color: #6a6f73;
+  margin: 0;
+  line-height: 1.4;
 }
 
-.price {
+.course-price {
   display: flex;
-  gap: 10px;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
 }
 
-.sale-price {
-  font-weight: bold;
+.current-price {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1c1d1f;
 }
 
 .original-price {
-  color: gray;
+  font-size: 14px;
+  color: #6a6f73;
+  text-decoration: line-through;
 }
 
-.category-list {
+.course-badges {
   display: flex;
-  gap: 8px;
-  margin-top: 8px;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
 }
 
-.category-course {
-  background-color: rgba(8, 239, 46, 0.2);
-  color: rgb(71, 16, 147);
-  padding: 4px 4px;
-  border-radius: 8px;
-  font-weight: bold;
-  font-size: 10px;
-}
-
-.category-course:hover {
-  transform: scale(1.05);
+.badge {
+  background-color: #f3f4f5;
+  color: #1c1d1f;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.4;
 }
 </style>

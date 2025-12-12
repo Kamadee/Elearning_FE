@@ -42,22 +42,38 @@ import {
   CloseCircleOutlined,
   BellOutlined,
   CloseOutlined,
-  StarOutlined
+  StarOutlined,
+  SettingOutlined,
+  LogoutOutlined
 } from '@ant-design/icons-vue'
 import { Badge } from 'ant-design-vue'
 import Toast from 'vue-toastification';
 import 'vue-toastification/dist/index.css';
+import './assets/css/toast-custom.css';
 
 const app = createApp(App)
 const options = {
-  // Các tùy chọn tùy chỉnh
   position: 'top-right',
-  timeout: 5000,
+  timeout: 3000,
   closeOnClick: true,
-  pauseOnFocusLoss: false,
+  pauseOnFocusLoss: true,
+  pauseOnHover: true,
   draggable: true,
   draggablePercent: 0.6,
-  progress: true,
+  showCloseButtonOnHover: true,
+  hideProgressBar: false,
+  closeButton: 'button',
+  icon: true,
+  rtl: false,
+  transition: 'Vue-Toastification__fade',
+  maxToasts: 4,
+  newestOnTop: true,
+  filterBeforeCreate: (toast, toasts) => {
+    if (toasts.filter(t => t.content === toast.content).length !== 0) {
+      return false;
+    }
+    return toast;
+  },
 };
 
 // app.prototype.$http = http;
@@ -84,6 +100,8 @@ app.component('CloseCircleOutlined', CloseCircleOutlined)
 app.component('BellOutlined', BellOutlined)
 app.component('CloseOutlined', CloseOutlined)
 app.component('StarOutlined', StarOutlined)
+app.component('SettingOutlined', SettingOutlined)
+app.component('LogoutOutlined', LogoutOutlined)
 app.component('AntBadge', Badge)
 
 app.mount('#app')

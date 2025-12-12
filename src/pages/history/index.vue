@@ -48,8 +48,6 @@ const data = ref({
 
 const getPaymentHistoryList = async () => {
   const response = await useCart().getPaymentHistoryList()
-  console.log(response);
-  
   if(response) {
     data.value.historyData = response.orders
   }

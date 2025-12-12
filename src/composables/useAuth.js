@@ -62,7 +62,7 @@ const useAuth = () => {
         messages = [...emailValidate, ...passValidate]
       }
     } else {
-      messages = [response?.error || 'Password is incorrect']
+      messages = [response?.error || 'Server error.']
     }
     messages.forEach(msg => {
       notify(msg, 'error')

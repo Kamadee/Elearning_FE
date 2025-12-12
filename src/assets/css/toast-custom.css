@@ -1,0 +1,143 @@
+/* Toast Notification - Udemy Style */
+.Vue-Toastification__toast {
+  background: #ffffff !important;
+  border-radius: 4px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+  padding: 16px 20px !important;
+  min-height: auto !important;
+  border-left: 4px solid #6d28d2 !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
+}
+
+/* Success Toast */
+.Vue-Toastification__toast--success {
+  border-left-color: #10b981 !important;
+}
+
+.Vue-Toastification__toast--success .Vue-Toastification__icon {
+  color: #10b981 !important;
+}
+
+/* Error Toast */
+.Vue-Toastification__toast--error {
+  border-left-color: #ef4444 !important;
+}
+
+.Vue-Toastification__toast--error .Vue-Toastification__icon {
+  color: #ef4444 !important;
+}
+
+/* Warning Toast */
+.Vue-Toastification__toast--warning {
+  border-left-color: #f59e0b !important;
+}
+
+.Vue-Toastification__toast--warning .Vue-Toastification__icon {
+  color: #f59e0b !important;
+}
+
+/* Info Toast */
+.Vue-Toastification__toast--info {
+  border-left-color: #3b82f6 !important;
+}
+
+.Vue-Toastification__toast--info .Vue-Toastification__icon {
+  color: #3b82f6 !important;
+}
+
+/* Default Toast */
+.Vue-Toastification__toast--default {
+  border-left-color: #6d28d2 !important;
+}
+
+/* Toast Content */
+.Vue-Toastification__toast-body {
+  color: #1c1d1f !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  line-height: 1.5 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Icon Styling */
+.Vue-Toastification__icon {
+  margin-right: 12px !important;
+  font-size: 20px !important;
+  width: 20px !important;
+  height: 20px !important;
+  flex-shrink: 0 !important;
+}
+
+/* Close Button */
+.Vue-Toastification__close-button {
+  color: #6a6f73 !important;
+  opacity: 0.7 !important;
+  font-size: 18px !important;
+  width: 20px !important;
+  height: 20px !important;
+  line-height: 1 !important;
+  transition: opacity 0.2s ease !important;
+}
+
+.Vue-Toastification__close-button:hover {
+  opacity: 1 !important;
+  color: #1c1d1f !important;
+}
+
+/* Progress Bar */
+.Vue-Toastification__progress-bar {
+  background: rgba(109, 40, 210, 0.2) !important;
+  height: 2px !important;
+}
+
+.Vue-Toastification__toast--success .Vue-Toastification__progress-bar {
+  background: rgba(16, 185, 129, 0.2) !important;
+}
+
+.Vue-Toastification__toast--error .Vue-Toastification__progress-bar {
+  background: rgba(239, 68, 68, 0.2) !important;
+}
+
+.Vue-Toastification__toast--warning .Vue-Toastification__progress-bar {
+  background: rgba(245, 158, 11, 0.2) !important;
+}
+
+.Vue-Toastification__toast--info .Vue-Toastification__progress-bar {
+  background: rgba(59, 130, 246, 0.2) !important;
+}
+
+/* Container */
+.Vue-Toastification__container {
+  padding: 12px !important;
+}
+
+/* Hover Effect */
+.Vue-Toastification__toast:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+  transform: translateY(-1px) !important;
+  transition: all 0.2s ease !important;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .Vue-Toastification__toast {
+    padding: 14px 16px !important;
+    font-size: 13px !important;
+    margin-bottom: 8px !important;
+  }
+
+  .Vue-Toastification__icon {
+    font-size: 18px !important;
+    width: 18px !important;
+    height: 18px !important;
+    margin-right: 10px !important;
+  }
+
+  .Vue-Toastification__container {
+    padding: 8px !important;
+    width: calc(100% - 16px) !important;
+    max-width: 100% !important;
+  }
+}
+

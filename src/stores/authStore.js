@@ -6,7 +6,7 @@ export const useCounterStore = defineStore('auth', {
     userInfo: JSON.parse(localStorage.getItem('userInfo')) || null,
     dataSearch: [],
     keySearch: "",
-    inCart: false,
+    inCart: JSON.parse(localStorage.getItem('inCart')) || [],
     gettingData: false,
     isOpenSidebar: false,
     isOpenSearch: false,
@@ -50,8 +50,17 @@ export const useCounterStore = defineStore('auth', {
     setKeySearch(keySearch) {
       this.keySearch = keySearch
     },
-    setInCart(inCart) {
-      this.inCart = inCart
+    setInCart(id) {
+      if(this.inCart.includes(id)) {
+        this.inCart = this.inCart.filter(item => item !== id)
+      } else {
+        this.inCart.push(id)
+      }
+      localStorage.setItem('inCart', JSON.stringify(this.inCart))
+    },
+    deleteInCart(id) {
+      this.inCart = this.inCart.filter(item => item !== id)
+      localStorage.setItem('inCart', JSON.stringify(this.inCart))
     },
     setGettingData(value) {
       this.gettingData = value

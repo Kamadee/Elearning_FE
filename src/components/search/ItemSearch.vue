@@ -15,7 +15,7 @@
         <div class="left-card">
           <button class="btn-watch" v-if="canWatchVideo" @click.stop="onWatchCourse">Xem ngay</button>
           <div v-else>
-            <button class="btn-exist-cart" v-if="isAuthenticated && checkExistCart(props.dataSearch.id)">Đã thêm giỏ hàng</button>
+            <button class="btn-exist-cart" v-if="isAuthenticated && checkExistCart(props.dataSearch.id)" @click.stop="removeItem(props.dataSearch.id)">Đã thêm giỏ hàng</button>
             <button class="btn-cart" v-else @click.stop="addCourse(props.dataSearch.id)">Thêm giỏ hàng</button>
           </div>
         </div>
@@ -43,7 +43,7 @@
     <div class="left-card">
       <button class="btn-watch" v-if="canWatchVideo" @click="onWatchCourse">Xem ngay</button>
       <div v-else>
-        <button class="btn-exist-cart" v-if="isAuthenticated && checkExistCart(props.dataSearch.id)">Đã thêm giỏ hàng</button>
+        <button class="btn-exist-cart" v-if="isAuthenticated && checkExistCart(props.dataSearch.id)" @click="removeItem(props.dataSearch.id)">Đã thêm giỏ hàng</button>
         <button class="btn-cart" v-else @click="addCourse(props.dataSearch.id)">Thêm giỏ hàng</button>
       </div>
     </div>
@@ -66,13 +66,12 @@ const props = defineProps({
   },
 })
 
-const data = ref({
-  listCartId: []
-})
 
 const stores = useCounterStore()
+const listCart = ref([])
 const isAuthenticated = computed(() => stores.isLogged);
 const isMobile = ref(false)
+const router = useRouter();
 const updateLayout = () => {
   if(window.innerWidth < 768) {
     isMobile.value = true
@@ -85,14 +84,14 @@ const getDataCarts = async () => {
   if(isAuthenticated.value) {
     const response = await useCart().getDataCarts()
     if(response) {
-      data.value.listCartId = response.contents.map(content => content.course.id)
+      listCart.value = response.contents
     }
-  } else {
-    data.value.listCartId = []
   }
 }
 
-const checkExistCart = (id) => { return data.value.listCartId.includes(id) } 
+const checkExistCart = (id) => { 
+  return listCart.value.some(content => content.course.id === id)
+} 
 
 onMounted(() => {
   if(isAuthenticated.value) {
@@ -115,14 +114,25 @@ const handleClickCard = () => {
   }
 }
 
-const router = useRouter();
+const removeItem = async (id) => {
+  if(isAuthenticated.value) {
+    const cartItem = listCart.value.find((content) => content.course.id === id)
+    if(cartItem) {
+      const cartId = cartItem.id
+      const response = await useCart().removeItem(cartId)
+      if(response) {
+        stores.deleteInCart(id)
+        await getDataCarts()
+      }
+    }
+  }
+}
 const addCourse = async (id) => {
   if(isAuthenticated.value) {
     const response = await useCart().addCourse(id, true)
     if(response) {
-      const { notify } = useNotify()
-      notify(`${response.message}: Thêm giỏ hàng thành công`, 'success')
-      router.push('/cart')
+      stores.setInCart(props.dataSearch.id)
+      await getDataCarts()
     }
   } else {
     router.push('/login')

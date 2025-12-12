@@ -1,16 +1,18 @@
 <template>
   <div class="cart-wrapper">
     <div class="list-course" v-if="data.cartData.length > 0">
-      <h1 style="font-weight: bold; text-align: center;">Giỏ hàng</h1>
-      <div class="card-course" v-for="(cart, index) in data.cartData" :key="index">
-        <ItemCart :cartData="cart" v-loading="loadingStates[cart.id]" @removeItem="removeItem"/>
+      <h1 class="cart-title">Giỏ hàng</h1>
+      <div class="cart-items-container">
+        <div class="card-course-wrapper" v-for="(cart, index) in data.cartData" :key="index">
+          <ItemCart :cartData="cart" v-loading="loadingStates[cart.id]" @removeItem="removeItem" @click="handleClickCourse(cart.course.id)"/>
+        </div>
       </div>
     </div>
     <div v-else class="no-data">
       <NoData />
     </div>
 
-    <div class="payment-info">
+    <div class="payment-info" v-if="data.cartData.length > 0">
       <CheckoutCart :priceArray="data.prices"/>
     </div>
   </div>
@@ -46,8 +48,6 @@ const removeItem = async (id) => {
   try {
     const response = await useCart().removeItem(id)
     if(response) {
-      const { notify } = useNotify()
-      notify(`${response.message}: Xóa khỏi giỏ thành công`, 'success')
       data.value.cartData = data.value.cartData.filter((item) => item.id !== id)
       data.value.prices = data.value.cartData.map((content) => content.price)
       await getDataCarts()
@@ -58,20 +58,52 @@ const removeItem = async (id) => {
     }, 2000);
   }
 }
+
+const handleClickCourse = (id) => {
+  router.push(`/search/${id}`)
+}
 </script>
 
 <style scoped>
 .cart-wrapper {
-  padding: 35px 60px;
+  max-width: 1340px;
+  margin: 0 auto;
+  padding: 40px 80px;
   display: flex;
-  gap: 40px;
+  gap: 32px;
+}
+
+.cart-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #1c1d1f;
+  margin: 0 0 32px 0;
+  line-height: 1.2;
 }
 
 .list-course {
   display: flex;
   flex-direction: column;
-  gap: 10px;
   flex: 3;
+}
+
+.cart-items-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.card-course-wrapper {
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.card-course-wrapper:last-child {
+  border-bottom: none;
 }
 
 .no-data {
@@ -80,24 +112,41 @@ const removeItem = async (id) => {
 
 .payment-info {
   flex: 1;
-}
-
-.payment-info {
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  margin-top: 90px;
-  border: solid 1px rgb(194, 193, 193);
-  padding: 20px;
+  margin-top: 0;
+  background: #fff;
+  border: 1px solid #e0e0e0;
   border-radius: 8px;
-  height: 130px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  height: fit-content;
+  position: sticky;
+  top: 24px;
 }
 
-@media screen and (max-width:767px) {
+@media screen and (max-width: 1024px) {
   .cart-wrapper {
-    display: flex;
+    padding: 32px 40px;
+    gap: 24px;
+  }
+}
+
+@media screen and (max-width: 767px) {
+  .cart-wrapper {
     flex-direction: column;
-    padding: 10px;
+    padding: 20px 16px;
+    gap: 24px;
+  }
+  
+  .cart-title {
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+  
+  .payment-info {
+    position: static;
+    margin-top: 0;
   }
 }
 </style>

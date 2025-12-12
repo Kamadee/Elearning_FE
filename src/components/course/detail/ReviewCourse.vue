@@ -1,57 +1,49 @@
 <template>
   <div class="review-container" v-loading="loadingStates.review">
-    <div class="review-rating">
-      <h4>Đánh giá khóa học</h4>
-      <div class="detail-rating">
-        <div class="point-rating text-center">
-          <span class="display-4 font-weight-bolder">{{ data.average }}</span><br>
-          <p>trên 5 <StarOutlined /></p>
-        </div>
-        <div id="rating-value" class="">
-          <div class="row align-items-center" v-for="(rating, index) in data.ratingData" :key="index"> 
-            <div class="col-8">
-              <div class="progress" style="height: 10px;">
-                <div class="progress-bar" role="progressbar" :style="{ width: rating.percent + '%' }" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
-              </div>
-            </div>
-            <div class="col-4 text-right d-flex" style="gap: 20px; align-items: center; font-size: 15px; padding-left: 25px;">
-              <a-rate :value="rating.rate" class="star" disabled />
-              <div>{{ rating.percent }}%</div>
-            </div>
+    <h2 class="section-title">Đánh giá học viên</h2>
+    
+    <div class="rating-summary" v-if="data.average">
+      <div class="rating-overview">
+        <div class="average-rating">
+          <span class="rating-number">{{ data.average }}</span>
+          <div class="rating-stars-large">
+            <a-rate :value="Math.round(parseFloat(data.average))" disabled allow-half />
           </div>
+          <p class="rating-label">
+            Đánh giá trung bình
+            <span class="review-count">({{ data.total || data.dataReview.length }} đánh giá)</span>
+          </p>
         </div>
       </div>
     </div>
 
-    <a-form class="my-review" v-if="isAuthenticated && data.isReviewed" :model="data" ref="formRef" :rules="rules" @submit.prevent="addReview()">
-      <a-form-item class="comment" name="comment">
-        <a-input class="comment-input" type="textarea" :autoSize="{ minRows: 3, maxRows: 6 }" v-model:value="data.comment" placeholder="Nhập đánh giá" />
-      </a-form-item>
-      <a-form-item name="rating">
-        <a-select
-          v-model:value="data.rating"
-          placeholder="Chọn số sao"
-          
-          :options="ratingOptions"
-          option-label-prop="label"
-        >
-          <template #option="{ value }">
-            <span>
-              <span style="margin-left: 8px;">{{ value }}</span>
-            </span>
-          </template>
-        </a-select>
-      </a-form-item>
-      <a-form-item>
-        <a-button type="primary" html-type="submit" size="medium" :disabled="loadingStates.review">
-          Gửi đánh giá
-        </a-button>
-      </a-form-item>
-    </a-form>
-    <div>
-    <div v-if="data.dataReview.length > 0">
-      <div v-if="isMobile">
-        <div class="slide-container">
+    <div class="review-form-section" v-if="isAuthenticated && data.isReviewed">
+      <h3 class="form-title">Viết đánh giá của bạn</h3>
+      <a-form class="review-form" :model="data" ref="formRef" :rules="rules" @submit.prevent="addReview()">
+        <a-form-item name="rating" class="rating-form-item">
+          <label class="form-label">Đánh giá của bạn</label>
+          <a-rate v-model:value="data.rating" :count="5" />
+        </a-form-item>
+        <a-form-item name="comment" class="comment-form-item">
+          <label class="form-label">Nhận xét</label>
+          <a-input 
+            v-model:value="data.comment" 
+            type="textarea"
+            :rows="4" 
+            placeholder="Chia sẻ trải nghiệm của bạn về khóa học này..."
+            class="comment-textarea"
+          />
+        </a-form-item>
+        <a-form-item>
+          <a-button type="primary" html-type="submit" size="large" :disabled="loadingStates.review" class="submit-button">
+            Gửi đánh giá
+          </a-button>
+        </a-form-item>
+      </a-form>
+    </div>
+    <div class="reviews-section">
+      <div v-if="data.dataReview.length > 0">
+        <div v-if="isMobile" class="mobile-reviews">
           <swiper
             :slides-per-view="slidesPerView"
             :space-between="spaceBetween"
@@ -63,18 +55,20 @@
             </swiper-slide>
           </swiper>
         </div>
+        <div class="reviews-list" v-else>
+          <div v-for="(review, index) in data.dataReview" :key="index" class="review-item-wrapper">
+            <ItemReview :reviewData="review" />
+          </div>
+        </div>
       </div>
-      <div class="list-review" v-else>
-        <div v-for="(review, index) in data.dataReview" :key="index">
-          <ItemReview :reviewData="review" />
+      <div class="no-reviews" v-else>
+        <div class="no-reviews-content">
+          <img src="/images/rating-star.png" alt="No reviews" class="no-reviews-image" />
+          <p class="no-reviews-text">Chưa có đánh giá nào</p>
+          <p class="no-reviews-subtext">Hãy là người đầu tiên đánh giá khóa học này</p>
         </div>
       </div>
     </div>
-    <div class="non-review" v-else>
-      <img src="/images/rating-star.png" alt="">
-      Chưa có lượt đánh giá nào
-    </div>
-  </div>
   </div>
 </template>
 
@@ -192,78 +186,242 @@ const updateReviewList = () => {
 
 <style scoped>
 .review-container {
-  margin-top: 30px;
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 30px;
-}
-.detail-rating {
-  display: flex;
-  justify-content: center;
-  gap: 30px;
+  gap: 32px;
+  margin-top: 40px;
 }
 
-.my-review {
-  position: relative;
-  display: flex;
-  gap: 10px;
-}
-.comment {
-  flex: 5;
-}
-
-.comment-input  {
-  width: 100%;
-  height: auto;
+.section-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1c1d1f;
+  margin: 0;
+  line-height: 1.2;
 }
 
-.rate {
-  flex: 1;
-  display: flex;
-  gap: 10px;
+/* Rating Summary */
+.rating-summary {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
-.progress {
-  width: 350px;
-}
-
-.star {
-  font-size: 10px;
-  display: flex;
-}
-
-.list-review {
-  display: flex;
-  width: 100%;
-  flex-direction: column;
-  gap: 25px !important;;
-}
-
-.non-review {
+.rating-overview {
   display: flex;
   justify-content: center;
   align-items: center;
-  flex-direction: column;
-  gap: 25px;
-  margin-top: 35px;
 }
-@media screen and (max-width:767px) {
-  #rating-value {
-    display: none;
-  }
-  .review-rating {
-    display: flex;
+
+.average-rating {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.rating-number {
+  font-size: 48px;
+  font-weight: 700;
+  color: #1c1d1f;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.rating-stars-large {
+  margin-bottom: 8px;
+}
+
+.rating-stars-large :deep(.ant-rate) {
+  font-size: 20px;
+}
+
+.rating-label {
+  font-size: 14px;
+  color: #6a6f73;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.review-count {
+  font-size: 13px;
+  color: #6a6f73;
+  font-weight: 400;
+}
+
+/* Review Form */
+.review-form-section {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.form-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1c1d1f;
+  margin-bottom: 20px;
+}
+
+.review-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1c1d1f;
+  margin-bottom: 8px;
+}
+
+.rating-form-item :deep(.ant-form-item-control) {
+  width: 100%;
+}
+
+.rating-form-item :deep(.ant-rate) {
+  font-size: 24px;
+}
+
+.comment-form-item :deep(.ant-form-item-control) {
+  width: 100%;
+}
+
+.comment-textarea {
+  width: 100%;
+  resize: vertical;
+}
+
+.comment-textarea :deep(.ant-input) {
+  border-radius: 4px;
+  border-color: #d1d1d1;
+}
+
+.comment-textarea :deep(.ant-input:focus) {
+  border-color: #6d28d2;
+  box-shadow: 0 0 0 2px rgba(109, 40, 210, 0.1);
+}
+
+.submit-button {
+  background-color: #6d28d2;
+  border-color: #6d28d2;
+  font-weight: 600;
+  height: 44px;
+  padding: 0 24px;
+}
+
+.submit-button:hover {
+  background-color: #5b21b6;
+  border-color: #5b21b6;
+}
+
+/* Reviews List */
+.reviews-section {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.reviews-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1c1d1f;
+  margin-bottom: 24px;
+}
+
+.reviews-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.review-item-wrapper {
+  padding-bottom: 24px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.review-item-wrapper:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.no-reviews {
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.no-reviews-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.no-reviews-image {
+  width: 120px;
+  height: 120px;
+  opacity: 0.5;
+}
+
+.no-reviews-text {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1c1d1f;
+  margin: 0;
+}
+
+.no-reviews-subtext {
+  font-size: 14px;
+  color: #6a6f73;
+  margin: 0;
+}
+
+.mobile-reviews {
+  width: 100%;
+}
+
+@media screen and (max-width: 1024px) {
+  .rating-overview {
     justify-content: center;
-    align-items: center;
   }
-  .review-rating h4 {
-    display: none;
+}
+
+@media screen and (max-width: 767px) {
+  .section-title {
+    font-size: 20px;
   }
-  .point-ratin {
-    display: flex;
-    justify-content: center;
+  
+  .rating-summary,
+  .review-form-section,
+  .reviews-section {
+    padding: 16px;
   }
+  
+  .rating-number {
+    font-size: 36px;
+  }
+  
+  .rating-stars-large :deep(.ant-rate) {
+    font-size: 18px;
+  }
+  
+  .form-title,
+  .reviews-title {
+    font-size: 18px;
+  }
+  
   .swiper-slide {
     display: flex;
     justify-content: center;

@@ -3,7 +3,6 @@
     <BannerCourse :courseData="data.courseData"/>
     <div class="main-courses" style="">
       <ContentCourse :courseData="data.courseData"/>
-      <hr style="margin-bottom: 0px">
       <div class="related-container">
         <RelatedCourse :categoryList="data.categoryList"/>
       </div>
@@ -50,10 +49,6 @@ watchEffect(() => {
   if (!id) return
   getDetailCourse(id)
 })
-
-// const handleClickCard = async (id) => {
-//   router.push(`/course//${id}`)
-// }
 </script>
 
 <style scoped>
@@ -67,17 +62,19 @@ watchEffect(() => {
   display: flex;
   flex-direction: column;
   padding: 40px 80px;
-  gap: 30px;
+  gap: 48px;
+  max-width: 1340px;
+  margin: 0 auto;
 }
 
 .related-container {
   display: flex;
-  width: 65%;
+  width: 100%;
 }
 
 .review-contaner {
   display: flex;
-  width: 65%;
+  width: 100%;
 }
 
 @media screen and (max-width:767px) {

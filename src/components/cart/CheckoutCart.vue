@@ -1,7 +1,10 @@
 <template>
-  <div>
-    <div class="total-payment">Tổng: {{ formatCurrency(totalAmount) }}</div>
-    <button class="button-cart" @click="createPayment">Thanh toán</button>
+  <div class="checkout-container">
+    <div class="total-section">
+      <span class="total-label">Tổng:</span>
+      <span class="total-amount">{{ formatCurrency(totalAmount) }}</span>
+    </div>
+    <button class="button-checkout" @click="createPayment">Thanh toán</button>
   </div>
 </template>
 
@@ -25,37 +28,79 @@ const createPayment = async () => {
   if(response) {
     window.location.href = response.payment_url
   } else {
-    console.log('Không có khóa học nào trong giỏ!');
     return
   }
 }
 </script>
 
 <style scoped>
-.total-payment {
-  font-weight: bold;
-  font-size: 20px;
+.checkout-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
-.button-cart {
-  position: relative;
+.total-section {
+  display: flex;
+  justify-content: space-between;
   align-items: center;
-  display: inline-flex;
-  background-color: #892de1;
-  border-radius: 4px;
-  cursor: pointer;
-  padding: 11px 40px;
-  border: none;
-  color: #fff;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.total-label {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1c1d1f;
+}
+
+.total-amount {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1c1d1f;
+}
+
+.button-checkout {
   width: 100%;
+  padding: 14px 24px;
+  border: none;
+  border-radius: 4px;
+  background-color: #6d28d2;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
   align-items: center;
   justify-content: center;
-  transition: background-color 0.3s ease, transform 0.3s ease;
+  transition: all 0.3s ease;
+  text-transform: none;
+  letter-spacing: normal;
 }
 
-.button-cart:hover {
-  background-color: rgba(137, 45, 225, 0.8);
-  /* transform: scale(1.05); */
-  box-shadow: 0 4px 20px rgba(137, 45, 225, 0.5);
+.button-checkout:hover {
+  background-color: #5b21b6;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(109, 40, 210, 0.4);
+}
+
+.button-checkout:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(109, 40, 210, 0.3);
+}
+
+@media screen and (max-width: 767px) {
+  .total-label {
+    font-size: 16px;
+  }
+  
+  .total-amount {
+    font-size: 20px;
+  }
+  
+  .button-checkout {
+    padding: 12px 20px;
+    font-size: 14px;
+  }
 }
 </style>

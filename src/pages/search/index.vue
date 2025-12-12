@@ -15,7 +15,6 @@
 
 <script setup>
 import ItemSearch from '@/components/search/ItemSearch.vue'
-import router from '@/router'
 import  { useCounterStore } from '@/stores/authStore'
 import { computed, onMounted, ref, watch } from "vue"
 import NoData from '@/components/NoData.vue'
