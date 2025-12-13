@@ -13,10 +13,16 @@
           <div class="price-original"><del>{{ formatCurrency(props.dataSearch.original_price) }}</del></div>
         </div>
         <div class="left-card">
-          <button class="btn-watch" v-if="canWatchVideo" @click.stop="onWatchCourse">Xem ngay</button>
+          <button class="btn-watch" v-if="canWatchVideo" @click.stop="onWatchCourse">
+            <EyeOutlined class="btn-icon" />
+            <span>Xem ngay</span>
+          </button>
           <div v-else>
             <button class="btn-exist-cart" v-if="isAuthenticated && checkExistCart(props.dataSearch.id)" @click.stop="removeItem(props.dataSearch.id)">Đã thêm giỏ hàng</button>
-            <button class="btn-cart" v-else @click.stop="addCourse(props.dataSearch.id)">Thêm giỏ hàng</button>
+            <button class="btn-cart" v-else @click.stop="addCourse(props.dataSearch.id)">
+              <ShoppingCartOutlined class="btn-icon" />
+              <span>Thêm giỏ hàng</span>
+            </button>
           </div>
         </div>
       </div>
@@ -41,10 +47,16 @@
       </div>
     </div>
     <div class="left-card">
-      <button class="btn-watch" v-if="canWatchVideo" @click="onWatchCourse">Xem ngay</button>
+      <button class="btn-watch" v-if="canWatchVideo" @click="onWatchCourse">
+        <EyeOutlined class="btn-icon" />
+        <span>Xem ngay</span>
+      </button>
       <div v-else>
         <button class="btn-exist-cart" v-if="isAuthenticated && checkExistCart(props.dataSearch.id)" @click="removeItem(props.dataSearch.id)">Đã thêm giỏ hàng</button>
-        <button class="btn-cart" v-else @click="addCourse(props.dataSearch.id)">Thêm giỏ hàng</button>
+        <button class="btn-cart" v-else @click="addCourse(props.dataSearch.id)">
+          <ShoppingCartOutlined class="btn-icon" />
+          <span>Thêm giỏ hàng</span>
+        </button>
       </div>
     </div>
   </div>
@@ -219,25 +231,40 @@ const onWatchCourse = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 8px;
   border: 1px solid rgb(230, 197, 9);
-  padding: 18px 14px;
+  padding: 8px 16px;
   height: 32px;
-  width: 190px;
+  width: auto;
+  min-width: fit-content;
   border-radius: 8px;
   background-color: #fff;
+  font-size: 14px;
+  white-space: nowrap;
 }
 
 .btn-watch {
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 8px;
   border: none;
-  padding: 18px 14px;
+  padding: 8px 16px;
   height: 32px;
-  width: 190px;
+  width: auto;
+  min-width: fit-content;
   border-radius: 8px;
   color: #fff;
   background-color: #28a745;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.btn-icon {
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .btn-exist-cart {
@@ -245,12 +272,15 @@ const onWatchCourse = async () => {
   align-items: center;
   justify-content: center;
   border: none;
-  padding: 18px 14px;
+  padding: 8px 16px;
   height: 32px;
-  width: 190px;
+  width: auto;
+  min-width: fit-content;
   border-radius: 8px;
   color: #fff;
   background-color: rgb(230, 197, 9);
+  font-size: 14px;
+  white-space: nowrap;
 }
 
 .btn-cart:hover {

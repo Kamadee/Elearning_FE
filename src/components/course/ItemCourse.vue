@@ -6,6 +6,10 @@
       </div>
       <div class="course-content">
         <h3 class="course-title">{{ course.title }}</h3>
+        <div class="course-rating" v-if="course.rating_average">
+          <StarOutlined class="star-icon" />
+          <span class="rating-value">{{ formatRating(course.rating_average) }}</span>
+        </div>
         <p class="course-instructor">{{ course.author }}</p>
         <div class="course-price">
           <span class="current-price">{{ formatCurrency(course.sale_off_price) }}</span>
@@ -42,6 +46,11 @@ const props = defineProps({
 const emit = defineEmits(['ClickCard'])
 const handleClickCard = () => {
   emit('ClickCard', props.course.id)
+}
+
+const formatRating = (rating) => {
+  if (!rating || rating === "0.00") return '0'
+  return parseFloat(rating).toFixed(1)
 }
 </script>
 
@@ -107,6 +116,28 @@ const handleClickCard = () => {
   text-overflow: ellipsis;
   margin: 0 0 2px 0 !important;
   min-height: 44px;
+}
+
+.course-rating {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 2px 0;
+}
+
+.star-icon {
+  font-size: 14px;
+  color: #fbbf24;
+  display: flex;
+  align-items: center;
+  fill: #fbbf24;
+}
+
+.rating-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1c1d1f;
+  line-height: 1.4;
 }
 
 .course-instructor {

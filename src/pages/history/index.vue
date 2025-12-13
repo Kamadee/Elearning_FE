@@ -17,8 +17,8 @@
                 <td>{{ index + 1 }}</td>
                 <td>{{ history.code }}</td>
                 <td>{{ formatCurrency(history.amount) }}</td>
-                <td>{{ history.created_at }}</td>
-                <td>{{ history.payment_time }}</td>
+                <td>{{ formatTime(history.created_at) }}</td>
+                <td>{{ formatTime(history.payment_time) }}</td>
                 <td>
                   <span :class="{
                       'is-status-blue': history.status === 1 || history.status === 2,
@@ -39,6 +39,7 @@
 import useCart from '@/composables/useCart';
 import { onMounted, ref } from 'vue'
 import { formatCurrency } from '@/utils/formatCurrency'
+import { formatTime } from '@/utils/formatTime'
 
 const data = ref({
   historyData: [],

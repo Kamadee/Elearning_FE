@@ -12,9 +12,9 @@
                 <tbody>
                     <tr v-for="(value, item) in objectMapKey" :key="item">
                         <th scope="row">{{ value }}</th>
-                        <td v-if="item == 'vnp_Amount'">{{ formatCurrency($route.query[item]?.slice(0, -2)) }}</td>
-                        <td v-else-if="item == 'vnp_PayDate'">{{ formatVnpPayDate($route.query[item]) }}</td>
-                        <td v-else>{{ $route.query[item] }}</td>
+                        <td v-if="item == 'vnp_Amount'">{{ formatCurrency(getQueryValue(item)?.slice(0, -2)) }}</td>
+                        <td v-else-if="item == 'vnp_PayDate'">{{ formatVnpPayDate(getQueryValue(item)) }}</td>
+                        <td v-else>{{ getQueryValue(item) }}</td>
                     </tr>
                 </tbody>
             </table>
@@ -47,11 +47,31 @@ const objectMapKey = {
 const orderStatus = ref('')
 const route = useRoute()
 
+// Lấy query params từ URL thực tế (hỗ trợ cả localhost và ngrok)
+const getQueryParams = () => {
+    const urlParams = new URLSearchParams(window.location.search)
+    const params = {}
+    for (const [key, value] of urlParams.entries()) {
+        params[key] = value
+    }
+    return params
+}
+
 watch(() => route.query, (newQuery) => {
-    updateOrderStatus(newQuery)
+    // Kiểm tra nếu có params trong URL thì dùng, không thì dùng route.query
+    const urlParams = getQueryParams()
+    const queryToUse = Object.keys(urlParams).length > 0 ? urlParams : newQuery
+    if (Object.keys(queryToUse).length > 0) {
+        updateOrderStatus(queryToUse)
+    }
 })
 
 const updateOrderStatus = async (query) => {
+    // Kiểm tra nếu không có query params thì không làm gì
+    if (!query || Object.keys(query).length === 0) {
+        return
+    }
+    
     stores.setGettingData(true)
     try {
         const response = await useCart().updateOrderStatus(query)
@@ -59,7 +79,11 @@ const updateOrderStatus = async (query) => {
             const { notify } = useNotify()
             notify('Thông báo về thanh toán của bạn', 'info')
         }
-        getOrderByCode()
+        // Lấy vnp_TxnRef từ query để get order
+        const txnRef = query.vnp_TxnRef || route.query.vnp_TxnRef
+        if (txnRef) {
+            getOrderByCode(txnRef)
+        }
     } finally {
         setTimeout(() => {
             stores.setGettingData(false);
@@ -68,13 +92,28 @@ const updateOrderStatus = async (query) => {
 }
 
 onMounted(() => { 
-    updateOrderStatus(route.query)
+    // Ưu tiên lấy từ URL thực tế, sau đó mới dùng route.query
+    const urlParams = getQueryParams()
+    const queryToUse = Object.keys(urlParams).length > 0 ? urlParams : route.query
+    if (Object.keys(queryToUse).length > 0) {
+        updateOrderStatus(queryToUse)
+    }
 })
 
-const getOrderByCode = async () => {
+const getOrderByCode = async (txnRef) => {
+    if (!txnRef) {
+        // Thử lấy từ URL hoặc route.query
+        const urlParams = getQueryParams()
+        txnRef = urlParams.vnp_TxnRef || route.query.vnp_TxnRef
+    }
+    
+    if (!txnRef) {
+        return
+    }
+    
     stores.setGettingData(true)
     try {
-        const response = await useCart().getOrderByCode(route.query.vnp_TxnRef)
+        const response = await useCart().getOrderByCode(txnRef)
         if(response) {
             switch (response.status) {
                 case 1:
@@ -98,6 +137,12 @@ const getOrderByCode = async () => {
             stores.setGettingData(false);
         }, 200);
     }
+}
+
+// Helper function để lấy giá trị từ query params (ưu tiên URL thực tế)
+const getQueryValue = (key) => {
+    const urlParams = getQueryParams()
+    return urlParams[key] || route.query[key] || ''
 }
 
 const formatVnpPayDate = (vnpPayDate) => {

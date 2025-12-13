@@ -18,6 +18,7 @@ const apiClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
     'Accept': '*/*',
+    'ngrok-skip-browser-warning': 'true',
   },
   paramsSerializer: params => qs.stringify(params, { arrayFormat: 'brackets' })
 })
