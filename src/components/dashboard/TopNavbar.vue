@@ -212,7 +212,7 @@ onMounted(async () => {
         pendingCourse.value = [...newObjCourse]
         isNotificationSeen.value = false
       }
-    }, 10000)
+    }, 1000)
     emitter.on('updateCountCart', getDataCart)
   }
 })
