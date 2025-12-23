@@ -6,9 +6,7 @@ import { useCounterStore } from '@/stores/authStore'
 import { pinia } from '@/stores/pinia'
 
 const getAPIURL = () => {
-  const envUrl = import.meta?.env?.VITE_API_URL
-  if (envUrl) return envUrl
-  return import.meta?.env?.PROD ? 'https://www.elearning-cms.site' : 'http://localhost:8081/'
+  return import.meta.env.VITE_API_URL || 'http://localhost:8081/'
 }
 
 const API_URL = getAPIURL()
