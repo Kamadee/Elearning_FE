@@ -12,7 +12,8 @@
 import { formatCurrency } from '@/utils/formatCurrency'
 import { computed } from "vue"
 import useCart from '@/composables/useCart'
-
+import { useAuthStore } from '@/stores/authStore'
+const stores = useAuthStore()
 const props = defineProps({
   priceArray: {
     type: Array,
@@ -25,6 +26,7 @@ const totalAmount = computed(() => props.priceArray.length > 0 ?
 
 const createPayment = async () => {
   const response = await useCart().createPayment()
+  stores.deleteAllInCart()
   if(response) {
     window.location.href = response.payment_url
   } else {
