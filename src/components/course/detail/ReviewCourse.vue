@@ -17,7 +17,7 @@
       </div>
     </div>
 
-    <div class="review-form-section" v-if="isAuthenticated && data.isReviewed">
+    <div class="review-form-section" v-if="isAuthenticated && !data.isReviewed">
       <h3 class="form-title">Viết đánh giá của bạn</h3>
       <a-form class="review-form" :model="data" ref="formRef" :rules="rules" @submit.prevent="addReview()">
         <a-form-item name="rating" class="rating-form-item">
@@ -74,7 +74,7 @@
 
 <script setup>
 import ItemReview from '@/components/course/review/ItemReview.vue'
-import { computed, ref, onMounted, onBeforeMount } from "vue"
+import { computed, ref, onMounted, onUnmounted } from "vue"
 import useCourse from '@/composables/useCourse';
 import { useNotify } from '@/composables/useNotify';
 import { useRoute } from 'vue-router';
@@ -89,7 +89,7 @@ const data = ref({
   rating: null,
   comment: "",
   dataReview: [],
-  isReviewed: true,
+  isReviewed: false,
   page: 1,
   per_page: 12,
   total: 0,
@@ -171,7 +171,7 @@ onMounted(() => {
   window.addEventListener('resize', updateReviewList)
 })
 
-onBeforeMount(() => {
+onUnmounted(() => {
   window.removeEventListener('resize', updateReviewList)
 })
 
