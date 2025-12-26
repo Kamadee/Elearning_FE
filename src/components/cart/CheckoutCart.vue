@@ -12,8 +12,9 @@
 import { formatCurrency } from '@/utils/formatCurrency'
 import { computed } from "vue"
 import useCart from '@/composables/useCart'
-import { useAuthStore } from '@/stores/authStore'
-const stores = useAuthStore()
+import { useCounterStore } from '@/stores/authStore'
+import emitter from '@/utils/eventBus'
+const stores = useCounterStore()
 const props = defineProps({
   priceArray: {
     type: Array,
@@ -25,12 +26,20 @@ const totalAmount = computed(() => props.priceArray.length > 0 ?
  props.priceArray.reduce((acc, current) => acc + current, 0) : 0)
 
 const createPayment = async () => {
-  const response = await useCart().createPayment()
-  stores.deleteAllInCart()
-  if(response) {
-    window.location.href = response.payment_url
-  } else {
-    return
+  try {
+    const response = await useCart().createPayment()
+    if (stores && typeof stores.deleteAllInCart === 'function') {
+      stores.deleteAllInCart()
+    } else {
+      localStorage.setItem('inCart', JSON.stringify([]))
+    }
+    emitter.emit('updateCountCart')
+
+    if (response) {
+      window.location.href = response.payment_url
+    }
+  } catch (err) {
+    console.error('Payment creation failed:', err)
   }
 }
 </script>
