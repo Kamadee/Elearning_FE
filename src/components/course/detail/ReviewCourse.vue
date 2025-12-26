@@ -111,14 +111,6 @@ const breakpoints = {
 const slidesPerView = ref(1);
 const spaceBetween = ref(0);
 
-const ratingOptions = [
-  { value: 1, label: '1 sao' },
-  { value: 2, label: '2 sao' },
-  { value: 3, label: '3 sao' },
-  { value: 4, label: '4 sao' },
-  { value: 5, label: '5 sao' },
-]
-
 const rules = {
   comment: [
     { required: true, message: "Vui lòng nhập đánh giá", trigger: ['blur', 'change'] }
@@ -273,7 +265,7 @@ const updateReviewList = () => {
 .review-form {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 5px !important;
 }
 
 .form-label {
@@ -300,14 +292,16 @@ const updateReviewList = () => {
   width: 100%;
 }
 
-.comment-textarea :deep(.ant-input) {
-  /* fixed visible height, allow scrolling when content exceeds */
-  height: 140px;
-  max-height: 320px;
-  overflow-y: auto;
-  resize: none; /* prevent manual resize to keep layout stable; remove if you want resize */
+.comment-textarea :deep(.ant-input),
+.comment-textarea :deep(textarea),
+.comment-textarea :deep(.ant-input-textarea textarea) {
+  height: 140px !important;
+  max-height: 320px !important;
+  overflow-y: auto !important;
+  resize: none !important;
   border-radius: 4px;
   border-color: #d1d1d1;
+  box-sizing: border-box;
 }
 
 .comment-textarea :deep(.ant-input:focus) {
