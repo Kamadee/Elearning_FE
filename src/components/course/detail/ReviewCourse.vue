@@ -29,7 +29,6 @@
           <a-input 
             v-model:value="data.comment" 
             type="textarea"
-            :rows="4" 
             placeholder="Chia sẻ trải nghiệm của bạn về khóa học này..."
             class="comment-textarea"
           />
@@ -299,10 +298,14 @@ const updateReviewList = () => {
 
 .comment-textarea {
   width: 100%;
-  resize: vertical;
 }
 
 .comment-textarea :deep(.ant-input) {
+  /* fixed visible height, allow scrolling when content exceeds */
+  height: 140px;
+  max-height: 320px;
+  overflow-y: auto;
+  resize: none; /* prevent manual resize to keep layout stable; remove if you want resize */
   border-radius: 4px;
   border-color: #d1d1d1;
 }
