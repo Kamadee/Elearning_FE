@@ -121,13 +121,7 @@ const links = ref([
   { name: 'history', path: '/history'},
 ]);
 
-const categories = ref([
-  { name: 'Fitness', path: '/courses/fitness'},
-  { name: 'Yoga', path: '/courses/yoga'},
-  { name: 'Nutrition', path: '/courses/nutrition'},
-  { name: 'Pilates', path: '/courses/pilates'},
-  { name: 'Dance', path: '/courses/dance'},
-]);
+const categories = ref([]);
 
 const data = ref({
   cartData: [],
@@ -200,6 +194,14 @@ const getUserInitials = () => {
 }
 
 onMounted(async () => {
+  const cats = await useCourse().getCategories()
+  if (cats) {
+    categories.value = cats.map(cat => ({
+      name: cat.category_name,
+      path: `/courses/${cat.category_name}`
+    }))
+  }
+
   if(isAuthenticated.value) {
     await getUserProfile()
     await getDataCart()

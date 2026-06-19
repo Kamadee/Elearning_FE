@@ -1,0 +1,7 @@
+packages:
+  - '.'
+
+allowBuilds:
+  bootstrap-star-rating: true
+  core-js: true
+  esbuild: true

@@ -63,6 +63,8 @@ apiClient.interceptors.request.use(config => {
   // Xoá custom header để không gửi lên server
   delete config.headers['X-Requires-Auth']
 
+  console.log("DEBUG API REQUEST:", config.url, "Authorization:", config.headers?.['Authorization']);
+
   return config;
 }, error => Promise.reject(error));
 

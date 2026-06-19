@@ -1,7 +1,12 @@
 <template>
   <div class="course-banner">
     <div class="title-box">
-      <p class="title-course"><span>Fitness | </span>{{ props.courseData.title }}</p>
+      <p class="title-course">
+        <span v-if="props.courseData.course_categories && props.courseData.course_categories.length">
+          {{ props.courseData.course_categories[0].category_name }} | 
+        </span>
+        {{ props.courseData.title }}
+      </p>
     </div>
     <div class="banner-image" @click="handleClickCard"
     :style="{ backgroundImage: `url(${replaceUrlImage(props.courseData.banner || '')})` }"></div>

@@ -127,6 +127,19 @@ const useCourse = () => {
     return null
   }
 
+  const getCategories = async () => {
+    const { _get } = useAPI()
+    const response = await _get('/api/course/categories', {}, {
+      headers: {
+        'X-Requires-Auth': 'false'
+      }
+    })
+    if (response) {
+      return response.data
+    }
+    return null
+  }
+
   return { 
     getDataCourses,
     getDetailCourse,
@@ -137,7 +150,8 @@ const useCourse = () => {
     addReview,
     getDataReview,
     getCategoryBestOfUser,
-    getNewCourses
+    getNewCourses,
+    getCategories
   }
 }
 export default useCourse

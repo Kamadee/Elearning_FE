@@ -34,17 +34,22 @@
 </template>
 
 <script setup>
-import { computed, ref  } from "vue"
+import { computed, ref, onMounted } from "vue"
 import  { useCounterStore } from '@/stores/authStore'
 import { useRoute, useRouter } from "vue-router";
+import useCourse from "@/composables/useCourse";
 
-const categories = ref([
-  { name: 'Fitness', path: '/courses/fitness'},
-  { name: 'Yoga', path: '/courses/yoga'},
-  { name: 'Nutrition', path: '/courses/nutrition'},
-  { name: 'Pilates', path: '/courses/pilates'},
-  { name: 'Dance', path: '/courses/dance'},
-]);
+const categories = ref([]);
+
+onMounted(async () => {
+  const cats = await useCourse().getCategories()
+  if (cats) {
+    categories.value = cats.map(cat => ({
+      name: cat.category_name,
+      path: `/courses/${cat.category_name}`
+    }))
+  }
+})
 
 const stores = useCounterStore()
 const router = useRouter()
