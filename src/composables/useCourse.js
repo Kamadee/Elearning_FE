@@ -140,6 +140,17 @@ const useCourse = () => {
     return null
   }
 
+  const submitQuiz = async (id, isPassed) => {
+    const { _post } = useAPI()
+    const response = await _post(`/api/course/quiz/submit/${id}`, {
+      isPassed: isPassed
+    })
+    if (response) {
+      return response
+    }
+    return null
+  }
+
   return { 
     getDataCourses,
     getDetailCourse,
@@ -151,7 +162,8 @@ const useCourse = () => {
     getDataReview,
     getCategoryBestOfUser,
     getNewCourses,
-    getCategories
+    getCategories,
+    submitQuiz
   }
 }
 export default useCourse

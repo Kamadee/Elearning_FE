@@ -129,7 +129,7 @@
         >
           <!-- Video Thumbnail or Quiz Icon -->
           <div v-if="item.type === 'video'" class="thumbnail-wrapper">
-            <img class="thumbnail-video" :src="item.video_thumbnail || '/default_video_thumbnail.png'">
+            <img class="thumbnail-video" :src="replaceUrlImage(item.video_thumbnail) || '/default_video_thumbnail.png'">
             <div v-if="isItemBlocked(item)" class="thumbnail-lock-overlay">
               <LockOutlined />
             </div>
@@ -170,6 +170,7 @@
 import useCourse from '@/composables/useCourse';
 import { useRoute, useRouter } from 'vue-router';
 import { ref, onUpdated, onMounted, computed } from "vue";
+import { replaceUrlImage } from '@/utils/replaceUrlImage'
 import { 
   LockOutlined, 
   CheckCircleOutlined, 
@@ -201,16 +202,26 @@ const router = useRouter();
 const route = useRoute();
 
 const loadCompletedQuizzes = () => {
+  const apiCompleted = [];
+  if (data.value.dataCourse && data.value.dataCourse.curriculum) {
+    data.value.dataCourse.curriculum.forEach(item => {
+      if (item.type === 'quiz' && (item.is_completed === 1 || item.is_completed === true)) {
+        apiCompleted.push(item.id);
+      }
+    });
+  }
+
   const stored = localStorage.getItem(`completed_quizzes_course_${route.params.idCourse}`);
+  let localCompleted = [];
   if (stored) {
     try {
-      completedQuizzes.value = JSON.parse(stored);
-    } catch (e) {
-      completedQuizzes.value = [];
+      localCompleted = JSON.parse(stored);
+    } catch {
+      localCompleted = [];
     }
-  } else {
-    completedQuizzes.value = [];
   }
+  
+  completedQuizzes.value = Array.from(new Set([...apiCompleted, ...localCompleted]));
 };
 
 const saveCompletedQuiz = (quizId) => {
@@ -332,7 +343,7 @@ const resetQuizState = (quiz) => {
   quizFeedback.value = {};
 };
 
-const submitQuiz = () => {
+const submitQuiz = async () => {
   if (!currentPlayItem.value || currentPlayItem.value.type !== 'quiz') return;
   
   const questions = currentPlayItem.value.questions || [];
@@ -370,11 +381,28 @@ const submitQuiz = () => {
   quizFeedback.value = feedback;
   quizSubmitted.value = true;
   
-  if (correctCount === questions.length) {
-    quizPassed.value = true;
+  const isPassed = correctCount === questions.length;
+  quizPassed.value = isPassed;
+
+  try {
+    const response = await useCourse().submitQuiz(currentPlayItem.value.id, isPassed);
+    console.log("Submit quiz response:", response);
+  } catch (error) {
+    console.error("Lỗi khi call API submit quiz:", error);
+  }
+
+  if (isPassed) {
     saveCompletedQuiz(currentPlayItem.value.id);
-  } else {
-    quizPassed.value = false;
+    
+    // Update local curriculum is_completed value to unlock subsequent content
+    if (data.value.dataCourse && data.value.dataCourse.curriculum) {
+      const quizIndex = data.value.dataCourse.curriculum.findIndex(
+        item => item.type === 'quiz' && item.id === currentPlayItem.value.id
+      );
+      if (quizIndex !== -1) {
+        data.value.dataCourse.curriculum[quizIndex].is_completed = true;
+      }
+    }
   }
 };
 
@@ -382,6 +410,7 @@ const getDetailCourse = async () => {
   const response = await useCourse().getDetailCourse(route.params.idCourse);
   if(response) {
     data.value.dataCourse = response;
+    console.log("check",data.value)
     loadCompletedQuizzes();
     
     if (data.value.dataCourse.curriculum && data.value.dataCourse.curriculum.length > 0) {
