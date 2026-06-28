@@ -73,14 +73,18 @@ const lectures = computed(() =>
 .content-wrapper {
   display: flex;
   gap: 35px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .content-left {
-  flex: 4;
+  flex: 4 1 0%;
+  min-width: 0;
 }
 
 .content-right {
-  flex: 2;
+  flex: 2 1 0%;
+  min-width: 0;
 }
 
 :deep(.ant-tabs) {

@@ -104,17 +104,21 @@
         </div>
       </div>
 
-      <OwnCourses :courseData="data.ownCourseData"/>
+      <div class="courses-sections">
+        <OwnCourses :courseData="data.ownCourseData" title="Khóa học đã mua"/>
+        <OwnCourses :courseData="data.freeCourseData" title="Khóa học miễn phí đã học"/>
+      </div>
     </div>
   </div>
 </template>
 <script setup>
 import OwnCourses from '@/components/course/OwnCourses.vue'
-import  useAuth from '@/composables/useAuth'
-import  { useCounterStore } from '@/stores/authStore'
+import useAuth from '@/composables/useAuth'
+import { useCounterStore } from '@/stores/authStore'
 import { onMounted, ref } from 'vue'
 import { useNotify } from '@/composables/useNotify'
 import useCart from '@/composables/useCart'
+import useCourse from '@/composables/useCourse'
 
 const isLoading = ref(false)
 const data = ref({
@@ -126,7 +130,8 @@ const data = ref({
   email: "",
   modeEdit: false,
   orderList: [],
-  ownCourseData: []
+  ownCourseData: [],
+  freeCourseData: []
 })
 
 const getDataProfile = async () => {
@@ -141,10 +146,49 @@ const getDataProfile = async () => {
 }
 
 const getPaymentHistoryList = async () => {
-  const response = await useCart().getPaymentHistoryList()
-  if(response) {
-    data.value.orderList = response.orders.filter((order) => order.status === 3).map((order) => order.id)
-    getCourseDataForOrders(data.value.orderList)
+  try {
+    const response = await useCart().getPaymentHistoryList()
+    if(response && response.orders) {
+      data.value.orderList = response.orders.filter((order) => order.status === 3).map((order) => order.id)
+      await getCourseDataForOrders(data.value.orderList)
+    } else {
+      await getMyCoursesList()
+    }
+  } catch(e) {
+    console.log(e)
+    await getMyCoursesList()
+  } finally {
+    isLoading.value = false
+  }
+}
+
+const getMyCoursesList = async () => {
+  try {
+    const res = await useCourse().getDataCourses({ my_courses: true })
+    console.log('res: ', res);
+    
+    if (res && res.data) {
+      // Free courses studied (original_price is 0 or sale_off_price is 0)
+      data.value.freeCourseData = res.data.filter(course => 
+        Number(course.original_price) === 0 || Number(course.sale_off_price) === 0
+      );
+
+      // Copy progress_percent from my_courses items to ownCourseData
+      if (data.value.ownCourseData && data.value.ownCourseData.length > 0) {
+        data.value.ownCourseData = data.value.ownCourseData.map(ownCourse => {
+          const matched = res.data.find(c => c.id === ownCourse.id);
+          if (matched) {
+            return {
+              ...ownCourse,
+              progress_percent: matched.progress_percent
+            };
+          }
+          return ownCourse;
+        });
+      }
+    }
+  } catch (err) {
+    console.error('Error fetching my courses:', err)
   }
 }
 
@@ -155,10 +199,9 @@ const getCourseDataForOrders = async (orderList) => {
     const res = await Promise.all(promises)
     const courseData = res.flatMap(r => r.courses)
     data.value.ownCourseData = courseData
+    await getMyCoursesList()
   } catch(e) {
-    console.log(e);
-  } finally {
-    isLoading.value = false;
+    console.log(e)
   }
 }
 
@@ -634,5 +677,11 @@ const logOut = () => {
     height: 40px;
     font-size: 14px;
   }
+}
+
+.courses-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
 }
 </style>

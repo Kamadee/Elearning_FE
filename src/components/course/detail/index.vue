@@ -63,8 +63,10 @@ watchEffect(() => {
   flex-direction: column;
   padding: 40px 80px;
   gap: 48px;
+  width: 100%;
   max-width: 1340px;
   margin: 0 auto;
+  box-sizing: border-box;
 }
 
 .related-container {

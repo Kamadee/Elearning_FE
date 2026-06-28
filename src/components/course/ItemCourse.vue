@@ -11,35 +11,58 @@
           <span class="rating-value">{{ formatRating(course.rating_average) }}</span>
         </div>
         <p class="course-instructor">{{ course.author }}</p>
-        <div class="course-price">
+        <div class="course-price" v-if="!hidePrice">
           <span class="current-price">{{ formatCurrency(course.sale_off_price) }}</span>
           <span class="original-price" v-if="course.original_price > course.sale_off_price">
             {{ formatCurrency(course.original_price) }}
           </span>
         </div>
-        <div class="course-badges" v-if="course.course_categories && course.course_categories.length > 0">
+        <div ref="badgesContainer" class="course-badges" v-if="course.course_tags && course.course_tags.length > 0">
           <span 
-            class="badge" 
-            v-for="(category, index) in course.course_categories.slice(0, 2)" 
+            class="badge badge-tag" 
+            v-for="(tag, index) in course.course_tags" 
             :key="index"
+            v-show="isExpanded || index < limitIndex"
           >
-            {{ category.category_name }}
+            {{ tag.tag_name }}
           </span>
+          <span 
+            v-if="hasOverflow" 
+            class="badge badge-more" 
+            @click.stop="toggleExpand"
+          >
+            {{ isExpanded ? 'Ẩn bớt' : '...' }}
+          </span>
+        </div>
+        
+        <!-- Progress Bar -->
+        <div v-if="showProgress && course.progress_percent !== undefined && course.progress_percent !== null" class="progress-container">
+          <div class="progress-bar-wrapper">
+            <div class="progress-bar-fill" :style="{ width: course.progress_percent + '%' }"></div>
+          </div>
+          <span class="progress-text">{{ course.progress_percent }}% đã hoàn thành</span>
         </div>
       </div>
     </div>
-  </div>
-</template>
+  </div></template>
 
 <script setup>
 import { replaceUrlImage } from '@/utils/replaceUrlImage'
 import { formatCurrency } from '@/utils/formatCurrency'
-import { defineProps, defineEmits } from 'vue'
+import { defineProps, defineEmits, ref, onMounted, onUnmounted, nextTick, watch } from 'vue'
 
 const props = defineProps({
   course: {
     type: Object,
     required: true
+  },
+  hidePrice: {
+    type: Boolean,
+    default: false
+  },
+  showProgress: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -47,6 +70,86 @@ const emit = defineEmits(['ClickCard'])
 const handleClickCard = () => {
   emit('ClickCard', props.course.id)
 }
+
+const badgesContainer = ref(null)
+const isExpanded = ref(false)
+const hasOverflow = ref(false)
+const limitIndex = ref(999)
+
+const toggleExpand = () => {
+  isExpanded.value = !isExpanded.value
+}
+
+const checkOverflow = () => {
+  if (!badgesContainer.value || !props.course.course_tags || props.course.course_tags.length === 0) {
+    hasOverflow.value = false
+    limitIndex.value = 999
+    return
+  }
+
+  // 1. Reset to measure natural size
+  limitIndex.value = 999
+  hasOverflow.value = false
+
+  nextTick(() => {
+    const container = badgesContainer.value
+    if (!container) return
+
+    const containerWidth = container.clientWidth
+    const children = container.querySelectorAll('.badge-tag')
+    if (children.length === 0) return
+
+    let totalWidth = 0
+    const gap = 6 // gap: 6px
+    let overflowDetected = false
+
+    // Width of '...' button badge is roughly 24px + 6px gap = 30px
+    const moreBtnWidth = 30
+
+    for (let i = 0; i < children.length; i++) {
+      const childWidth = children[i].getBoundingClientRect().width
+      const itemWidth = childWidth + (i > 0 ? gap : 0)
+
+      if (totalWidth + itemWidth > containerWidth) {
+        overflowDetected = true
+        break
+      }
+      totalWidth += itemWidth
+    }
+
+    if (overflowDetected) {
+      hasOverflow.value = true
+      let currentWidth = 0
+      let countWithMore = 0
+      for (let i = 0; i < children.length; i++) {
+        const childWidth = children[i].getBoundingClientRect().width
+        const itemWidth = childWidth + (i > 0 ? gap : 0)
+        if (currentWidth + itemWidth + gap + moreBtnWidth > containerWidth) {
+          break
+        }
+        currentWidth += itemWidth
+        countWithMore++
+      }
+      limitIndex.value = Math.max(1, countWithMore)
+    } else {
+      hasOverflow.value = false
+      limitIndex.value = 999
+    }
+  })
+}
+
+onMounted(() => {
+  checkOverflow()
+  window.addEventListener('resize', checkOverflow)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', checkOverflow)
+})
+
+watch(() => props.course.course_tags, () => {
+  checkOverflow()
+}, { deep: true })
 
 const formatRating = (rating) => {
   if (!rating || rating === "0.00") return '0'
@@ -181,5 +284,45 @@ const formatRating = (rating) => {
   font-size: 11px;
   font-weight: 600;
   line-height: 1.4;
+}
+
+.badge-more {
+  background-color: #e0e0e0;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s ease;
+}
+
+.badge-more:hover {
+  background-color: #d1d7dc;
+  color: #5624d0;
+}
+
+.progress-container {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.progress-bar-wrapper {
+  width: 100%;
+  height: 6px;
+  background-color: #f3f4f5;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background-color: #34a853; /* green */
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  font-size: 11px;
+  font-weight: 600;
+  color: #155724;
 }
 </style>

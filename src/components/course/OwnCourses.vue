@@ -1,17 +1,17 @@
 <template>
   <div class="course-container">
-    <h2 class="section-title">Khóa học của tôi</h2>
+    <h2 class="section-title">{{ title }}</h2>
     <div class="courses-grid" v-if="paginatedCourses.length > 0">
       <div 
         v-for="(course, index) in paginatedCourses" 
         :key="index"
         class="course-item"
       >
-        <ItemCourse :course="course" v-loading="loadingStates[course.id]" @ClickCard="handleClickCard"/>
+        <ItemCourse :course="course" :hidePrice="true" :showProgress="true" v-loading="loadingStates[course.id]" @ClickCard="handleClickCard"/>
       </div>
     </div>
     <div class="no-courses" v-else>
-      <p>Bạn chưa có khóa học nào</p>
+      <p>Không có khóa học nào</p>
     </div>
     <div class="pagination-wrapper" v-if="total > data.per_page">
       <a-pagination
@@ -36,8 +36,12 @@ const data = ref({
 
 const props = defineProps({
   courseData: {
-    type: Object,
+    type: Array,
     required: true
+  },
+  title: {
+    type: String,
+    default: 'Khóa học của tôi'
   }
 })
 
