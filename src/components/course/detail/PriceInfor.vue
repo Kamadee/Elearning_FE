@@ -112,7 +112,7 @@ const addCourse = async (id) => {
   loadingStates.value = true;
   try {
     if(isAuthenticated.value) {
-      const response = await useCart().addCourse(id, true)
+      const response = await useCart().addCourse(id, 1)
       if(response) {
         stores.setInCart(props.courseData.id)
         await getDataCarts()

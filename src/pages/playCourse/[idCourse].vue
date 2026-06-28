@@ -116,7 +116,15 @@
 
       <!-- Curriculum list in Sidebar -->
       <div class="list-video">
-        <div class="nd">Nội dung khóa học</div>
+        <div class="nd">
+          <div class="nd-title">Nội dung khóa học</div>
+          <div v-if="data.dataCourse.progress_percent !== undefined && data.dataCourse.progress_percent !== null" class="course-progress-container">
+            <div class="progress-bar-wrapper">
+              <div class="progress-bar-fill" :style="{ width: data.dataCourse.progress_percent + '%' }"></div>
+            </div>
+            <div class="progress-bar-text">Tiến độ học tập: {{ data.dataCourse.progress_percent }}%</div>
+          </div>
+        </div>
         <div 
           v-for="(item, index) in data.dataCourse.curriculum" 
           :key="index"
@@ -151,6 +159,10 @@
                 {{ item.type === 'video' ? 'Video' : 'Trắc nghiệm' }}
               </span>
               
+              <span v-if="item.type === 'video' && (item.is_completed === true || item.is_completed === 1)" class="video-completed-label">
+                <CheckOutlined /> Đã học
+              </span>
+
               <span v-if="item.type === 'quiz'" class="quiz-status-label" :class="{ 'completed': completedQuizzes.includes(item.id) }">
                 {{ completedQuizzes.includes(item.id) ? 'Đã đạt' : 'Chưa đạt' }}
               </span>
@@ -169,8 +181,8 @@
 <script setup>
 import useCourse from '@/composables/useCourse';
 import { useRoute, useRouter } from 'vue-router';
-import { ref, onUpdated, onMounted, computed } from "vue";
-import { replaceUrlImage } from '@/utils/replaceUrlImage'
+import { replaceUrlImage } from '@/utils/replaceUrlImage';
+import { ref, onMounted, computed, onUnmounted, watch, nextTick, onUpdated } from "vue";
 import { 
   LockOutlined, 
   CheckCircleOutlined, 
@@ -180,6 +192,108 @@ import {
   CloseCircleOutlined
 } from '@ant-design/icons-vue';
 
+const vimeoPlayer = ref(null);
+const currentVideoDuration = ref(0);
+const watchedSecondsSet = ref(new Set());
+let lastSentTime = 0;
+
+const loadVimeoSDK = () => {
+  return new Promise((resolve) => {
+    if (window.Vimeo) {
+      resolve(window.Vimeo);
+      return;
+    }
+    const script = document.createElement('script');
+    script.src = 'https://player.vimeo.com/api/player.js';
+    script.onload = () => resolve(window.Vimeo);
+    script.onerror = () => resolve(null);
+    document.head.appendChild(script);
+  });
+};
+
+const sendProgress = async (isCompleted = false) => {
+  if (!currentPlayItem.value || currentPlayItem.value.type !== 'video') return;
+
+  try {
+    const duration = currentVideoDuration.value;
+    const payload = {
+      course_video_id: currentPlayItem.value.id,
+      watched_seconds: watchedSecondsSet.value.size,
+      total_seconds: duration,
+      is_completed: isCompleted
+    };
+    
+    const res = await useCourse().updateVideoProgress(payload);
+    if (res) {
+      if (res.course_progress_percent !== undefined) {
+        data.value.dataCourse.progress_percent = res.course_progress_percent;
+      }
+      if (res.video_progress && res.video_progress.is_completed) {
+        const videoInCurriculum = data.value.dataCourse.curriculum.find(
+          item => item.type === 'video' && item.id === currentPlayItem.value.id
+        );
+        if (videoInCurriculum) {
+          videoInCurriculum.is_completed = true;
+        }
+      }
+    }
+  } catch (err) {
+    console.error('Error sending video progress:', err);
+  }
+};
+
+const initVimeoPlayer = async (iframeEl) => {
+  try {
+    const Vimeo = await loadVimeoSDK();
+    if (!Vimeo) return;
+    
+    if (vimeoPlayer.value) {
+      try {
+        await vimeoPlayer.value.destroy();
+      } catch (e) {}
+    }
+    
+    watchedSecondsSet.value = new Set();
+    currentVideoDuration.value = 0;
+    lastSentTime = Date.now();
+    
+    const player = new Vimeo.Player(iframeEl);
+    vimeoPlayer.value = player;
+    
+    try {
+      const dur = await player.getDuration();
+      currentVideoDuration.value = Math.round(dur);
+    } catch (e) {
+      console.error("Failed to get duration:", e);
+    }
+    
+    player.on('timeupdate', (progress) => {
+      const second = Math.floor(progress.seconds);
+      watchedSecondsSet.value.add(second);
+      
+      const now = Date.now();
+      if (now - lastSentTime >= 10000) {
+        sendProgress();
+        lastSentTime = now;
+      }
+    });
+    
+    player.on('pause', () => {
+      sendProgress();
+    });
+    
+    player.on('seeked', () => {
+      sendProgress();
+    });
+    
+    player.on('ended', () => {
+      sendProgress(true);
+    });
+  } catch (err) {
+    console.error('Failed to initialize Vimeo player:', err);
+  }
+};
+
 const data = ref({
   dataCourse: {},
   currentVideo: "",
@@ -187,7 +301,12 @@ const data = ref({
 });
 
 const currentPlayItem = ref(null);
-const completedQuizzes = ref([]);
+const completedQuizzes = computed(() => {
+  if (!data.value.dataCourse || !data.value.dataCourse.curriculum) return [];
+  return data.value.dataCourse.curriculum
+    .filter(item => item.type === 'quiz' && (item.is_completed === true || item.is_completed === 1 || item.is_completed === 'true'))
+    .map(item => item.id);
+});
 const selectedAnswers = ref({});
 const quizSubmitted = ref(false);
 const quizPassed = ref(false);
@@ -233,7 +352,6 @@ const saveCompletedQuiz = (quizId) => {
     );
   }
 };
-
 const isItemBlocked = (item) => {
   if (!data.value.dataCourse || !data.value.dataCourse.curriculum) return false;
   
@@ -279,6 +397,17 @@ const jumpToQuiz = (quizName) => {
 };
 
 const selectItem = async (item) => {
+  if (currentPlayItem.value && currentPlayItem.value.type === 'video' && vimeoPlayer.value) {
+    try {
+      await sendProgress();
+      await vimeoPlayer.value.destroy();
+    } catch (e) {
+      console.error(e);
+    }
+    vimeoPlayer.value = null;
+  }
+  watchedSecondsSet.value = new Set();
+
   if (isItemBlocked(item)) {
     currentPlayItem.value = item;
     data.value.urlIframCurrent = "";
@@ -434,23 +563,42 @@ const loadingScreen = ref(false);
 const loadingVideo = ref({});
 
 const myIframe = ref('myIframe');
-onUpdated(() => {
-  try {
-    if (currentPlayItem.value && currentPlayItem.value.type === 'video') {
-      const id = currentPlayItem.value.id;
-      loadingVideo.value[id] = true;
-      let elIframe = myIframe.value?.children[0];
-      if (elIframe) {
-        elIframe.setAttribute('width', '100%');
-        elIframe.setAttribute('height', '100%');
+watch(() => data.value.urlIframCurrent, async (newVal) => {
+  if (newVal && currentPlayItem.value && currentPlayItem.value.type === 'video') {
+    const id = currentPlayItem.value.id;
+    loadingVideo.value[id] = true;
+    loadingScreen.value = true;
+    await nextTick();
+    let elIframe = myIframe.value?.children[0];
+    if (elIframe) {
+      elIframe.setAttribute('width', '100%');
+      elIframe.setAttribute('height', '100%');
+      if (!elIframe.dataset.vimeoInitialized) {
+        elIframe.dataset.vimeoInitialized = 'true';
+        initVimeoPlayer(elIframe);
+        
         elIframe.addEventListener("load", () => {
           loadingScreen.value = false;
         });
+
+        if (elIframe.contentDocument && elIframe.contentDocument.readyState === 'complete') {
+          loadingScreen.value = false;
+        } else {
+          setTimeout(() => {
+            loadingScreen.value = false;
+          }, 1500);
+        }
       }
-      theme.value.heightVideo = `${window.innerWidth / 16 * 9}px`;
     }
-  } catch (e) {
-    console.error(e);
+  }
+});
+
+onUnmounted(async () => {
+  if (vimeoPlayer.value) {
+    try {
+      await sendProgress();
+      await vimeoPlayer.value.destroy();
+    } catch (e) {}
   }
 });
 </script>
@@ -1096,5 +1244,51 @@ onUpdated(() => {
     min-width: 80px;
     height: 45px;
   }
+}
+
+.nd-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1c1d1f;
+}
+
+.course-progress-container {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.progress-bar-wrapper {
+  width: 100%;
+  height: 6px;
+  background-color: #e9ecef;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background-color: #34a853; /* green progress */
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.progress-bar-text {
+  font-size: 12px;
+  font-weight: 500;
+  color: #5f6368;
+}
+
+.video-completed-label {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 1px 4px;
+  border-radius: 3px;
+  background-color: #d4edda;
+  color: #155724;
+  display: flex;
+  align-items: center;
+  gap: 2px;
 }
 </style>
