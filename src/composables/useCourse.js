@@ -166,13 +166,18 @@ const useCourse = () => {
     return null
   }
 
-  const submitQuiz = async (id, isPassed) => {
+  const submitQuiz = async (quizId, answers) => {
     const { _post } = useAPI()
-    const response = await _post(`/api/course/quiz/submit/${id}`, {
-      isPassed: isPassed
+    const response = await _post('/api/course/quiz/submit', {
+      quiz_id: quizId,
+      answers: answers
+    }, {
+      headers: {
+        'X-Requires-Auth': 'true'
+      }
     })
     if (response) {
-      return response
+      return response.data
     }
     return null
   }

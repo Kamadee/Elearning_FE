@@ -476,62 +476,65 @@ const submitQuiz = async () => {
   if (!currentPlayItem.value || currentPlayItem.value.type !== 'quiz') return;
   
   const questions = currentPlayItem.value.questions || [];
-  let correctCount = 0;
-  const feedback = {};
-  
-  questions.forEach(q => {
-    const correctOptions = q.options.filter(o => o.is_correct === 1 || o.is_correct === true);
-    const correctOptIds = correctOptions.map(o => o.id);
+  const answers = Object.keys(selectedAnswers.value).map(questionIdStr => {
+    const questionId = Number(questionIdStr);
+    const ans = selectedAnswers.value[questionId];
+    const question = questions.find(q => q.id === questionId);
     
-    let isCorrect = false;
-    if (q.type === 'multiple') {
-      const selectedIds = (selectedAnswers.value[q.id] || []).map(Number);
-      const correctIds = correctOptIds.map(Number);
-      if (selectedIds.length === correctIds.length) {
-        isCorrect = selectedIds.every(id => correctIds.includes(id));
-      } else {
-        isCorrect = false;
-      }
+    if (question && question.type === 'multiple') {
+      return {
+        question_id: questionId,
+        selected_option_ids: Array.isArray(ans) ? ans.map(Number) : []
+      };
     } else {
-      const selectedOptId = selectedAnswers.value[q.id];
-      isCorrect = correctOptIds.includes(Number(selectedOptId));
+      return {
+        question_id: questionId,
+        selected_option_id: ans ? Number(ans) : null
+      };
     }
-
-    if (isCorrect) {
-      correctCount++;
-    }
-    feedback[q.id] = {
-      correct: isCorrect,
-      correctAnswers: correctOptions.map(o => o.option_text).join(', ')
-    };
   });
-  
-  quizScore.value = correctCount;
-  quizFeedback.value = feedback;
-  quizSubmitted.value = true;
-  
-  const isPassed = correctCount === questions.length;
-  quizPassed.value = isPassed;
 
   try {
-    const response = await useCourse().submitQuiz(currentPlayItem.value.id, isPassed);
-    console.log("Submit quiz response:", response);
-  } catch (error) {
-    console.error("Lỗi khi call API submit quiz:", error);
-  }
+    const res = await useCourse().submitQuiz(currentPlayItem.value.id, answers);
+    if (res) {
+      quizScore.value = res.correct_questions;
+      quizSubmitted.value = true;
+      quizPassed.value = res.is_completed;
+      
+      const feedback = {};
+      questions.forEach(q => {
+        const detail = res.details ? res.details.find(d => d.question_id === q.id) : null;
+        const isCorrect = detail ? detail.is_correct : false;
+        
+        if (detail && detail.correct_option_ids) {
+          q.options.forEach(opt => {
+            opt.is_correct = detail.correct_option_ids.includes(opt.id) ? 1 : 0;
+          });
+        }
+        
+        const correctOptions = q.options.filter(o => o.is_correct === 1 || o.is_correct === true);
+        feedback[q.id] = {
+          correct: isCorrect,
+          correctAnswers: correctOptions.map(o => o.option_text).join(', ')
+        };
+      });
+      quizFeedback.value = feedback;
 
-  if (isPassed) {
-    saveCompletedQuiz(currentPlayItem.value.id);
-    
-    // Update local curriculum is_completed value to unlock subsequent content
-    if (data.value.dataCourse && data.value.dataCourse.curriculum) {
-      const quizIndex = data.value.dataCourse.curriculum.findIndex(
-        item => item.type === 'quiz' && item.id === currentPlayItem.value.id
-      );
-      if (quizIndex !== -1) {
-        data.value.dataCourse.curriculum[quizIndex].is_completed = true;
+      if (res.is_completed) {
+        const quizInCurriculum = data.value.dataCourse.curriculum.find(
+          item => item.type === 'quiz' && item.id === currentPlayItem.value.id
+        );
+        if (quizInCurriculum) {
+          quizInCurriculum.is_completed = true;
+        }
+      }
+      
+      if (res.course_progress_percent !== undefined) {
+        data.value.dataCourse.progress_percent = res.course_progress_percent;
       }
     }
+  } catch (err) {
+    console.error('Error submitting quiz:', err);
   }
 };
 
