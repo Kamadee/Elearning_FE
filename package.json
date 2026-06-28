@@ -15,6 +15,7 @@
     "@fortawesome/fontawesome-svg-core": "^6.7.2",
     "@fortawesome/free-solid-svg-icons": "^6.7.2",
     "@fortawesome/vue-fontawesome": "^3.0.8",
+    "@sentry/vue": "^10.62.0",
     "ant-design-vue": "^4.2.6",
     "axios": "^1.8.4",
     "bootstrap": "^5.3.5",
@@ -35,6 +36,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.22.0",
+    "@sentry/vite-plugin": "^5.3.0",
     "@vitejs/plugin-vue": "^5.2.3",
     "@vue/eslint-config-prettier": "^10.2.0",
     "eslint": "^9.22.0",

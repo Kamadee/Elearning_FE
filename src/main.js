@@ -1,6 +1,7 @@
 import './assets/main.css'
 import { createApp } from 'vue'
 import { pinia } from './stores/pinia'
+import * as Sentry from "@sentry/vue"
 
 import App from './App.vue'
 import router from './router'
@@ -52,6 +53,21 @@ import 'vue-toastification/dist/index.css';
 import './assets/css/toast-custom.css';
 
 const app = createApp(App)
+
+const sentryDsn = import.meta.env.VITE_SENTRY_DSN
+if (sentryDsn) {
+  Sentry.init({
+    app,
+    dsn: sentryDsn,
+    integrations: [
+      Sentry.browserTracingIntegration({ router }),
+      Sentry.replayIntegration(),
+    ],
+    tracesSampleRate: 1.0,
+    replaysSessionSampleRate: 0.1,
+    replaysOnErrorSampleRate: 1.0,
+  })
+}
 const options = {
   position: 'top-right',
   timeout: 3000,
