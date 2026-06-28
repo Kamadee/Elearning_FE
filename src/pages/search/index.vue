@@ -67,6 +67,15 @@
           <a-select-option value="Intermediate">Intermediate</a-select-option>
           <a-select-option value="Expert">Expert</a-select-option>
         </a-select>
+        
+        <!-- Clear Filters Button -->
+        <button 
+          v-if="isFilterActive"
+          class="filter-clear-btn" 
+          @click="resetFilters"
+        >
+          Clear filters
+        </button>
       </div>
 
       <!-- Sorting -->
@@ -145,6 +154,14 @@ const selectedLevel = ref(null)
 const currentPage = ref(1)
 const pageSize = ref(6)
 const totalCourses = ref(0)
+
+// Check if any filter is active
+const isFilterActive = computed(() => {
+  return selectedTags.value.length > 0 ||
+         selectedRating.value !== null ||
+         selectedLanguage.value !== null ||
+         selectedLevel.value !== null
+})
 
 // Reset all filters
 const resetFilters = () => {
@@ -420,6 +437,7 @@ const handleCourseClick = (id) => {
   font-weight: 700 !important;
   font-size: 13px !important;
   color: #1c1d1f !important;
+  width: 100% !important;
 }
 
 .filter-select-ant :deep(.ant-select-arrow) {
@@ -430,6 +448,25 @@ const handleCourseClick = (id) => {
 .filter-select-ant:hover {
   background-color: #f7f9fa;
   border-color: #1c1d1f;
+}
+
+.filter-clear-btn {
+  background: none;
+  border: none;
+  color: #5624d0;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 8px 12px;
+  display: inline-flex;
+  align-items: center;
+  transition: color 0.2s ease;
+  user-select: none;
+}
+
+.filter-clear-btn:hover {
+  color: #401b9c;
+  text-decoration: underline;
 }
 
 .sort-wrapper {
