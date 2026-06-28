@@ -140,6 +140,32 @@ const useCourse = () => {
     return null
   }
 
+  const getTags = async () => {
+    const { _get } = useAPI()
+    const response = await _get('/api/course/tags', {}, {
+      headers: {
+        'X-Requires-Auth': 'false'
+      }
+    })
+    if (response) {
+      return response.data
+    }
+    return null
+  }
+
+  const updateVideoProgress = async (payload) => {
+    const { _post } = useAPI()
+    const response = await _post('/api/course/video/progress', payload, {
+      headers: {
+        'X-Requires-Auth': 'true'
+      }
+    })
+    if (response) {
+      return response.data
+    }
+    return null
+  }
+
   const submitQuiz = async (id, isPassed) => {
     const { _post } = useAPI()
     const response = await _post(`/api/course/quiz/submit/${id}`, {
@@ -163,6 +189,8 @@ const useCourse = () => {
     getCategoryBestOfUser,
     getNewCourses,
     getCategories,
+    getTags,
+    updateVideoProgress,
     submitQuiz
   }
 }
