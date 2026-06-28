@@ -1,7 +1,8 @@
 <template>
   <div class="search-container" v-loading="loadingSearch">
     <div class="result-count-search">
-      {{ totalCourses }} kết quả cho "{{ data.keySearch }}"
+      <span v-if="data.keySearch">{{ totalCourses }} kết quả cho "{{ data.keySearch }}"</span>
+      <span v-else>{{ totalCourses }} khóa học</span>
     </div>
 
     <!-- Filter Bar -->
@@ -160,7 +161,8 @@ const isFilterActive = computed(() => {
   return selectedTags.value.length > 0 ||
          selectedRating.value !== null ||
          selectedLanguage.value !== null ||
-         selectedLevel.value !== null
+         selectedLevel.value !== null ||
+         (store.getKeySearch && store.getKeySearch.trim() !== '')
 })
 
 // Reset all filters
@@ -171,6 +173,7 @@ const resetFilters = () => {
   selectedLevel.value = null
   sortBy.value = 'relevant'
   currentPage.value = 1
+  store.setKeySearch('')
 }
 
 // Compute language dynamically based on Vietnamese characters presence
@@ -229,12 +232,19 @@ const fetchCourses = async () => {
   }
 }
 
-// Watchers to trigger API call when filters change
+// Watchers to trigger API call when filters or search key change
 watch(
-  [selectedRating, sortBy, () => [...selectedTags.value]],
+  [selectedRating, sortBy, () => [...selectedTags.value], () => store.getKeySearch],
   () => {
     currentPage.value = 1
     fetchCourses()
+  }
+)
+
+watch(
+  () => store.getKeySearch,
+  (newKey) => {
+    data.value.keySearch = newKey
   }
 )
 
@@ -262,15 +272,6 @@ const fetchTags = async () => {
     console.error('Error fetching tags:', err)
   }
 }
-
-watch(
-  () => store.getKeySearch,
-  (newKey) => {
-    data.value.keySearch = newKey
-    currentPage.value = 1
-    fetchCourses()
-  }
-)
 
 onMounted(async () => {
   data.value.keySearch = store.getKeySearch
