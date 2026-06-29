@@ -216,6 +216,10 @@ const sendProgress = async (isCompleted = false) => {
 
   try {
     const duration = currentVideoDuration.value;
+    if (!duration || duration <= 0) {
+      console.warn("Skipping sendProgress: duration is invalid or 0");
+      return;
+    }
     const payload = {
       course_video_id: currentPlayItem.value.id,
       watched_seconds: watchedSecondsSet.value.size,
