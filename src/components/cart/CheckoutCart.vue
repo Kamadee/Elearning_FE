@@ -1,10 +1,26 @@
 <template>
   <div class="checkout-container">
     <div class="total-section">
-      <span class="total-label">Tổng:</span>
-      <span class="total-amount">{{ formatCurrency(totalAmount) }}</span>
+      <div v-if="appliedCoupon" class="price-details">
+        <div class="price-row">
+          <span class="price-label">Tổng gốc:</span>
+          <span class="original-amount">{{ formatCurrency(originalTotal) }}</span>
+        </div>
+        <div class="price-row coupon-discount">
+          <span class="price-label">Giảm giá ({{ appliedCoupon.coupon_code }}):</span>
+          <span class="discount-amount">-{{ formatCurrency(appliedCoupon.discount_amount) }}</span>
+        </div>
+        <div class="price-row final-row">
+          <span class="total-label">Tổng cộng:</span>
+          <span class="total-amount">{{ formatCurrency(appliedCoupon.final_total) }}</span>
+        </div>
+      </div>
+      <div v-else class="price-row simple-total">
+        <span class="total-label">Tổng:</span>
+        <span class="total-amount">{{ formatCurrency(originalTotal) }}</span>
+      </div>
     </div>
-    <button class="button-checkout" @click="createPayment">Thanh toán</button>
+    <button class="button-checkout" @click="handleCheckout">Thanh toán</button>
   </div>
 </template>
 
@@ -14,20 +30,26 @@ import { computed } from "vue"
 import useCart from '@/composables/useCart'
 import { useCounterStore } from '@/stores/authStore'
 import emitter from '@/utils/eventBus'
+
 const stores = useCounterStore()
 const props = defineProps({
   priceArray: {
     type: Array,
     required: true
+  },
+  appliedCoupon: {
+    type: Object,
+    default: null
   }
 })
 
-const totalAmount = computed(() => props.priceArray.length > 0 ?
+const originalTotal = computed(() => props.priceArray.length > 0 ?
  props.priceArray.reduce((acc, current) => acc + current, 0) : 0)
 
-const createPayment = async () => {
+const handleCheckout = async () => {
   try {
-    const response = await useCart().createPayment()
+    const couponCode = props.appliedCoupon ? props.appliedCoupon.coupon_code : null
+    const response = await useCart().createPayment(couponCode)
     if (stores && typeof stores.deleteAllInCart === 'function') {
       stores.deleteAllInCart()
     } else {
@@ -49,14 +71,60 @@ const createPayment = async () => {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  width: 100%;
 }
 
 .total-section {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
   padding-bottom: 16px;
   border-bottom: 1px solid #e0e0e0;
+  width: 100%;
+}
+
+.price-details {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.price-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.simple-total {
+  padding: 8px 0;
+}
+
+.price-label {
+  font-size: 14px;
+  color: #6a6f73;
+}
+
+.original-amount {
+  font-size: 15px;
+  text-decoration: line-through;
+  color: #6a6f73;
+}
+
+.coupon-discount .price-label {
+  color: #10b981;
+}
+
+.coupon-discount .discount-amount {
+  font-size: 15px;
+  color: #10b981;
+  font-weight: 600;
+}
+
+.final-row {
+  margin-top: 8px;
+  padding-top: 12px;
+  border-top: 1px dashed #e0e0e0;
 }
 
 .total-label {

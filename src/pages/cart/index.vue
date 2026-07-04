@@ -4,7 +4,14 @@
       <h1 class="cart-title">Giỏ hàng</h1>
       <div class="cart-items-container">
         <div class="card-course-wrapper" v-for="(cart, index) in data.cartData" :key="index">
-          <ItemCart :cartData="cart" v-loading="loadingStates[cart.id]" @removeItem="removeItem" @click="handleClickCourse(cart.course.id)"/>
+          <ItemCart 
+            :cartData="cart" 
+            :appliedCoupon="appliedCoupon"
+            v-loading="loadingStates[cart.id]" 
+            @removeItem="removeItem" 
+            @selectCoupon="handleSelectCoupon"
+            @click="handleClickCourse(cart.course.id)"
+          />
         </div>
       </div>
     </div>
@@ -13,7 +20,7 @@
     </div>
 
     <div class="payment-info" v-if="data.cartData.length > 0">
-      <CheckoutCart :priceArray="data.prices"/>
+      <CheckoutCart :priceArray="data.prices" :appliedCoupon="appliedCoupon"/>
     </div>
   </div>
 </template>
@@ -25,11 +32,16 @@ import CheckoutCart from '@/components/cart/CheckoutCart.vue'
 import useCart from '@/composables/useCart'
 import { useNotify } from '@/composables/useNotify'
 import { onMounted, ref } from "vue"
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 const data = ref({
   cartData: [],
   prices: []
 })
+
+const appliedCoupon = ref(null)
 
 const getDataCarts = async () => {
   const response = await useCart().getDataCarts()
@@ -43,19 +55,75 @@ onMounted(() => {
 })
 
 const loadingStates = ref({})
+const selectedCouponsByCourse = ref({})
+
 const removeItem = async (id) => {
   loadingStates.value[id] = true
   try {
     const response = await useCart().removeItem(id)
     if(response) {
+      const removedItem = data.value.cartData.find(item => item.id === id)
+      if (removedItem && removedItem.course) {
+        delete selectedCouponsByCourse.value[removedItem.course.id]
+      }
       data.value.cartData = data.value.cartData.filter((item) => item.id !== id)
       data.value.prices = data.value.cartData.map((content) => content.price)
+      
+      const allCodes = []
+      for (const cid in selectedCouponsByCourse.value) {
+        allCodes.push(...selectedCouponsByCourse.value[cid])
+      }
+      const uniqueCodes = [...new Set(allCodes)]
+      if (uniqueCodes.length > 0) {
+        try {
+          const res = await useCart().applyCoupon(uniqueCodes.join(','))
+          appliedCoupon.value = res
+        } catch (err) {
+          appliedCoupon.value = null
+        }
+      } else {
+        appliedCoupon.value = null
+      }
       await getDataCarts()
     }
   } finally {
     setTimeout(() => {
       loadingStates.value[id] = false
     }, 2000);
+  }
+}
+
+const handleSelectCoupon = async (codes, courseId) => {
+  if (!codes || codes.length === 0) {
+    delete selectedCouponsByCourse.value[courseId]
+  } else {
+    selectedCouponsByCourse.value[courseId] = codes
+  }
+
+  const allCodes = []
+  for (const cid in selectedCouponsByCourse.value) {
+    allCodes.push(...selectedCouponsByCourse.value[cid])
+  }
+  const uniqueCodes = [...new Set(allCodes)]
+
+  if (uniqueCodes.length === 0) {
+    appliedCoupon.value = null
+    return
+  }
+
+  try {
+    const joinedCodes = uniqueCodes.join(',')
+    const response = await useCart().applyCoupon(joinedCodes)
+    if (response) {
+      appliedCoupon.value = response
+      useNotify().notify('Áp dụng mã giảm giá thành công!', 'success')
+    } else {
+      appliedCoupon.value = null
+      useNotify().notify('Mã giảm giá không hợp lệ hoặc không áp dụng được!', 'error')
+    }
+  } catch (err) {
+    appliedCoupon.value = null
+    useNotify().notify('Có lỗi xảy ra khi áp dụng mã giảm giá!', 'error')
   }
 }
 

@@ -62,6 +62,10 @@ export const useCounterStore = defineStore('auth', {
       this.inCart = this.inCart.filter(item => item !== id)
       localStorage.setItem('inCart', JSON.stringify(this.inCart))
     },
+    setInCartList(list) {
+      this.inCart = list
+      localStorage.setItem('inCart', JSON.stringify(list))
+    },
     setGettingData(value) {
       this.gettingData = value
     },
@@ -76,7 +80,12 @@ export const useCounterStore = defineStore('auth', {
     },
     removeToken() {
       this.token = null;
+      this.userInfo = null;
+      this.inCart = [];
       localStorage.removeItem('Authorization');
+      localStorage.removeItem('userInfo');
+      localStorage.removeItem('inCart');
+      localStorage.removeItem('tokenExpiry');
     }
   }
 });
