@@ -18,8 +18,15 @@
             allow-clear
             @change="handleCouponChange"
           >
+            <template #tagRender="{ value, onClose }">
+              <a-tooltip :title="getCouponTooltip(value)">
+                <a-tag color="purple" closable @close="onClose" style="margin-right: 3px;">
+                  {{ value }}
+                </a-tag>
+              </a-tooltip>
+            </template>
             <a-select-option v-for="coupon in coupons" :key="coupon.code" :value="coupon.code">
-              {{ coupon.code }} (-{{ coupon.discount_type === 'percent' ? coupon.discount_value + '%' : formatCurrency(coupon.discount_value) }}) [{{ coupon.type === 'system' ? 'Hệ thống' : 'Khóa học' }}]
+              {{ coupon.code }} [{{ coupon.type === 'system' ? 'Hệ thống' : 'Khóa học' }}]
             </a-select-option>
           </a-select>
         </div>
@@ -175,6 +182,14 @@ const handleCouponChange = (selectedValues) => {
   previousSelectedCodes.value = [...finalSelected]
 
   emit('selectCoupon', finalSelected, props.cartData.course.id)
+}
+
+const getCouponTooltip = (code) => {
+  const coupon = coupons.value.find(c => c.code === code)
+  if (!coupon) return ''
+  const typeText = coupon.type === 'system' ? 'hệ thống' : 'khóa học'
+  const valText = coupon.discount_type === 'percent' ? `${coupon.discount_value}%` : formatCurrency(coupon.discount_value)
+  return `Coupon ${typeText}, giá trị: -${valText}`
 }
 
 const removeItem = () => {

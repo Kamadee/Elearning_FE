@@ -17,7 +17,7 @@
       </div>
     </div>
 
-    <div class="review-form-section" v-if="isAuthenticated && !data.isReviewed">
+    <div class="review-form-section" v-if="isAuthenticated && !data.isReviewed && canReview">
       <h3 class="form-title">Viết đánh giá của bạn</h3>
       <a-form class="review-form" :model="data" ref="formRef" :rules="rules" @submit.prevent="addReview()">
         <a-form-item name="rating" class="rating-form-item">
@@ -83,6 +83,18 @@ import { Navigation } from 'swiper/modules'
 
 import 'swiper/css'
 import 'swiper/css/navigation'
+
+const props = defineProps({
+  courseData: {
+    type: [Object, String],
+    default: () => ({})
+  }
+})
+
+const canReview = computed(() => {
+  if (!props.courseData) return false
+  return props.courseData.is_bought || Number(props.courseData.sale_off_price) === 0
+})
 
 const data = ref({
   rating: null,

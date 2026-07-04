@@ -7,7 +7,7 @@
         <RelatedCourse :categoryList="data.categoryList"/>
       </div>
       <div class="review-contaner">
-        <ReviewCourse />
+        <ReviewCourse :courseData="data.courseData" />
       </div>
     </div>
   </div>
