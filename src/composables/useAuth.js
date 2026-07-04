@@ -5,6 +5,7 @@ import { useCounterStore } from '@/stores/authStore'
 import useAPI from '@/composables/useAPI'
 import { jwtDecode } from 'jwt-decode'
 import { useNotify } from '@/composables/useNotify'
+import useCart from '@/composables/useCart'
 
 const useAuth = () => {
   const stores = useCounterStore()
@@ -39,6 +40,18 @@ const useAuth = () => {
         useCounterStore().setToken(token)
         useCounterStore().setUser(response.user)
         localStorage.setItem('userInfo', JSON.stringify(response.user))
+
+        // Fetch cart contents to sync with Pinia state and localStorage
+        try {
+          const cartResponse = await useCart().getDataCarts()
+          if (cartResponse && cartResponse.contents) {
+            const courseIds = cartResponse.contents.map(item => item.course.id)
+            useCounterStore().setInCartList(courseIds)
+          }
+        } catch (cartErr) {
+          console.error('Failed to sync cart after login:', cartErr)
+        }
+
         return authUser
       } else {
         // handleError(response);
@@ -99,15 +112,8 @@ const useAuth = () => {
   }
 
   const logOut = async () => {
-    const authToken = localStorage.getItem('Authorization')
-    if(authToken) {
-      localStorage.removeItem('Authorization')
-      localStorage.removeItem('tokenExpiry')
-      useCounterStore.setUser(null)
-      localStorage.removeItem('userInfo')
-      return true
-    }
-    return false
+    stores.removeToken()
+    return true
   }
 
   const forgotPass = async (email) => {

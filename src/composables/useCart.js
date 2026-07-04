@@ -33,9 +33,33 @@ const useCart = () => {
     return null
   }
 
-  const createPayment = async () => {
+  const createPayment = async (couponCode = null) => {
     const { _post } = useAPI()
-    const response = await _post('/api/payment/create')
+    const payload = {}
+    if (couponCode) {
+      payload.coupon_code = couponCode
+    }
+    const response = await _post('/api/payment/create', payload)
+    if (response) {
+      return response.data
+    }
+    return null
+  }
+
+  const getCourseCoupons = async (courseId) => {
+    const { _get } = useAPI()
+    const response = await _get(`/api/course/${courseId}/coupons`)
+    if (response) {
+      return response.data
+    }
+    return null
+  }
+
+  const applyCoupon = async (couponCode) => {
+    const { _post } = useAPI()
+    const response = await _post('/api/coupon/apply', {
+      coupon_code: couponCode
+    })
     if (response) {
       return response.data
     }
@@ -86,6 +110,8 @@ const useCart = () => {
     getDataCarts,
     removeItem,
     createPayment,
+    getCourseCoupons,
+    applyCoupon,
     getPaymentHistoryList,
     getHistoryDetail,
     updateOrderStatus,

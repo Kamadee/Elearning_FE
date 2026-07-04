@@ -193,6 +193,39 @@ const getUserInitials = () => {
   return 'U'
 }
 
+const userSessionInterval = ref(null)
+
+const initializeUserSession = async () => {
+  await getUserProfile()
+  await getDataCart()
+  await getCategoryBestOfUser()
+  await getNewCourses()
+  
+  if (userSessionInterval.value) {
+    clearInterval(userSessionInterval.value)
+  }
+  
+  userSessionInterval.value = setInterval(async () => {
+    const response = await getNewCourses()
+    if(response.length > 0) {
+      const newObjCourse = response.map((res) => { return { ...res, isSeen: false}})
+      pendingCourse.value = [...newObjCourse]
+      isNotificationSeen.value = false
+    }
+  }, 1000)
+  
+  emitter.off('updateCountCart', getDataCart)
+  emitter.on('updateCountCart', getDataCart)
+}
+
+const clearUserSession = () => {
+  if (userSessionInterval.value) {
+    clearInterval(userSessionInterval.value)
+    userSessionInterval.value = null
+  }
+  emitter.off('updateCountCart', getDataCart)
+}
+
 onMounted(async () => {
   const cats = await useCourse().getCategories()
   if (cats) {
@@ -203,24 +236,20 @@ onMounted(async () => {
   }
 
   if(isAuthenticated.value) {
-    await getUserProfile()
-    await getDataCart()
-    await getCategoryBestOfUser()
-    await getNewCourses()
-    setInterval(async () => {
-      const response = await getNewCourses()
-      if(response.length > 0) {
-        const newObjCourse = response.map((res) => { return { ...res, isSeen: false}})
-        pendingCourse.value = [...newObjCourse]
-        isNotificationSeen.value = false
-      }
-    }, 1000)
-    emitter.on('updateCountCart', getDataCart)
+    await initializeUserSession()
+  }
+})
+
+watch(isAuthenticated, async (newVal) => {
+  if (newVal) {
+    await initializeUserSession()
+  } else {
+    clearUserSession()
   }
 })
 
 onUnmounted(() => {
-  emitter.off('updateCountCart', getDataCart)
+  clearUserSession()
 })
 
 const countCart = computed(() => stores.getInCart?.length || 0)
