@@ -2,6 +2,7 @@ packages:
   - '.'
 
 allowBuilds:
+  '@sentry/cli': true
   bootstrap-star-rating: true
   core-js: true
   esbuild: true

@@ -182,6 +182,7 @@
 import useCourse from '@/composables/useCourse';
 import { useRoute, useRouter } from 'vue-router';
 import { replaceUrlImage } from '@/utils/replaceUrlImage';
+import { normalizeVideoSource } from '@/utils/mediaSource';
 import { ref, onMounted, computed, onUnmounted, watch, nextTick, onUpdated } from "vue";
 import { 
   LockOutlined, 
@@ -424,8 +425,12 @@ const selectItem = async (item) => {
     try {
       data.value.currentVideo = item.id;
       const response = await useCourse().getVimeo(item.id);
-      if (response) {
-        data.value.urlIframCurrent = response.vimeo;
+      const source = normalizeVideoSource(response?.vimeo ?? response?.url ?? response);
+      if (source) {
+        data.value.urlIframCurrent = source;
+      } else {
+        data.value.urlIframCurrent = '';
+        throw new Error('Backend không trả về nguồn video hợp lệ');
       }
     } catch (error) {
       console.error('Lỗi khi lấy video:', error);
@@ -555,6 +560,41 @@ const getDetailCourse = async () => {
   }
 };
 
+const initNativeVideoPlayer = (videoEl) => {
+  try {
+    watchedSecondsSet.value = new Set();
+    currentVideoDuration.value = 0;
+    lastSentTime = Date.now();
+
+    videoEl.addEventListener('loadedmetadata', () => {
+      if (videoEl.duration) {
+        currentVideoDuration.value = Math.round(videoEl.duration);
+      }
+    });
+
+    videoEl.addEventListener('timeupdate', () => {
+      const second = Math.floor(videoEl.currentTime);
+      watchedSecondsSet.value.add(second);
+
+      const now = Date.now();
+      if (now - lastSentTime >= 10000) {
+        sendProgress();
+        lastSentTime = now;
+      }
+    });
+
+    videoEl.addEventListener('pause', () => {
+      sendProgress();
+    });
+
+    videoEl.addEventListener('ended', () => {
+      sendProgress(true);
+    });
+  } catch (err) {
+    console.error('Failed to initialize Native Video player:', err);
+  }
+};
+
 onMounted(() => {
   getDetailCourse();
 });
@@ -576,24 +616,38 @@ watch(() => data.value.urlIframCurrent, async (newVal) => {
     loadingVideo.value[id] = true;
     loadingScreen.value = true;
     await nextTick();
-    let elIframe = myIframe.value?.children[0];
-    if (elIframe) {
-      elIframe.setAttribute('width', '100%');
-      elIframe.setAttribute('height', '100%');
-      if (!elIframe.dataset.vimeoInitialized) {
-        elIframe.dataset.vimeoInitialized = 'true';
-        initVimeoPlayer(elIframe);
-        
-        elIframe.addEventListener("load", () => {
-          loadingScreen.value = false;
-        });
+    let el = myIframe.value?.children[0];
+    if (el) {
+      el.setAttribute('width', '100%');
+      el.setAttribute('height', '100%');
+      if (el.tagName === 'IFRAME') {
+        if (!el.dataset.vimeoInitialized) {
+          el.dataset.vimeoInitialized = 'true';
+          initVimeoPlayer(el);
 
-        if (elIframe.contentDocument && elIframe.contentDocument.readyState === 'complete') {
-          loadingScreen.value = false;
-        } else {
+          el.addEventListener("load", () => {
+            loadingScreen.value = false;
+          });
+
+          if (el.contentDocument && el.contentDocument.readyState === 'complete') {
+            loadingScreen.value = false;
+          } else {
+            setTimeout(() => {
+              loadingScreen.value = false;
+            }, 1500);
+          }
+        }
+      } else if (el.tagName === 'VIDEO') {
+        if (!el.dataset.videoInitialized) {
+          el.dataset.videoInitialized = 'true';
+          initNativeVideoPlayer(el);
+
+          el.addEventListener('loadeddata', () => {
+            loadingScreen.value = false;
+          });
           setTimeout(() => {
             loadingScreen.value = false;
-          }, 1500);
+          }, 800);
         }
       }
     }
