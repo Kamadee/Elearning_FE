@@ -1,6 +1,9 @@
 // import apiEndpoints from '../config/apiEndpoints';
 import useAPI from '@/composables/useAPI';
 import apiEndpoints from '@/config/apiEndpoints';
+import { invalidateCart } from '@/composables/cartQuery';
+import { queryClient } from '@/plugins/queryClient';
+import { normalizeHotCoursesResponse } from '@/composables/courseQueryUtils';
 
 const useCourse = () => {
   const getDataCourses = async (filterData) => {
@@ -48,6 +51,7 @@ const useCourse = () => {
       quantity: quantity
     })
     if (response) {
+      await invalidateCart(queryClient)
       return response
     }
     return null
@@ -61,7 +65,7 @@ const useCourse = () => {
       }
     })
     if (response) {
-      return response.data
+      return normalizeHotCoursesResponse(response.data)
     }
     return null
   }

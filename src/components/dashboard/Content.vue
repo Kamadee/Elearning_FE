@@ -43,7 +43,7 @@
             navigation
             :breakpoints="breakpoints"
           >
-            <swiper-slide v-for="(course, index) in data.hotList" :key="index">
+            <swiper-slide v-for="(course, index) in hotList" :key="index">
               <ItemHot :course="course" v-loading="loadingStates[course.id]" @clickCard="handleClickCard" />
             </swiper-slide>
           </swiper>
@@ -58,7 +58,7 @@
             navigation
             :breakpoints="breakpoints"
           >
-            <swiper-slide v-for="(course, index) in data.hotList" :key="index">
+            <swiper-slide v-for="(course, index) in hotList" :key="index">
               <ItemHot :course="course" v-loading="loadingStates[course.id]" @clickCard="handleClickCard" />
             </swiper-slide>
           </swiper>
@@ -166,8 +166,8 @@
 
 <script setup>
 import ItemHot from '@/components/course/ItemHot.vue'
-import { onBeforeMount, onMounted, ref, computed } from 'vue'
-import useCourse from '@/composables/useCourse'
+import { onMounted, onUnmounted, ref, computed } from 'vue'
+import { useHotCoursesQuery } from '@/composables/courseQuery'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import { Navigation, Autoplay, Pagination } from 'swiper/modules'
 
@@ -176,10 +176,8 @@ import 'swiper/css/navigation'
 import 'swiper/css/autoplay'
 import 'swiper/css/pagination'
 
-const data = ref({
-  hotList: [],
-})
-const loading = ref(false)
+const { data: hotCoursesResponse } = useHotCoursesQuery()
+const hotList = computed(() => (hotCoursesResponse.value ?? []).map(item => item.course))
 
 const breakpoints = {
   320: {
@@ -212,23 +210,12 @@ const checkMobile = () => {
   isMobile.value = window.innerWidth <= 767
 }
 
-const getCourseTop = async () => {
-  const response = await useCourse().getCourseTop()
-  if(response) {
-    data.value.hotList = response.data.map(item => item.course)
-  }
-}
-
-onMounted(async() => {
-  loading.value = true
+onMounted(() => {
   checkMobile()
   window.addEventListener('resize', checkMobile)
-  await new Promise(resolve => setTimeout(resolve, 2000))
-  getCourseTop()
-  loading.value = false
 })
 
-onBeforeMount(() => {
+onUnmounted(() => {
   window.removeEventListener('resize', checkMobile)
 })
 

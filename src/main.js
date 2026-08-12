@@ -1,6 +1,8 @@
 import './assets/main.css'
 import { createApp } from 'vue'
 import { pinia } from './stores/pinia'
+import { VueQueryPlugin } from '@tanstack/vue-query'
+import { queryClient } from './plugins/queryClient'
 import * as Sentry from "@sentry/vue"
 
 import App from './App.vue'
@@ -99,6 +101,7 @@ app.use(Toast, options);
 app.use(Carousel);
 
 app.use(pinia)
+app.use(VueQueryPlugin, { queryClient })
 app.use(router)
 app.directive('loading', loadingDirective);
 

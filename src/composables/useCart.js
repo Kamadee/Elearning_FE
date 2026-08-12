@@ -1,6 +1,8 @@
 // import apiEndpoints from '../config/apiEndpoints';
 import useAPI from '@/composables/useAPI';
-import qs from 'qs'
+import { useMutation, useQuery } from '@tanstack/vue-query';
+import { CART_QUERY_KEY, invalidateCart } from '@/composables/cartQuery';
+import { queryClient } from '@/plugins/queryClient';
 
 const useCart = () => {
   const addCourse = async (id, quantity = 1) => {
@@ -10,6 +12,7 @@ const useCart = () => {
       quantity: quantity
     })
     if (response) {
+      await invalidateCart(queryClient)
       return response
     }
     return null
@@ -24,6 +27,11 @@ const useCart = () => {
     return null
   }
 
+  const useCartQuery = () => useQuery({
+    queryKey: CART_QUERY_KEY,
+    queryFn: getDataCarts,
+  })
+
   const removeItem = async (id) => {
     const { _delete } = useAPI()
     const response = await _delete('/api/cart/delete/' + `${id}`)
@@ -32,6 +40,11 @@ const useCart = () => {
     }
     return null
   }
+
+  const useRemoveCartItemMutation = () => useMutation({
+    mutationFn: removeItem,
+    onSuccess: () => invalidateCart(queryClient),
+  })
 
   const createPayment = async (couponCode = null) => {
     const { _post } = useAPI()
@@ -108,7 +121,9 @@ const useCart = () => {
   return {
     addCourse,
     getDataCarts,
+    useCartQuery,
     removeItem,
+    useRemoveCartItemMutation,
     createPayment,
     getCourseCoupons,
     applyCoupon,

@@ -6,3 +6,4 @@ allowBuilds:
   bootstrap-star-rating: true
   core-js: true
   esbuild: true
+  vue-demi: set this to true or false

@@ -1,14 +1,14 @@
 <template>
   <div class="course-list">
     <div class="row-course">
-      <div class="card-course" v-for="(course, index) in data.courseList" :key="index">
+      <div class="card-course" v-for="course in courseList" :key="course.id">
         <ItemCourse :course="course" v-loading="loadingStates[course.id]" @clickCard="handleClickCard" />
       </div>
     </div>
     <a-pagination
-      :current="Number(data.page)"
-      :page-size="Number(data.per_page)"
-      :total="Number(data.total)"
+      :current="currentPage"
+      :page-size="perPage"
+      :total="totalCourses"
       @change="handlePageChange"
       style="margin-top: 30px; text-align: center"
     />
@@ -16,54 +16,39 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
-import useCourse from '@/composables/useCourse';
+import { computed, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import ItemCourse from '@/components/course/ItemCourse.vue'
+import { useCategoryCoursesQuery } from '@/composables/courseQuery';
 
-const data = ref({
-  courseList: [],
-  page: 1,
-  per_page: 12,
-  total: 0
+const route = useRoute()
+const categoryName = computed(() => route.params.category)
+const currentPage = ref(1)
+const perPage = ref(12)
+
+const { data: coursesResponse } = useCategoryCoursesQuery({
+  category: categoryName,
+  page: currentPage,
+  perPage,
 })
 
-// const router = useRouter()
-const route = useRoute()
-const categoryName = route.params.category
-
-const getDataCourses = async (category, page = data.value.page) => {
-  data.value.page = page;
-  const filterData = {
-    category_name: [category],
-    page: data.value.page,
-    per_page: data.value.per_page
-  }
-  
-  const response = await useCourse().getDataCourses(filterData)
-  if(response) {
-    data.value.courseList = response.data
-    data.value.page = response.current_page
-    data.value.per_page = response.per_page
-    data.value.total = response.total
-  }
-}
-
-watch(() => route.params.category, async (newCategory) => {
-  data.value.page = 1
-  await getDataCourses(newCategory, 1)
-}, { immediate: true })
+const courseList = computed(() => coursesResponse.value?.data ?? [])
+const totalCourses = computed(() => Number(coursesResponse.value?.total ?? 0))
 
 const handlePageChange = (page) => {
-  getDataCourses(page)
+  currentPage.value = page
 }
+
+watch(categoryName, () => {
+  currentPage.value = 1
+})
 
 const loadingStates = ref({})
 
 const handleClickCard = async (courseId) => {
   loadingStates.value[courseId] = true
   try {
-    window.location.href = `/courses/${categoryName}/${courseId}`
+    window.location.href = `/courses/${categoryName.value}/${courseId}`
   } finally {
     setTimeout(() => {
       loadingStates.value[courseId] = false

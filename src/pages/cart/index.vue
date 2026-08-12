@@ -1,9 +1,9 @@
 <template>
   <div class="cart-wrapper">
-    <div class="list-course" v-if="data.cartData.length > 0">
+    <div class="list-course" v-if="cartData.length > 0">
       <h1 class="cart-title">Giỏ hàng</h1>
       <div class="cart-items-container">
-        <div class="card-course-wrapper" v-for="(cart, index) in data.cartData" :key="index">
+        <div class="card-course-wrapper" v-for="cart in cartData" :key="cart.id">
           <ItemCart 
             :cartData="cart" 
             :appliedCoupon="appliedCoupon"
@@ -15,12 +15,14 @@
         </div>
       </div>
     </div>
-    <div v-else class="no-data">
+    <div v-else-if="!isCartLoading" class="no-data">
       <NoData />
     </div>
 
-    <div class="payment-info" v-if="data.cartData.length > 0">
-      <CheckoutCart :priceArray="data.prices" :appliedCoupon="appliedCoupon"/>
+    <div v-else class="no-data" v-loading="true"></div>
+
+    <div class="payment-info" v-if="cartData.length > 0">
+      <CheckoutCart :priceArray="prices" :appliedCoupon="appliedCoupon"/>
     </div>
   </div>
 </template>
@@ -31,28 +33,18 @@ import NoData from '@/components/NoData.vue'
 import CheckoutCart from '@/components/cart/CheckoutCart.vue'
 import useCart from '@/composables/useCart'
 import { useNotify } from '@/composables/useNotify'
-import { onMounted, ref } from "vue"
+import { computed, ref } from "vue"
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
-const data = ref({
-  cartData: [],
-  prices: []
-})
+const cartApi = useCart()
+const { data: cartResponse, isPending: isCartLoading } = cartApi.useCartQuery()
+const removeCartItem = cartApi.useRemoveCartItemMutation()
+const cartData = computed(() => cartResponse.value?.contents ?? [])
+const prices = computed(() => cartData.value.map((item) => item.price))
 
 const appliedCoupon = ref(null)
-
-const getDataCarts = async () => {
-  const response = await useCart().getDataCarts()
-  if(response) {
-    data.value.cartData = response.contents
-    data.value.prices = response.contents.map((item) => item.price)
-  }
-}
-onMounted(() => {
-  getDataCarts()
-})
 
 const loadingStates = ref({})
 const selectedCouponsByCourse = ref({})
@@ -60,14 +52,12 @@ const selectedCouponsByCourse = ref({})
 const removeItem = async (id) => {
   loadingStates.value[id] = true
   try {
-    const response = await useCart().removeItem(id)
+    const removedItem = cartData.value.find(item => item.id === id)
+    const response = await removeCartItem.mutateAsync(id)
     if(response) {
-      const removedItem = data.value.cartData.find(item => item.id === id)
       if (removedItem && removedItem.course) {
         delete selectedCouponsByCourse.value[removedItem.course.id]
       }
-      data.value.cartData = data.value.cartData.filter((item) => item.id !== id)
-      data.value.prices = data.value.cartData.map((content) => content.price)
       
       const allCodes = []
       for (const cid in selectedCouponsByCourse.value) {
@@ -84,7 +74,6 @@ const removeItem = async (id) => {
       } else {
         appliedCoupon.value = null
       }
-      await getDataCarts()
     }
   } finally {
     setTimeout(() => {
