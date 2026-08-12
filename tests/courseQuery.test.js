@@ -5,7 +5,10 @@ import {
   courseListQueryKey,
   hotCoursesQueryKey,
 } from '../src/composables/courseQueryKeys.js';
-import { normalizeHotCoursesResponse } from '../src/composables/courseQueryUtils.js';
+import {
+  getFreeLearningCourses,
+  normalizeHotCoursesResponse,
+} from '../src/composables/courseQueryUtils.js';
 
 test('uses a separate cache key for each course category page', () => {
   assert.deepEqual(courseListQueryKey('fitness', 1, 12), [
@@ -32,4 +35,14 @@ test('normalizes the hot course API envelope into an array', () => {
   assert.deepEqual(normalizeHotCoursesResponse({ data: [hotCourse] }), [hotCourse]);
   assert.deepEqual(normalizeHotCoursesResponse([hotCourse]), [hotCourse]);
   assert.deepEqual(normalizeHotCoursesResponse({ data: null }), []);
+});
+
+test('keeps free courses in the my learn list', () => {
+  const courses = [
+    { id: 1, original_price: 0, sale_off_price: 100 },
+    { id: 2, original_price: 200, sale_off_price: 0 },
+    { id: 3, original_price: 200, sale_off_price: 100 },
+  ];
+
+  assert.deepEqual(getFreeLearningCourses(courses).map((course) => course.id), [1, 2]);
 });

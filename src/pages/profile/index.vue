@@ -1,687 +1,123 @@
+<!-- eslint-disable vue/multi-word-component-names -->
 <template>
-  <div class="profile-container" v-loading="isLoading">
-    <div class="profile-wrapper">
-      <div class="profile-layout" v-loading="gettingData">
-        <!-- Sidebar Navigation -->
-        <div class="profile-sidebar">
-          <div class="sidebar-user">
-            <div class="avatar-circle">
-              <span class="avatar-initial">{{ getInitials() }}</span>
-            </div>
-            <div class="user-name">{{ data.fullName || 'Người dùng' }}</div>
+  <div class="profile-page">
+    <div class="page-shell">
+      <div class="profile-grid">
+        <aside class="profile-sidebar card-surface">
+          <div class="profile-identity">
+            <div class="profile-avatar">{{ getInitials() }}</div>
+            <strong>{{ data.fullName || 'Người dùng' }}</strong>
+            <span>{{ data.email || 'Tài khoản học tập' }}</span>
           </div>
-          
-          <nav class="sidebar-nav">
-            <a class="nav-item" :class="{ active: true }">
-              <SettingOutlined class="nav-icon" />
-              <span>Profile</span>
-            </a>
-            <a class="nav-item logout" @click="logOut()">
-              <LogoutOutlined class="nav-icon" />
-              <span>Đăng xuất</span>
-            </a>
+          <nav class="profile-nav">
+            <router-link to="/profile" class="profile-nav-item is-active"><SettingOutlined /> Profile</router-link>
+            <router-link to="/my-learn" class="profile-nav-item"><BookOutlined /> My learning</router-link>
+            <router-link to="/history" class="profile-nav-item"><HistoryOutlined /> Lịch sử mua hàng</router-link>
+            <button class="profile-nav-item profile-logout" @click="logOut"><LogoutOutlined /> Đăng xuất</button>
           </nav>
-        </div>
+        </aside>
 
-        <!-- Main Content -->
-        <div class="profile-main">
-          <div class="content-header">
-            <h1 class="page-title">Profile</h1>
-            <p class="page-subtitle">Quản lý thông tin cá nhân của bạn</p>
-          </div>
-
-          <div class="profile-form">
-            <div class="form-section">
-              <div class="form-group">
-                <label class="form-label">Họ</label>
-                <a-input 
-                  v-if="data.modeEdit"
-                  v-model:value="data.firstName"
-                  placeholder="Nhập họ của bạn"
-                  class="form-input"
-                />
-                <div v-else class="form-value">{{ data.firstName || '—' }}</div>
-              </div>
-
-              <div class="form-group">
-                <label class="form-label">Tên</label>
-                <a-input 
-                  v-if="data.modeEdit"
-                  v-model:value="data.lastName"
-                  placeholder="Nhập tên của bạn"
-                  class="form-input"
-                />
-                <div v-else class="form-value">{{ data.lastName || '—' }}</div>
-              </div>
-
-              <div class="form-group">
-                <label class="form-label">Email</label>
-                <div class="form-value">{{ data.email || '—' }}</div>
-                <p class="form-hint">Email không thể thay đổi</p>
-              </div>
-
-              <div class="form-group">
-                <label class="form-label">Số điện thoại</label>
-                <a-input 
-                  v-if="data.modeEdit"
-                  v-model:value="data.phone"
-                  placeholder="Nhập số điện thoại"
-                  class="form-input"
-                />
-                <div v-else class="form-value">{{ data.phone || '—' }}</div>
-              </div>
-
-              <div class="form-actions" v-if="data.modeEdit">
-                <a-button 
-                  type="primary" 
-                  size="large" 
-                  @click="onConfirmEditProfile()"
-                  :loading="gettingData"
-                  class="save-btn"
-                >
-                  Lưu thay đổi
-                </a-button>
-                <a-button 
-                  size="large" 
-                  @click="data.modeEdit = false"
-                  class="cancel-btn"
-                >
-                  Hủy
-                </a-button>
-              </div>
-              <div class="form-actions" v-else>
-                <a-button 
-                  type="default" 
-                  size="large" 
-                  @click="onEditProfile()"
-                  class="edit-btn"
-                >
-                  Chỉnh sửa
-                </a-button>
-              </div>
+        <main class="profile-content card-surface" v-loading="gettingData">
+          <div class="content-heading">
+            <div>
+              <span class="eyebrow">ACCOUNT SETTINGS</span>
+              <h1>Thông tin cá nhân</h1>
+              <p>Cập nhật thông tin để trải nghiệm học tập tốt hơn.</p>
             </div>
+            <div class="heading-avatar">{{ getInitials() }}</div>
           </div>
-        </div>
-      </div>
-
-      <div class="courses-sections">
-        <OwnCourses :courseData="data.ownCourseData" title="Khóa học đã mua"/>
-        <OwnCourses :courseData="data.freeCourseData" title="Khóa học miễn phí đã học"/>
+          <div class="profile-form">
+            <label class="form-field"><span>Họ</span><a-input v-if="data.modeEdit" v-model:value="data.firstName" /><b v-else>{{ data.firstName || '—' }}</b></label>
+            <label class="form-field"><span>Tên</span><a-input v-if="data.modeEdit" v-model:value="data.lastName" /><b v-else>{{ data.lastName || '—' }}</b></label>
+            <label class="form-field"><span>Email</span><b>{{ data.email || '—' }}</b><small>Email không thể thay đổi</small></label>
+            <label class="form-field"><span>Số điện thoại</span><a-input v-if="data.modeEdit" v-model:value="data.phone" /><b v-else>{{ data.phone || '—' }}</b></label>
+          </div>
+          <div class="form-actions">
+            <template v-if="data.modeEdit">
+              <a-button type="primary" :loading="gettingData" @click="onConfirmEditProfile">Lưu thay đổi</a-button>
+              <a-button @click="data.modeEdit = false">Hủy</a-button>
+            </template>
+            <a-button v-else type="primary" @click="data.modeEdit = true">Chỉnh sửa thông tin</a-button>
+          </div>
+        </main>
       </div>
     </div>
   </div>
 </template>
+
 <script setup>
-import OwnCourses from '@/components/course/OwnCourses.vue'
+import { onMounted, ref } from 'vue'
 import useAuth from '@/composables/useAuth'
 import { useCounterStore } from '@/stores/authStore'
-import { onMounted, ref } from 'vue'
 import { useNotify } from '@/composables/useNotify'
-import useCart from '@/composables/useCart'
-import useCourse from '@/composables/useCourse'
 
-const isLoading = ref(false)
-const data = ref({
-  isAuthenticated: useCounterStore().isLogged,
-  firstName: "",
-  lastName: "",
-  fullName: "",
-  phone: null,
-  email: "",
-  modeEdit: false,
-  orderList: [],
-  ownCourseData: [],
-  freeCourseData: []
-})
+const data = ref({ firstName: '', lastName: '', fullName: '', phone: '', email: '', modeEdit: false })
+const gettingData = ref(false)
 
 const getDataProfile = async () => {
   const response = await useAuth().getDataProfile()
-  if(response) {
-    data.value.firstName = response.first_name
-    data.value.lastName = response.last_name
-    data.value.fullName = response.first_name + response.last_name
-    data.value.phone = response.phone
-    data.value.email = response.email
-  }
+  if (!response) return
+  data.value.firstName = response.first_name || ''
+  data.value.lastName = response.last_name || ''
+  data.value.fullName = `${data.value.firstName} ${data.value.lastName}`.trim()
+  data.value.phone = response.phone || ''
+  data.value.email = response.email || ''
 }
 
-const getPaymentHistoryList = async () => {
-  try {
-    const response = await useCart().getPaymentHistoryList()
-    if(response && response.orders) {
-      data.value.orderList = response.orders.filter((order) => order.status === 3).map((order) => order.id)
-      await getCourseDataForOrders(data.value.orderList)
-    } else {
-      await getMyCoursesList()
-    }
-  } catch(e) {
-    console.log(e)
-    await getMyCoursesList()
-  } finally {
-    isLoading.value = false
-  }
-}
-
-const getMyCoursesList = async () => {
-  try {
-    const res = await useCourse().getDataCourses({ my_courses: true })
-    console.log('res: ', res);
-    
-    if (res && res.data) {
-      // Free courses studied (original_price is 0 or sale_off_price is 0)
-      data.value.freeCourseData = res.data.filter(course => 
-        Number(course.original_price) === 0 || Number(course.sale_off_price) === 0
-      );
-
-      // Copy progress_percent from my_courses items to ownCourseData
-      if (data.value.ownCourseData && data.value.ownCourseData.length > 0) {
-        data.value.ownCourseData = data.value.ownCourseData.map(ownCourse => {
-          const matched = res.data.find(c => c.id === ownCourse.id);
-          if (matched) {
-            return {
-              ...ownCourse,
-              progress_percent: matched.progress_percent
-            };
-          }
-          return ownCourse;
-        });
-      }
-    }
-  } catch (err) {
-    console.error('Error fetching my courses:', err)
-  }
-}
-
-const getCourseDataForOrders = async (orderList) => {
-  const promises = orderList.map((orderId) => useCart().getHistoryDetail(orderId))
-
-  try {
-    const res = await Promise.all(promises)
-    const courseData = res.flatMap(r => r.courses)
-    data.value.ownCourseData = courseData
-    await getMyCoursesList()
-  } catch(e) {
-    console.log(e)
-  }
-}
-
-onMounted(() => {
-  isLoading.value = true;
-  setTimeout(() => {
-    getDataProfile()
-    getPaymentHistoryList()
-  }, 200)
-})
-
-function onEditProfile() {
-  data.value.modeEdit = true
-}
-
-const gettingData = ref(false)
+onMounted(getDataProfile)
 
 const onConfirmEditProfile = async () => {
   gettingData.value = true
-  const response = await useAuth().editProfile(
-    data.value.firstName,
-    data.value.lastName,
-    data.value.phone
-  )
+  const response = await useAuth().editProfile(data.value.firstName, data.value.lastName, data.value.phone)
   if (response) {
-    try {
-      await getDataProfile()
-      const { notify } = useNotify();
-      notify('Cập nhật profile thành công', 'success')
-      data.value.modeEdit = false;
-    } finally {
-      setTimeout(() => {
-        gettingData.value = false;
-      }, 200)
-    }
-  } else {
-    gettingData.value = false
+    await getDataProfile()
+    data.value.modeEdit = false
+    useNotify().notify('Cập nhật profile thành công', 'success')
   }
+  gettingData.value = false
 }
 
 const getInitials = () => {
-  if (data.value.firstName && data.value.lastName) {
-    return (data.value.firstName.charAt(0) + data.value.lastName.charAt(0)).toUpperCase()
-  }
-  if (data.value.fullName) {
-    const names = data.value.fullName.split(' ')
-    if (names.length >= 2) {
-      return (names[0].charAt(0) + names[names.length - 1].charAt(0)).toUpperCase()
-    }
-    return data.value.fullName.charAt(0).toUpperCase()
-  }
-  return 'U'
+  const names = data.value.fullName.split(/\s+/).filter(Boolean)
+  return names.length > 1 ? `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase() : (names[0]?.[0] || 'U').toUpperCase()
 }
 
 const logOut = () => {
   useAuth().logOut()
-  const store = useCounterStore();
-  store.removeToken();
-  location.reload()
+  useCounterStore().removeToken()
+  window.location.reload()
 }
 </script>
 
-<style scoped>
-.profile-container {
-  width: 100%;
-  min-height: 100vh;
-  background-color: #fff;
-  padding: 0;
-}
-
-.profile-wrapper {
-  max-width: 1340px;
-  margin: 0 auto;
-  padding: 32px 24px;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.profile-layout {
-  border: 1px solid rgb(209, 208, 208);
-  padding: 40px;
-  display: grid;
-  grid-template-columns: 240px 1fr;
-  gap: 48px;
-  margin-bottom: 18px;
-}
-
-/* Sidebar Navigation */
-.profile-sidebar {
-  position: sticky;
-  top: 24px;
-  height: fit-content;
-}
-
-.sidebar-user {
-  margin-bottom: 32px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-}
-
-.avatar-circle {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  background-color: #3e4143;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 12px;
-}
-
-.avatar-initial {
-  font-size: 32px;
-  font-weight: 700;
-  color: #fff;
-  text-transform: uppercase;
-}
-
-.user-name {
-  font-size: 16px;
-  font-weight: 700;
-  color: #1c1d1f;
-  margin: 0;
-  line-height: 1.4;
-  text-align: center;
-}
-
-.sidebar-nav {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.nav-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  font-size: 14px;
-  color: #ffffff;
-  text-decoration: none;
-  border-radius: 4px;
-  cursor: pointer;
-  border: none;
-  background: #a435f0;
-  width: 100%;
-  font-weight: 500;
-  transition: none;
-}
-
-.nav-item:hover {
-  background-color: #a435f0;
-  color: #ffffff;
-}
-
-.nav-item.active {
-  background-color: #a435f0;
-  color: #ffffff;
-  font-weight: 600;
-}
-
-.nav-item.logout {
-  background: transparent;
-  color: #1c1d1f;
-  margin-top: 8px;
-}
-
-.nav-item.logout:hover {
-  background: transparent;
-  color: #1c1d1f;
-}
-
-.nav-icon {
-  font-size: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Main Content */
-.profile-main {
-  min-width: 0;
-  max-width: 800px;
-}
-
-.content-header {
-  margin-bottom: 32px;
-}
-
-.page-title {
-  font-size: 24px;
-  font-weight: 700;
-  color: #1c1d1f;
-  margin: 0 0 8px 0;
-  line-height: 1.2;
-}
-
-.page-subtitle {
-  font-size: 14px;
-  color: #6a6f73;
-  margin: 0;
-  line-height: 1.4;
-}
-
-.profile-form {
-  width: 100%;
-}
-
-.form-section {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.form-label {
-  font-size: 14px;
-  font-weight: 600;
-  color: #1c1d1f;
-  margin: 0;
-}
-
-.form-input {
-  width: 100%;
-  height: 44px;
-  border-radius: 4px;
-  border: 1px solid #d1d1d1;
-  font-size: 14px;
-  padding: 0 12px;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.form-input:focus,
-.form-input-focused {
-  border-color: #6d28d2 !important;
-  box-shadow: 0 0 0 3px rgba(109, 40, 210, 0.1) !important;
-  outline: none;
-}
-
-.form-value {
-  font-size: 14px;
-  color: #1c1d1f;
-  padding: 12px 0;
-  min-height: 44px;
-  display: flex;
-  align-items: center;
-}
-
-.form-hint {
-  font-size: 12px;
-  color: #6a6f73;
-  margin: 0;
-  line-height: 1.4;
-}
-
-.form-actions {
-  display: flex;
-  gap: 12px;
-  margin-top: 8px;
-  padding-top: 24px;
-  border-top: 1px solid #e0e0e0;
-}
-
-.edit-btn,
-.save-btn {
-  height: 44px;
-  font-weight: 600;
-  min-width: 140px;
-}
-
-.save-btn {
-  background-color: #6d28d2;
-  border-color: #6d28d2;
-  color: #fff;
-}
-
-.save-btn:hover {
-  background-color: #5b21b6;
-  border-color: #5b21b6;
-}
-
-.cancel-btn {
-  height: 44px;
-  font-weight: 600;
-  min-width: 100px;
-}
-
-/* Responsive */
-@media screen and (max-width: 1440px) {
-  .profile-wrapper {
-    padding: 32px 60px;
-  }
-}
-
-@media screen and (max-width: 1200px) {
-  .profile-wrapper {
-    padding: 32px 40px;
-  }
-  
-  .profile-layout {
-    padding: 32px;
-  }
-}
-
-@media screen and (max-width: 1024px) {
-  .profile-wrapper {
-    padding: 32px 24px;
-  }
-  
-  .profile-layout {
-    grid-template-columns: 200px 1fr;
-    gap: 32px;
-    padding: 32px 24px;
-  }
-  
-  .avatar-circle {
-    width: 70px;
-    height: 70px;
-  }
-  
-  .avatar-initial {
-    font-size: 28px;
-  }
-}
-
-@media screen and (max-width: 768px) {
-  .profile-wrapper {
-    padding: 24px 20px;
-  }
-  
-  .profile-layout {
-    grid-template-columns: 1fr;
-    gap: 32px;
-    padding: 24px 20px;
-  }
-
-  .profile-sidebar {
-    position: static;
-  }
-
-  .sidebar-user {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: flex-start;
-    gap: 16px;
-    margin-bottom: 24px;
-    text-align: left;
-  }
-
-  .avatar-circle {
-    width: 60px;
-    height: 60px;
-    margin-bottom: 0;
-    flex-shrink: 0;
-  }
-
-  .avatar-initial {
-    font-size: 24px;
-  }
-  
-  .user-name {
-    text-align: left;
-  }
-
-  .sidebar-nav {
-    flex-direction: row;
-    overflow-x: auto;
-    gap: 8px;
-    padding-bottom: 8px;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .nav-item {
-    white-space: nowrap;
-    min-width: fit-content;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .nav-item.logout {
-    margin-top: 0;
-  }
-
-  .content-header {
-    margin-bottom: 24px;
-  }
-
-  .page-title {
-    font-size: 20px;
-  }
-  
-  .page-subtitle {
-    font-size: 13px;
-  }
-
-  .form-section {
-    gap: 20px;
-  }
-
-  .form-actions {
-    flex-direction: column;
-    gap: 12px;
-    margin-top: 8px;
-    padding-top: 20px;
-  }
-
-  .edit-btn,
-  .save-btn,
-  .cancel-btn {
-    width: 100%;
-    min-width: unset;
-  }
-}
-
-@media screen and (max-width: 480px) {
-  .profile-wrapper {
-    padding: 16px;
-  }
-  
-  .profile-layout {
-    padding: 20px 16px;
-    border: 1px solid rgb(209, 208, 208);
-  }
-  
-  .avatar-circle {
-    width: 56px;
-    height: 56px;
-  }
-  
-  .avatar-initial {
-    font-size: 22px;
-  }
-  
-  .user-name {
-    font-size: 14px;
-  }
-  
-  .page-title {
-    font-size: 18px;
-  }
-  
-  .form-label {
-    font-size: 13px;
-  }
-  
-  .form-input {
-    height: 40px;
-    font-size: 14px;
-  }
-  
-  .form-value {
-    font-size: 13px;
-    padding: 10px 0;
-    min-height: 40px;
-  }
-  
-  .form-hint {
-    font-size: 11px;
-  }
-  
-  .edit-btn,
-  .save-btn,
-  .cancel-btn {
-    height: 40px;
-    font-size: 14px;
-  }
-}
-
-.courses-sections {
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
-}
+<style>
+.profile-page { min-height: 100vh; background: #f7f7fb; padding: 42px 24px 72px; }
+.page-shell { max-width: 1180px; margin: 0 auto; }
+.profile-grid { display: grid; grid-template-columns: 260px minmax(0, 1fr); gap: 24px; align-items: start; }
+.card-surface { background: #fff; border: 1px solid #e7e7ee; border-radius: 16px; box-shadow: 0 10px 28px rgba(28, 29, 31, .05); }
+.profile-sidebar { padding: 24px 16px; position: sticky; top: 24px; }
+.profile-identity { display: flex; flex-direction: column; align-items: center; gap: 7px; padding: 4px 8px 24px; text-align: center; border-bottom: 1px solid #ececf2; }
+.profile-avatar, .heading-avatar { display: flex; align-items: center; justify-content: center; border-radius: 50%; background: #171820; color: #fff; font-weight: 700; }
+.profile-avatar { width: 72px; height: 72px; margin-bottom: 6px; font-size: 24px; }
+.profile-identity strong { color: #262735; font-size: 15px; }
+.profile-identity span { color: #858899; font-size: 12px; }
+.profile-nav { display: flex; flex-direction: column; gap: 5px; padding-top: 20px; }
+.profile-nav-item { display: flex; align-items: center; gap: 11px; width: 100%; padding: 12px 13px; border: 0; border-radius: 9px; background: transparent; color: #5c5f70; font-size: 14px; text-decoration: none; text-align: left; cursor: pointer; }
+.profile-nav-item:hover, .profile-nav-item.is-active { background: #f2edff; color: #6d28d2; }
+.profile-nav-item :deep(.anticon) { font-size: 17px; }
+.profile-logout { margin-top: 14px; color: #9b5362; }
+.profile-content { padding: 36px 42px; }
+.content-heading { display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 28px; border-bottom: 1px solid #ececf2; }
+.eyebrow { color: #8064c9; font-size: 11px; font-weight: 700; letter-spacing: .12em; }
+.content-heading h1 { margin: 8px 0 7px; color: #222330; font-size: 28px; }
+.content-heading p { margin: 0; color: #858899; font-size: 14px; }
+.heading-avatar { width: 52px; height: 52px; font-size: 18px; }
+.profile-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 28px; padding-top: 30px; }
+.form-field { display: flex; flex-direction: column; gap: 9px; color: #5f6272; font-size: 13px; }
+.form-field b { min-height: 40px; display: flex; align-items: center; color: #252633; font-size: 14px; font-weight: 500; border-bottom: 1px solid #e4e4eb; }
+.form-field small { color: #9294a1; font-size: 11px; }
+.form-field :deep(.ant-input) { height: 40px; border-radius: 8px; }
+.form-actions { display: flex; gap: 10px; padding-top: 30px; }
+.form-actions :deep(.ant-btn) { height: 42px; border-radius: 8px; padding-inline: 20px; }
+.form-actions :deep(.ant-btn-primary) { background: #6d28d2; border-color: #6d28d2; }
+@media (max-width: 760px) { .profile-page { padding: 24px 16px 48px; } .profile-grid { grid-template-columns: 1fr; } .profile-sidebar { position: static; } .profile-nav { display: grid; grid-template-columns: repeat(2, 1fr); } .profile-logout { margin-top: 0; } .profile-content { padding: 26px 20px; } .profile-form { grid-template-columns: 1fr; gap: 18px; } }
 </style>

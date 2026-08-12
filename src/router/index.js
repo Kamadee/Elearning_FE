@@ -5,6 +5,7 @@ import Login from '@/pages/auth/login.vue';
 import Register from '@/pages/auth/register.vue';
 import Cart from '@/pages/cart/index.vue';
 import Profile from '@/pages/profile/index.vue';
+import MyLearn from '@/pages/my-learn/index.vue';
 import HistoryOrder from '@/pages/history/index.vue';
 import ForgotPassword from '@/pages/auth/forgot-password/index.vue';
 import PasswordReset from '@/pages/auth/password-reset/index.vue';
@@ -37,6 +38,14 @@ const router = createRouter({
       meta: {
         requiresAuth: true,
       }
+    },
+    {
+      path: '/my-learn',
+      name: 'my-learn',
+      component: MyLearn,
+      meta: {
+        requiresAuth: true,
+      },
     },
     {
       path: '/history',

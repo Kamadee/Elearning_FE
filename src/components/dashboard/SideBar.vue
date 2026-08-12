@@ -9,6 +9,9 @@
         <div style="padding: 10px" :class="{ 'seleccted-menu': currentPath == 'history' }">
           <router-link to="/history" @click="handleLinkClick" class="navbar-link">History</router-link>
         </div>
+        <div style="padding: 10px" :class="{ 'seleccted-menu': currentPath == 'my-learn' }">
+          <router-link to="/my-learn" @click="handleLinkClick" class="navbar-link">My Learn</router-link>
+        </div>
         <!-- <a-menu-item @click="logOut()">Đăng xuất</a-menu-item> -->
       </div>
       <div v-else style="display: flex; flex-direction: column;">

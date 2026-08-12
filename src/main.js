@@ -47,7 +47,9 @@ import {
   CloseOutlined,
   StarOutlined,
   SettingOutlined,
-  LogoutOutlined
+  LogoutOutlined,
+  BookOutlined,
+  HistoryOutlined
 } from '@ant-design/icons-vue'
 import { Badge } from 'ant-design-vue'
 import Toast from 'vue-toastification';
@@ -121,6 +123,8 @@ app.component('CloseOutlined', CloseOutlined)
 app.component('StarOutlined', StarOutlined)
 app.component('SettingOutlined', SettingOutlined)
 app.component('LogoutOutlined', LogoutOutlined)
+app.component('BookOutlined', BookOutlined)
+app.component('HistoryOutlined', HistoryOutlined)
 app.component('AntBadge', Badge)
 
 app.mount('#app')

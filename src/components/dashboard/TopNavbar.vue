@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/no-parsing-error, no-irregular-whitespace -->
 <template>
    <a-layout-header class="custom-navbar">
     <div class="navbar-container">
@@ -32,11 +33,16 @@
         <a-dropdown class="navbar-dropdown">
           <a class="navbar-link" :class="{ 'active': isActiveMenu('/courses') }">Khóa học</a>
           <template #overlay>
-            <a-menu>
-              <a-menu-item v-for="(category, i) in categories" :key="i">
-                <router-link :to="category.path">{{ category.name }}</router-link>
-              </a-menu-item>
-            </a-menu>
+            <div class="category-dropdown-panel">
+              <router-link
+                v-for="(category, i) in categories"
+                :key="i"
+                :to="category.path"
+                class="category-dropdown-item"
+              >
+                {{ category.name }}
+              </router-link>
+            </div>
           </template>
         </a-dropdown>
 
@@ -71,12 +77,21 @@
                 </div>
               </a>
               <template #overlay>
-                <a-menu>
+                <div class="account-dropdown-panel">
+                  <div class="account-dropdown-header">
+                    <div class="account-dropdown-avatar">{{ getUserInitials() }}</div>
+                    <div class="account-dropdown-user">
+                      <strong>{{ userProfile.fullName || 'NgÆ°á»i dÃ¹ng' }}</strong>
+                      <span>{{ userProfile.email || 'TÃ i khoáº£n cá»§a báº¡n' }}</span>
+                    </div>
+                  </div>
+                  <a-menu>
                   <a-menu-item v-for="(link, i) in links" :key="i">
                     <router-link :to="link.path">{{ link.name }}</router-link>
                   </a-menu-item>
                   <a-menu-item @click="logOut()">Đăng xuất</a-menu-item>
-                </a-menu>
+                  </a-menu>
+                </div>
               </template>
             </a-dropdown>
           </template>
@@ -103,7 +118,8 @@ import emitter from '@/utils/eventBus'
 const userProfile = ref({
   firstName: '',
   lastName: '',
-  fullName: ''
+  fullName: '',
+  email: ''
 })
 
 const stores = useCounterStore()
@@ -118,6 +134,7 @@ const openSidebar = () => {
 
 const links = ref([
   { name: 'profile', path: '/profile'},
+  { name: 'my learn', path: '/my-learn'},
   { name: 'history', path: '/history'},
 ]);
 
@@ -174,6 +191,7 @@ const getUserProfile = async () => {
     userProfile.value.firstName = response.first_name || ''
     userProfile.value.lastName = response.last_name || ''
     userProfile.value.fullName = (response.first_name || '') + ' ' + (response.last_name || '')
+    userProfile.value.email = response.email || ''
   }
 }
 
@@ -601,6 +619,99 @@ a {
 .navbar-dropdown :deep(.ant-dropdown-open:hover) {
   background: transparent !important;
   background-color: transparent !important;
+}
+.category-dropdown-panel,
+.account-dropdown-panel {
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid #d9dce5;
+  border-radius: 12px;
+  box-shadow: 0 12px 30px rgba(28, 29, 31, 0.14);
+}
+:deep(.ant-dropdown) { padding: 0; }
+.category-dropdown-panel {
+  width: 280px;
+  padding: 8px;
+}
+.category-dropdown-item {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: 8px;
+  color: #363846;
+  font-size: 14px;
+  text-decoration: none;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+.category-dropdown-item:hover {
+  color: #6d28d2;
+  background: #f5f0ff;
+}
+.account-dropdown-panel {
+  width: 320px;
+}
+.account-dropdown-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 16px;
+  border-bottom: 1px solid #e4e5eb;
+}
+.account-dropdown-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: #171820;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 700;
+}
+.account-dropdown-user {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 4px;
+}
+.account-dropdown-user strong,
+.account-dropdown-user span {
+  overflow: hidden;
+  color: #343542;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.account-dropdown-user strong { font-size: 14px; }
+.account-dropdown-user span { color: #777b8d; font-size: 12px; }
+.account-dropdown-panel :deep(.ant-menu) {
+  border-inline-end: 0 !important;
+  box-shadow: none !important;
+}
+.account-dropdown-panel :deep(.ant-menu-item) {
+  height: 42px;
+  margin: 0 !important;
+  padding-inline: 16px !important;
+  color: #4a4d5b;
+  line-height: 42px;
+}
+.account-dropdown-panel :deep(.ant-menu-item:hover) {
+  color: #6d28d2;
+  background: #f5f0ff;
+}
+.account-dropdown-panel :deep(.ant-menu-item-active),
+.account-dropdown-panel :deep(.ant-menu-item-selected),
+.account-dropdown-panel :deep(.ant-menu-item-selected:hover) {
+  color: #6d28d2 !important;
+  background: #f5f0ff !important;
+}
+.account-dropdown-panel :deep(.ant-menu-item a) { color: inherit; }
+.account-dropdown-panel :deep(.ant-menu-item a:hover) { color: inherit; }
+.account-dropdown-panel :deep(.ant-menu-item:last-child) {
+  border-top: 1px solid #e4e5eb;
+  margin-top: 8px !important;
 }
 .login-button {
   display: flex;
