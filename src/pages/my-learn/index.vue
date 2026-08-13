@@ -7,7 +7,9 @@
         <p>Tiếp tục hành trình học tập của bạn</p>
       </div>
 
-      <section class="streak-card" aria-label="Weekly learning streak">
+      <WeeklyStreakCard />
+
+      <section v-if="false" class="streak-card" aria-label="Weekly learning streak">
         <div class="streak-intro">
           <h2>Start a weekly streak</h2>
           <p>One ring down! Now, watch your course(s).</p>
@@ -32,6 +34,7 @@
 <script setup>
 import { onMounted, ref } from 'vue'
 import OwnCourses from '@/components/course/OwnCourses.vue'
+import WeeklyStreakCard from '@/components/learning/WeeklyStreakCard.vue'
 import useCart from '@/composables/useCart'
 import useCourse from '@/composables/useCourse'
 import { getFreeLearningCourses } from '@/composables/courseQueryUtils'

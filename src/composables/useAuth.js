@@ -6,6 +6,7 @@ import useAPI from '@/composables/useAPI'
 import { jwtDecode } from 'jwt-decode'
 import { useNotify } from '@/composables/useNotify'
 import useCart from '@/composables/useCart'
+import { clearCustomerStreakState } from '@/composables/streakSessionCleanup'
 
 const useAuth = () => {
   const stores = useCounterStore()
@@ -112,6 +113,8 @@ const useAuth = () => {
   }
 
   const logOut = async () => {
+    const customerId = stores.getUser?.id
+    await clearCustomerStreakState(customerId)
     stores.removeToken()
     return true
   }

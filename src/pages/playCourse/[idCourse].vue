@@ -183,6 +183,7 @@ import useCourse from '@/composables/useCourse';
 import { useRoute, useRouter } from 'vue-router';
 import { replaceUrlImage } from '@/utils/replaceUrlImage';
 import { normalizeVideoSource } from '@/utils/mediaSource';
+import { useLearningStreakTracker } from '@/composables/useLearningStreakTracker';
 import { ref, onMounted, computed, onUnmounted, watch, nextTick, onUpdated } from "vue";
 import { 
   LockOutlined, 
@@ -197,6 +198,7 @@ const vimeoPlayer = ref(null);
 const currentVideoDuration = ref(0);
 const watchedSecondsSet = ref(new Set());
 let lastSentTime = 0;
+const streakTracker = useLearningStreakTracker();
 
 const loadVimeoSDK = () => {
   return new Promise((resolve) => {
@@ -228,7 +230,30 @@ const sendProgress = async (isCompleted = false) => {
       is_completed: isCompleted
     };
     
-    const res = await useCourse().updateVideoProgress(payload);
+    let streakResult = await streakTracker.flush({
+      courseVideoId: currentPlayItem.value.id,
+      watchedSeconds: watchedSecondsSet.value.size,
+      totalSeconds: duration,
+      isCompleted,
+    });
+
+    if (!streakResult?.payload && !streakTracker.session.value) {
+      try {
+        await streakTracker.start(Number(route.params.idCourse));
+        streakResult = await streakTracker.flush({
+          courseVideoId: currentPlayItem.value.id,
+          watchedSeconds: watchedSecondsSet.value.size,
+          totalSeconds: duration,
+          isCompleted,
+        });
+      } catch (error) {
+        console.warn('Weekly tracking session is unavailable; video progress will be synced without streak data.', error);
+      }
+    }
+
+    const res = streakResult?.payload
+      ? streakResult.response
+      : await useCourse().updateVideoProgress(payload);
     if (res) {
       if (res.course_progress_percent !== undefined) {
         data.value.dataCourse.progress_percent = res.course_progress_percent;
@@ -264,6 +289,7 @@ const initVimeoPlayer = async (iframeEl) => {
     
     const player = new Vimeo.Player(iframeEl);
     vimeoPlayer.value = player;
+    let vimeoPlaybackRate = 1;
     
     try {
       const dur = await player.getDuration();
@@ -275,6 +301,7 @@ const initVimeoPlayer = async (iframeEl) => {
     player.on('timeupdate', (progress) => {
       const second = Math.floor(progress.seconds);
       watchedSecondsSet.value.add(second);
+      streakTracker.observe(progress.seconds, true, vimeoPlaybackRate);
       
       const now = Date.now();
       if (now - lastSentTime >= 10000) {
@@ -282,17 +309,24 @@ const initVimeoPlayer = async (iframeEl) => {
         lastSentTime = now;
       }
     });
+
+    player.on('playbackratechange', (event) => {
+      vimeoPlaybackRate = event.playbackRate || 1;
+    });
     
     player.on('pause', () => {
       sendProgress();
+      streakTracker.pause();
     });
     
     player.on('seeked', () => {
       sendProgress();
+      streakTracker.pause();
     });
     
     player.on('ended', () => {
       sendProgress(true);
+      streakTracker.pause();
     });
   } catch (err) {
     console.error('Failed to initialize Vimeo player:', err);
@@ -402,10 +436,13 @@ const jumpToQuiz = (quizName) => {
 };
 
 const selectItem = async (item) => {
-  if (currentPlayItem.value && currentPlayItem.value.type === 'video' && vimeoPlayer.value) {
+  if (currentPlayItem.value && currentPlayItem.value.type === 'video') {
     try {
       await sendProgress();
-      await vimeoPlayer.value.destroy();
+      streakTracker.pause();
+      if (vimeoPlayer.value) {
+        await vimeoPlayer.value.destroy();
+      }
     } catch (e) {
       console.error(e);
     }
@@ -551,6 +588,11 @@ const getDetailCourse = async () => {
   const response = await useCourse().getDetailCourse(route.params.idCourse);
   if(response) {
     data.value.dataCourse = response;
+    try {
+      await streakTracker.start(Number(route.params.idCourse));
+    } catch (error) {
+      console.warn('Unable to start weekly streak tracking:', error);
+    }
     console.log("check",data.value)
     loadCompletedQuizzes();
     
@@ -575,6 +617,7 @@ const initNativeVideoPlayer = (videoEl) => {
     videoEl.addEventListener('timeupdate', () => {
       const second = Math.floor(videoEl.currentTime);
       watchedSecondsSet.value.add(second);
+      streakTracker.observe(videoEl.currentTime, !videoEl.paused, videoEl.playbackRate || 1);
 
       const now = Date.now();
       if (now - lastSentTime >= 10000) {
@@ -585,18 +628,31 @@ const initNativeVideoPlayer = (videoEl) => {
 
     videoEl.addEventListener('pause', () => {
       sendProgress();
+      streakTracker.pause();
     });
+
+    videoEl.addEventListener('seeking', () => streakTracker.pause());
 
     videoEl.addEventListener('ended', () => {
       sendProgress(true);
+      streakTracker.pause();
     });
   } catch (err) {
     console.error('Failed to initialize Native Video player:', err);
   }
 };
 
+const handleStreakVisibilityChange = () => {
+  if (document.visibilityState !== 'visible') sendProgress();
+  streakTracker.visibilityChanged();
+};
+
+const handlePageHide = () => { sendProgress(); };
+
 onMounted(() => {
   getDetailCourse();
+  document.addEventListener('visibilitychange', handleStreakVisibilityChange);
+  window.addEventListener('pagehide', handlePageHide);
 });
 
 const backCourse = (idCourse) => {
@@ -655,12 +711,17 @@ watch(() => data.value.urlIframCurrent, async (newVal) => {
 });
 
 onUnmounted(async () => {
-  if (vimeoPlayer.value) {
+  document.removeEventListener('visibilitychange', handleStreakVisibilityChange);
+  window.removeEventListener('pagehide', handlePageHide);
+  if (currentPlayItem.value?.type === 'video') {
     try {
       await sendProgress();
-      await vimeoPlayer.value.destroy();
+      if (vimeoPlayer.value) {
+        await vimeoPlayer.value.destroy();
+      }
     } catch (e) {}
   }
+  streakTracker.dispose();
 });
 </script>
 

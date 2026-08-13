@@ -13,13 +13,13 @@ const useCourse = () => {
         'X-Requires-Auth': 'false'
       }
     });
-  
+
     if (response) {
       return response.data
     }
     return null
   };
-  
+
   const getDetailCourse = async (id) => {
     const { _get } = useAPI()
     const response = await _get(`/api/course/detail/${id}`, {}, {
@@ -28,8 +28,8 @@ const useCourse = () => {
         'X-Redirect-On-401': 'false'
       }
     })
-    
-    if(response) {
+
+    if (response) {
       return response.data
     }
     return null;
@@ -123,8 +123,7 @@ const useCourse = () => {
   const getNewCourses = async (id) => {
     const { _get } = useAPI()
     const response = await _get(`/api/course/notifications/new-courses/${id}`)
-    console.log(response);
-    
+
     if (response) {
       return response.data
     }
@@ -186,7 +185,7 @@ const useCourse = () => {
     return null
   }
 
-  return { 
+  return {
     getDataCourses,
     getDetailCourse,
     addCourse,

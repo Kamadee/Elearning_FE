@@ -4,6 +4,7 @@ import { useNotify } from '@/composables/useNotify'
 import qs from 'qs'
 import { useCounterStore } from '@/stores/authStore'
 import { pinia } from '@/stores/pinia'
+import { clearCustomerStreakState } from '@/composables/streakSessionCleanup'
 
 const getAPIURL = () => {
   return import.meta.env.VITE_API_URL || 'http://localhost:8081/'
@@ -36,12 +37,14 @@ apiClient.interceptors.request.use(config => {
 
   const token = getToken()
 
-  if (requiresAuth) {
+    if (requiresAuth) {
     // Bắt buộc phải có token hợp lệ
     if (!token || isTokenExpired()) {
       const { notify } = useNotify()
       notify('Phiên đăng nhập đã hết hạn', 'info')
 
+      const customerId = store.getUser?.id
+      clearCustomerStreakState(customerId).catch(() => {})
       localStorage.removeItem('Authorization')
       localStorage.removeItem('tokenExpiry')
       store.removeToken()
