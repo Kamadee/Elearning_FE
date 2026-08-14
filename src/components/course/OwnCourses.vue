@@ -27,7 +27,10 @@
 
 <script setup>
 import { ref, computed } from 'vue';
+import { useRouter } from 'vue-router';
 import ItemCourse from '@/components/course/ItemCourse.vue'
+
+const router = useRouter();
 
 const data = ref({
   page: 1,
@@ -64,11 +67,12 @@ const loadingStates = ref({})
 const handleClickCard = async (courseId) => {
   loadingStates.value[courseId] = true
   try {
-    window.location.href = `/search/${courseId}`
+    await router.push({
+      name: 'play-course',
+      params: { idCourse: courseId },
+    })
   } finally {
-    setTimeout(() => {
-      loadingStates.value[courseId] = false
-    }, 2000);
+    loadingStates.value[courseId] = false
   }
 }
 </script>

@@ -82,10 +82,10 @@ const getInitials = () => {
   return names.length > 1 ? `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase() : (names[0]?.[0] || 'U').toUpperCase()
 }
 
-const logOut = () => {
-  useAuth().logOut()
+const logOut = async () => {
+  await useAuth().logOut()
   useCounterStore().removeToken()
-  window.location.reload()
+  window.location.href = '/login'
 }
 </script>
 

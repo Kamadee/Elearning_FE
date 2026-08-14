@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useCounterStore } from '@/stores/authStore';
+import { refreshAccessToken } from '@/composables/useAPI';
 import DashboardLayout from '@/layouts/DashboardLayout.vue';
 import Login from '@/pages/auth/login.vue';
 import Register from '@/pages/auth/register.vue';
@@ -159,20 +160,18 @@ const router = createRouter({
   ],
 })
 
+let sessionRestored = false
+
 router.beforeEach(async (to, from, next) => {
   const stores = useCounterStore()
-  
-  const isTokenExpired = () => {
-    if(localStorage.getItem('tokenExpiry')) {
-      const expiryTime = localStorage.getItem('tokenExpiry');
-      return expiryTime && Date.now() >= Number(expiryTime);
-    }
-  };
 
-  if(isTokenExpired()) {
-    localStorage.removeItem('Authorization');
-    localStorage.removeItem('tokenExpiry');
-    stores.removeToken();
+  if (!sessionRestored) {
+    sessionRestored = true
+    try {
+      await refreshAccessToken()
+    } catch {
+      stores.removeToken()
+    }
   }
   const isLogged = stores.isLogged; 
   // next-line: check if route ("to" object) needs authenticated

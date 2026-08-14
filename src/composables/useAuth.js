@@ -2,8 +2,7 @@ import { reactive } from 'vue'
 import apiEndpoints from '../config/apiEndpoints'
 import http from '@/utils/http';
 import { useCounterStore } from '@/stores/authStore'
-import useAPI from '@/composables/useAPI'
-import { jwtDecode } from 'jwt-decode'
+import useAPI, { refreshAccessToken } from '@/composables/useAPI'
 import { useNotify } from '@/composables/useNotify'
 import useCart from '@/composables/useCart'
 import { clearCustomerStreakState } from '@/composables/streakSessionCleanup'
@@ -20,10 +19,9 @@ const useAuth = () => {
     }
   };
 
-  const setAuthenticated = (token, expiresTime) => {
+  const setAuthenticated = (token) => {
     if (token) {
-      localStorage.setItem('Authorization', 'Bearer ' + token)
-      localStorage.setItem('tokenExpiry',  expiresTime.toString())
+      stores.setToken(token)
     }
   };
 
@@ -35,10 +33,7 @@ const useAuth = () => {
       
       if (response.status === 200) {
         const token = response.access_token;
-        const expiration = jwtDecode(token).exp * 1000;
-  
-        setAuthenticated(token, expiration)
-        useCounterStore().setToken(token)
+        setAuthenticated(token)
         useCounterStore().setUser(response.user)
         localStorage.setItem('userInfo', JSON.stringify(response.user))
 
@@ -62,6 +57,16 @@ const useAuth = () => {
         handleError(error)
     }
   };
+
+  const restoreSession = async () => {
+    try {
+      await refreshAccessToken()
+      return true
+    } catch {
+      stores.removeToken()
+      return false
+    }
+  }
   
   const handleError = (error) => {
     const response = error.response?.data
@@ -115,6 +120,11 @@ const useAuth = () => {
   const logOut = async () => {
     const customerId = stores.getUser?.id
     await clearCustomerStreakState(customerId)
+    try {
+      await useAPI()._post('/api/customer/logout')
+    } catch {
+      // Always clear the in-memory session even if the API is unavailable.
+    }
     stores.removeToken()
     return true
   }
@@ -171,6 +181,7 @@ const useAuth = () => {
     register,
     verifyEmail,
     logOut,
+    restoreSession,
     getDataProfile,
     editProfile,
     forgotPass,

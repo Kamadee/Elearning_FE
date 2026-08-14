@@ -1,12 +1,35 @@
 <template>
   <div class="wrapper">
     <div class="play-header">
-      <LeftOutlined /><div class="btn-route" @click="backCourse(data.dataCourse.id)">Quay lại |</div>
-      <div class="btn-route" @click="backHome">Trang chủ |</div>
-      <div class="title-course" v-if="data.dataCourse.title">{{ data.dataCourse.title }}</div>
+      <div class="brand-mark" @click="backHome">e<span>Fitness</span></div>
+      <div class="header-divider"></div>
+      <button class="header-back" type="button" @click="backCourse(data.dataCourse.id)">
+        <LeftOutlined />
+        <span>Thoát trình phát</span>
+      </button>
+      <div class="title-course">
+        <span>{{ data.dataCourse.title || 'Khóa học của bạn' }}</span>
+        <small v-if="currentPlayItem">{{ currentPlayItem.type === 'video' ? currentPlayItem.video_title : currentPlayItem.title }}</small>
+      </div>
+      <div class="header-actions">
+        <button class="header-action" type="button" title="Đánh giá khóa học">
+          <StarFilled /> <span>Đánh giá</span>
+        </button>
+        <div class="header-progress" title="Tiến độ khóa học">
+          <span class="course-progress-ring" :style="{ '--progress-angle': `${courseProgressPercent * 3.6}deg` }">
+            <span>{{ courseProgressPercent }}%</span>
+          </span>
+          <span class="progress-label">Tiến độ của bạn <DownOutlined /></span>
+        </div>
+        <button class="header-outline-toggle" type="button" title="Chia sẻ khóa học">
+          <ShareAltOutlined /> <span>Chia sẻ</span>
+        </button>
+        <button class="header-more" type="button" title="Thêm tùy chọn"><MoreOutlined /></button>
+      </div>
     </div>
     <div class="play-content">
-      <div class="screen-video">
+      <div class="main-column">
+        <div class="screen-video">
         <!-- 1. Lock / Blocked state message -->
         <div v-if="currentPlayItem && isItemBlocked(currentPlayItem)" class="blocked-overlay">
           <div class="blocked-card">
@@ -112,17 +135,49 @@
         <div v-else class="no-item-selected">
           <p>Không có nội dung bài học nào được tìm thấy.</p>
         </div>
+        </div>
+
+        <section class="player-tabs" aria-label="Thông tin khóa học">
+          <nav class="tabs-nav">
+            <button
+              v-for="tab in playTabs"
+              :key="tab.key"
+              type="button"
+              class="tab-button"
+              :class="{ active: activeTab === tab.key }"
+              @click="activeTab = tab.key"
+            >
+              {{ tab.label }}
+            </button>
+          </nav>
+          <div class="tab-panel">
+            <template v-if="activeTab === 'overview'">
+              <h2>{{ data.dataCourse.title || 'Tổng quan khóa học' }}</h2>
+              <p>{{ data.dataCourse.description || 'Khám phá nội dung bài học và tiếp tục hành trình học tập của bạn.' }}</p>
+            </template>
+            <template v-else-if="activeTab === 'learning-tools'">
+              <h2>Công cụ học tập</h2>
+              <p>Đặt lời nhắc học tập và theo dõi mục tiêu của bạn.</p>
+              <button class="mock-primary-button" type="button">+ Thêm lời nhắc học tập</button>
+            </template>
+            <template v-else>
+              <h2>{{ playTabs.find(tab => tab.key === activeTab)?.label }}</h2>
+              <p>Nội dung của mục này sẽ được cập nhật trong phiên bản tiếp theo.</p>
+              <div class="mock-placeholder"></div>
+            </template>
+          </div>
+        </section>
       </div>
 
       <!-- Curriculum list in Sidebar -->
       <div class="list-video">
         <div class="nd">
-          <div class="nd-title">Nội dung khóa học</div>
-          <div v-if="data.dataCourse.progress_percent !== undefined && data.dataCourse.progress_percent !== null" class="course-progress-container">
-            <div class="progress-bar-wrapper">
-              <div class="progress-bar-fill" :style="{ width: data.dataCourse.progress_percent + '%' }"></div>
+          <div class="sidebar-heading">
+            <div>
+              <div class="nd-kicker">NỘI DUNG KHÓA HỌC</div>
+              <div class="nd-title">Các bài học</div>
             </div>
-            <div class="progress-bar-text">Tiến độ học tập: {{ data.dataCourse.progress_percent }}%</div>
+            <button class="sidebar-close" type="button" title="Đóng bảng nội dung"><CloseOutlined /></button>
           </div>
         </div>
         <div 
@@ -155,8 +210,8 @@
             <div class="title-video truncate">{{ item.type === 'video' ? item.video_title : item.title }}</div>
             
             <div class="item-meta">
-              <span class="type-badge" :class="item.type">
-                {{ item.type === 'video' ? 'Video' : 'Trắc nghiệm' }}
+              <span v-if="item.type === 'quiz'" class="type-badge quiz">
+                Trắc nghiệm
               </span>
               
               <span v-if="item.type === 'video' && (item.is_completed === true || item.is_completed === 1)" class="video-completed-label">
@@ -183,7 +238,7 @@ import useCourse from '@/composables/useCourse';
 import { useRoute, useRouter } from 'vue-router';
 import { replaceUrlImage } from '@/utils/replaceUrlImage';
 import { normalizeVideoSource } from '@/utils/mediaSource';
-import { useLearningStreakTracker } from '@/composables/useLearningStreakTracker';
+import { getCourseProgressPercent } from '@/utils/coursePlayer';
 import { ref, onMounted, computed, onUnmounted, watch, nextTick, onUpdated } from "vue";
 import { 
   LockOutlined, 
@@ -191,14 +246,17 @@ import {
   QuestionCircleOutlined, 
   CheckOutlined,
   CloseOutlined,
-  CloseCircleOutlined
+  CloseCircleOutlined,
+  DownOutlined,
+  MoreOutlined,
+  ShareAltOutlined,
+  StarFilled
 } from '@ant-design/icons-vue';
 
 const vimeoPlayer = ref(null);
 const currentVideoDuration = ref(0);
 const watchedSecondsSet = ref(new Set());
 let lastSentTime = 0;
-const streakTracker = useLearningStreakTracker();
 
 const loadVimeoSDK = () => {
   return new Promise((resolve) => {
@@ -230,30 +288,7 @@ const sendProgress = async (isCompleted = false) => {
       is_completed: isCompleted
     };
     
-    let streakResult = await streakTracker.flush({
-      courseVideoId: currentPlayItem.value.id,
-      watchedSeconds: watchedSecondsSet.value.size,
-      totalSeconds: duration,
-      isCompleted,
-    });
-
-    if (!streakResult?.payload && !streakTracker.session.value) {
-      try {
-        await streakTracker.start(Number(route.params.idCourse));
-        streakResult = await streakTracker.flush({
-          courseVideoId: currentPlayItem.value.id,
-          watchedSeconds: watchedSecondsSet.value.size,
-          totalSeconds: duration,
-          isCompleted,
-        });
-      } catch (error) {
-        console.warn('Weekly tracking session is unavailable; video progress will be synced without streak data.', error);
-      }
-    }
-
-    const res = streakResult?.payload
-      ? streakResult.response
-      : await useCourse().updateVideoProgress(payload);
+    const res = await useCourse().updateVideoProgress(payload);
     if (res) {
       if (res.course_progress_percent !== undefined) {
         data.value.dataCourse.progress_percent = res.course_progress_percent;
@@ -289,7 +324,6 @@ const initVimeoPlayer = async (iframeEl) => {
     
     const player = new Vimeo.Player(iframeEl);
     vimeoPlayer.value = player;
-    let vimeoPlaybackRate = 1;
     
     try {
       const dur = await player.getDuration();
@@ -301,7 +335,6 @@ const initVimeoPlayer = async (iframeEl) => {
     player.on('timeupdate', (progress) => {
       const second = Math.floor(progress.seconds);
       watchedSecondsSet.value.add(second);
-      streakTracker.observe(progress.seconds, true, vimeoPlaybackRate);
       
       const now = Date.now();
       if (now - lastSentTime >= 10000) {
@@ -309,24 +342,17 @@ const initVimeoPlayer = async (iframeEl) => {
         lastSentTime = now;
       }
     });
-
-    player.on('playbackratechange', (event) => {
-      vimeoPlaybackRate = event.playbackRate || 1;
-    });
     
     player.on('pause', () => {
       sendProgress();
-      streakTracker.pause();
     });
     
     player.on('seeked', () => {
       sendProgress();
-      streakTracker.pause();
     });
     
     player.on('ended', () => {
       sendProgress(true);
-      streakTracker.pause();
     });
   } catch (err) {
     console.error('Failed to initialize Vimeo player:', err);
@@ -338,6 +364,16 @@ const data = ref({
   currentVideo: "",
   urlIframCurrent: "",
 });
+
+const playTabs = [
+  { key: 'overview', label: 'Tổng quan' },
+  { key: 'notes', label: 'Ghi chú' },
+  { key: 'announcements', label: 'Thông báo' },
+  { key: 'reviews', label: 'Đánh giá' },
+  { key: 'learning-tools', label: 'Công cụ học tập' },
+];
+const activeTab = ref('overview');
+const courseProgressPercent = computed(() => getCourseProgressPercent(data.value.dataCourse));
 
 const currentPlayItem = ref(null);
 const completedQuizzes = computed(() => {
@@ -436,13 +472,10 @@ const jumpToQuiz = (quizName) => {
 };
 
 const selectItem = async (item) => {
-  if (currentPlayItem.value && currentPlayItem.value.type === 'video') {
+  if (currentPlayItem.value && currentPlayItem.value.type === 'video' && vimeoPlayer.value) {
     try {
       await sendProgress();
-      streakTracker.pause();
-      if (vimeoPlayer.value) {
-        await vimeoPlayer.value.destroy();
-      }
+      await vimeoPlayer.value.destroy();
     } catch (e) {
       console.error(e);
     }
@@ -588,12 +621,6 @@ const getDetailCourse = async () => {
   const response = await useCourse().getDetailCourse(route.params.idCourse);
   if(response) {
     data.value.dataCourse = response;
-    try {
-      await streakTracker.start(Number(route.params.idCourse));
-    } catch (error) {
-      console.warn('Unable to start weekly streak tracking:', error);
-    }
-    console.log("check",data.value)
     loadCompletedQuizzes();
     
     if (data.value.dataCourse.curriculum && data.value.dataCourse.curriculum.length > 0) {
@@ -617,7 +644,6 @@ const initNativeVideoPlayer = (videoEl) => {
     videoEl.addEventListener('timeupdate', () => {
       const second = Math.floor(videoEl.currentTime);
       watchedSecondsSet.value.add(second);
-      streakTracker.observe(videoEl.currentTime, !videoEl.paused, videoEl.playbackRate || 1);
 
       const now = Date.now();
       if (now - lastSentTime >= 10000) {
@@ -628,31 +654,18 @@ const initNativeVideoPlayer = (videoEl) => {
 
     videoEl.addEventListener('pause', () => {
       sendProgress();
-      streakTracker.pause();
     });
-
-    videoEl.addEventListener('seeking', () => streakTracker.pause());
 
     videoEl.addEventListener('ended', () => {
       sendProgress(true);
-      streakTracker.pause();
     });
   } catch (err) {
     console.error('Failed to initialize Native Video player:', err);
   }
 };
 
-const handleStreakVisibilityChange = () => {
-  if (document.visibilityState !== 'visible') sendProgress();
-  streakTracker.visibilityChanged();
-};
-
-const handlePageHide = () => { sendProgress(); };
-
 onMounted(() => {
   getDetailCourse();
-  document.addEventListener('visibilitychange', handleStreakVisibilityChange);
-  window.addEventListener('pagehide', handlePageHide);
 });
 
 const backCourse = (idCourse) => {
@@ -711,17 +724,12 @@ watch(() => data.value.urlIframCurrent, async (newVal) => {
 });
 
 onUnmounted(async () => {
-  document.removeEventListener('visibilitychange', handleStreakVisibilityChange);
-  window.removeEventListener('pagehide', handlePageHide);
-  if (currentPlayItem.value?.type === 'video') {
+  if (vimeoPlayer.value) {
     try {
       await sendProgress();
-      if (vimeoPlayer.value) {
-        await vimeoPlayer.value.destroy();
-      }
+      await vimeoPlayer.value.destroy();
     } catch (e) {}
   }
-  streakTracker.dispose();
 });
 </script>
 
@@ -730,77 +738,193 @@ onUnmounted(async () => {
   height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: #000;
+  background-color: #1c1d1f;
+  color: #fff;
 }
 
 /* Header Styles */
 .play-header {
-  color: #fff;
-  position: relative;
-  height: 56px;
+  flex: 0 0 68px;
   width: 100%;
   background-color: #1c1d1f;
   display: flex;
-  gap: 0;
   align-items: center;
-  padding: 0 16px;
+  gap: 14px;
+  padding: 0 18px;
   border-bottom: 1px solid #3e4143;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   z-index: 10;
 }
 
-.play-header :deep(.anticon) {
-  font-size: 18px;
+.brand-mark {
   color: #fff;
+  font-size: 27px;
+  font-weight: 800;
+  letter-spacing: -1.5px;
   cursor: pointer;
-  padding: 8px;
-  border-radius: 4px;
-  transition: background-color 0.2s ease;
+  white-space: nowrap;
 }
 
-.play-header :deep(.anticon):hover {
-  background-color: #3e4143;
+.brand-mark:first-letter {
+  color: #a435f0;
 }
 
-.btn-route {
+.brand-mark span {
+  font-weight: 500;
+}
+
+.header-divider {
+  width: 1px;
+  height: 28px;
+  background: #62666a;
+}
+
+.header-back,
+.header-action,
+.header-outline-toggle,
+.header-more,
+.sidebar-close {
+  border: 0;
+  background: transparent;
+  color: inherit;
+}
+
+.header-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #d1d2e0;
+  font-size: 13px;
   cursor: pointer;
-  padding: 8px 12px;
-  font-size: 14px;
+  white-space: nowrap;
+}
+
+.header-back:hover,
+.header-action:hover,
+.header-outline-toggle:hover,
+.header-more:hover {
   color: #fff;
-  transition: background-color 0.2s ease;
-  border-radius: 4px;
-  font-weight: 400;
-  user-select: none;
-}
-
-.btn-route:hover {
-  background-color: #3e4143;
 }
 
 .title-course {
   flex: 1;
-  font-size: 14px;
-  font-weight: 600;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 15px;
+  font-weight: 700;
   color: #fff;
-  margin-left: 16px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  line-height: 1.4;
+}
+
+.title-course small {
+  color: #b8b9c5;
+  font-size: 12px;
+  font-weight: 400;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  white-space: nowrap;
+}
+
+.header-action,
+.header-outline-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.header-action :deep(.anticon) {
+  color: #a8a9b8;
+}
+
+.header-progress {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 13px;
+}
+
+.course-progress-ring {
+  width: 42px;
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: conic-gradient(#a435f0 var(--progress-angle), #626579 0deg);
+  position: relative;
+}
+
+.course-progress-ring::after {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  background: #1c1d1f;
+}
+
+.course-progress-ring span {
+  position: relative;
+  z-index: 1;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.progress-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.header-outline-toggle {
+  border: 1px solid #fff;
+  border-radius: 6px;
+  padding: 10px 13px;
+}
+
+.header-more {
+  width: 40px;
+  height: 40px;
+  border: 1px solid #fff;
+  border-radius: 6px;
+  font-size: 20px;
+  cursor: pointer;
 }
 
 /* Content Area */
 .play-content {
   flex: 1;
   width: 100%;
+  min-height: 0;
   display: flex;
   overflow: hidden;
-  background-color: #000;
+  background-color: #1c1d1f;
+}
+
+.main-column {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 /* Video Player / Main Viewport */
 .screen-video {
-  flex: 1;
+  flex: 1 1 auto;
+  min-height: 0;
   background-color: #000;
   display: flex;
   align-items: center;
@@ -825,10 +949,87 @@ onUnmounted(async () => {
   z-index: 1;
 }
 
+.player-tabs {
+  flex: 0 0 260px;
+  min-height: 0;
+  background: #fff;
+  color: #2d2f45;
+  overflow-y: auto;
+}
+
+.tabs-nav {
+  display: flex;
+  gap: 24px;
+  min-height: 60px;
+  align-items: stretch;
+  padding: 0 28px;
+  border-bottom: 1px solid #d1d7dc;
+}
+
+.tab-button {
+  border: 0;
+  border-bottom: 3px solid transparent;
+  background: transparent;
+  color: #6b6f8d;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.tab-button:hover,
+.tab-button.active {
+  color: #2d2f45;
+}
+
+.tab-button.active {
+  border-bottom-color: #2d2f45;
+}
+
+.tab-panel {
+  max-width: 760px;
+  padding: 28px;
+}
+
+.tab-panel h2 {
+  margin: 0 0 12px;
+  color: #2d2f45;
+  font-size: 22px;
+}
+
+.tab-panel p {
+  margin: 0;
+  color: #5f637d;
+  line-height: 1.6;
+}
+
+.mock-primary-button {
+  margin-top: 20px;
+  border: 0;
+  border-radius: 5px;
+  background: #a435f0;
+  color: #fff;
+  padding: 12px 18px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.mock-primary-button:hover {
+  background: #8710d8;
+}
+
+.mock-placeholder {
+  width: min(480px, 100%);
+  height: 14px;
+  margin-top: 22px;
+  border-radius: 7px;
+  background: #ececf4;
+}
+
 /* Sidebar - Course Content */
 .list-video {
-  width: 400px;
-  min-width: 320px;
+  width: 390px;
+  min-width: 340px;
   background-color: #fff;
   display: flex;
   flex-direction: column;
@@ -861,7 +1062,7 @@ onUnmounted(async () => {
   font-size: 16px;
   font-weight: 700;
   color: #1c1d1f;
-  padding: 16px 16px 12px;
+  padding: 18px 20px 14px;
   border-bottom: 1px solid #d1d7dc;
   background-color: #fff;
   position: sticky;
@@ -870,12 +1071,33 @@ onUnmounted(async () => {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
+.sidebar-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.nd-kicker {
+  margin-bottom: 5px;
+  color: #6b6f8d;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .08em;
+}
+
+.sidebar-close {
+  color: #2d2f45;
+  cursor: pointer;
+  font-size: 16px;
+}
+
 /* Sidebar Item */
 .item-video {
   display: flex;
-  gap: 12px;
+  gap: 10px;
   width: 100%;
-  padding: 12px 16px;
+  padding: 10px 16px;
   border-bottom: 1px solid #d1d7dc;
   cursor: pointer;
   transition: background-color 0.15s ease;
@@ -887,7 +1109,7 @@ onUnmounted(async () => {
 }
 
 .item-video.is-active {
-  background-color: #e8f0f5;
+  background-color: #d9d9e8;
   border-left: 3px solid #6d28d2;
   padding-left: 13px;
 }
@@ -904,9 +1126,9 @@ onUnmounted(async () => {
 
 .thumbnail-wrapper {
   position: relative;
-  width: 120px;
-  min-width: 120px;
-  height: 68px;
+  width: 105px;
+  min-width: 105px;
+  height: 59px;
   flex-shrink: 0;
 }
 
@@ -934,9 +1156,9 @@ onUnmounted(async () => {
 }
 
 .quiz-icon-wrapper {
-  width: 120px;
-  min-width: 120px;
-  height: 68px;
+  width: 105px;
+  min-width: 105px;
+  height: 59px;
   background-color: #f7f9fa;
   display: flex;
   justify-content: center;
@@ -973,7 +1195,7 @@ onUnmounted(async () => {
 .item-info {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-start;
   padding: 2px 0;
   flex: 1;
   min-width: 0;
@@ -983,7 +1205,7 @@ onUnmounted(async () => {
   font-size: 14px;
   font-weight: 400;
   color: #1c1d1f;
-  line-height: 1.4;
+  line-height: 1.25;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -997,10 +1219,10 @@ onUnmounted(async () => {
 
 .item-meta {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   align-items: center;
   flex-wrap: wrap;
-  margin-top: 4px;
+  margin-top: 8px;
 }
 
 .type-badge {
@@ -1329,8 +1551,18 @@ onUnmounted(async () => {
 /* Responsive Custom Rules */
 @media screen and (max-width: 1024px) {
   .list-video {
-    width: 320px;
-    min-width: 280px;
+    width: 340px;
+    min-width: 300px;
+  }
+
+  .header-actions {
+    gap: 10px;
+  }
+
+  .header-action span,
+  .header-outline-toggle span,
+  .progress-label {
+    display: none;
   }
   
   .thumbnail-wrapper, .quiz-icon-wrapper {
@@ -1341,18 +1573,57 @@ onUnmounted(async () => {
 }
 
 @media screen and (max-width: 768px) {
+  .play-header {
+    flex-basis: 58px;
+    padding: 0 12px;
+    gap: 10px;
+  }
+
+  .brand-mark {
+    font-size: 22px;
+  }
+
+  .header-divider,
+  .header-back span,
+  .header-action,
+  .header-outline-toggle,
+  .progress-label {
+    display: none;
+  }
+
+  .title-course {
+    font-size: 13px;
+  }
+
   .play-content {
     flex-direction: column;
+    overflow-y: auto;
   }
   
   .screen-video {
-    height: 45vh;
+    flex: 0 0 45vh;
     min-height: 260px;
+  }
+
+  .player-tabs {
+    flex-basis: auto;
+    min-height: 240px;
+  }
+
+  .tabs-nav {
+    gap: 16px;
+    overflow-x: auto;
+    padding: 0 16px;
+  }
+
+  .tab-panel {
+    padding: 22px 16px;
   }
   
   .list-video {
     width: 100%;
-    height: 55vh;
+    flex: 0 0 55vh;
+    height: auto;
     border-left: none;
     border-top: 1px solid #d1d7dc;
   }
@@ -1372,34 +1643,6 @@ onUnmounted(async () => {
   font-size: 16px;
   font-weight: 700;
   color: #1c1d1f;
-}
-
-.course-progress-container {
-  margin-top: 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.progress-bar-wrapper {
-  width: 100%;
-  height: 6px;
-  background-color: #e9ecef;
-  border-radius: 3px;
-  overflow: hidden;
-}
-
-.progress-bar-fill {
-  height: 100%;
-  background-color: #34a853; /* green progress */
-  border-radius: 3px;
-  transition: width 0.3s ease;
-}
-
-.progress-bar-text {
-  font-size: 12px;
-  font-weight: 500;
-  color: #5f6368;
 }
 
 .video-completed-label {

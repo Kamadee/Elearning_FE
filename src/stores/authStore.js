@@ -1,8 +1,9 @@
 import { defineStore } from 'pinia';
+import { authTokenStore } from '@/utils/authTokenStorage';
 
 export const useCounterStore = defineStore('auth', {
   state: () => ({
-    token: localStorage.getItem('Authorization') || null,
+    token: null,
     userInfo: JSON.parse(localStorage.getItem('userInfo')) || null,
     dataSearch: [],
     keySearch: "",
@@ -40,6 +41,7 @@ export const useCounterStore = defineStore('auth', {
   actions: {
     setToken(token) {
       this.token = token;
+      authTokenStore.set(token ? `Bearer ${token}` : null);
     },
     setUser(user) {
       this.userInfo = user;
@@ -82,10 +84,9 @@ export const useCounterStore = defineStore('auth', {
       this.token = null;
       this.userInfo = null;
       this.inCart = [];
-      localStorage.removeItem('Authorization');
       localStorage.removeItem('userInfo');
       localStorage.removeItem('inCart');
-      localStorage.removeItem('tokenExpiry');
+      authTokenStore.clear();
     }
   }
 });

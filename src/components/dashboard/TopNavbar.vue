@@ -272,11 +272,11 @@ onUnmounted(() => {
 
 const countCart = computed(() => stores.getInCart?.length || 0)
 
-const logOut = () => {
-  useAuth().logOut()
+const logOut = async () => {
+  await useAuth().logOut()
   const store = useCounterStore();
   store.removeToken();
-  location.reload()
+  await router.push({ name: 'login' })
 }
 
 const router = useRouter();

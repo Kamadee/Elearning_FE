@@ -5,6 +5,7 @@ import qs from 'qs'
 import { useCounterStore } from '@/stores/authStore'
 import { pinia } from '@/stores/pinia'
 import { clearCustomerStreakState } from '@/composables/streakSessionCleanup'
+import { authTokenStore } from '@/utils/authTokenStorage'
 
 const getAPIURL = () => {
   return import.meta.env.VITE_API_URL || 'http://localhost:8081/'
@@ -14,6 +15,7 @@ const API_URL = getAPIURL()
 
 const apiClient = axios.create({
   baseURL: API_URL,
+  withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
     'Accept': '*/*',
@@ -23,13 +25,18 @@ const apiClient = axios.create({
 })
 
 // function lấy token
-const getToken = () => localStorage.getItem('Authorization')
+const getToken = () => authTokenStore.get()
 const store = useCounterStore(pinia)
 
-const isTokenExpired = () => {
-  const expiryTime = localStorage.getItem('tokenExpiry')
-  return expiryTime && Date.now() >= Number(expiryTime)
-};
+export const refreshAccessToken = async () => {
+  const response = await apiClient.post('/api/customer/refresh', {})
+  const accessToken = response?.access_token
+  if (!accessToken) throw new Error('Refresh token did not return an access token')
+
+  store.setToken(accessToken)
+  if (response.user) store.setUser(response.user)
+  return accessToken
+}
 
 // Request Interceptor
 apiClient.interceptors.request.use(config => {
@@ -37,16 +44,12 @@ apiClient.interceptors.request.use(config => {
 
   const token = getToken()
 
-    if (requiresAuth) {
+  if (requiresAuth) {
     // Bắt buộc phải có token hợp lệ
-    if (!token || isTokenExpired()) {
+    if (!token) {
       const { notify } = useNotify()
       notify('Phiên đăng nhập đã hết hạn', 'info')
 
-      const customerId = store.getUser?.id
-      clearCustomerStreakState(customerId).catch(() => {})
-      localStorage.removeItem('Authorization')
-      localStorage.removeItem('tokenExpiry')
       store.removeToken()
 
       window.location.href = '/login'
@@ -57,7 +60,7 @@ apiClient.interceptors.request.use(config => {
     config.headers['Authorization'] = token
   } else {
     // Không bắt buộc, nhưng nếu có thì thêm vào
-    if (token && !isTokenExpired()) {
+    if (token) {
       config.headers = config.headers || {};
       config.headers['Authorization'] = token
     }
@@ -65,8 +68,6 @@ apiClient.interceptors.request.use(config => {
 
   // Xoá custom header để không gửi lên server
   delete config.headers['X-Requires-Auth']
-
-  console.log("DEBUG API REQUEST:", config.url, "Authorization:", config.headers?.['Authorization']);
 
   return config;
 }, error => Promise.reject(error));
@@ -79,6 +80,27 @@ apiClient.interceptors.response.use(
     else return response.data
   },
   error => {
+    const originalRequest = error.config
+    const isRefreshRequest = originalRequest?.url?.includes('/customer/refresh')
+    const isLoginRequest = originalRequest?.url?.includes('/customer/login')
+
+    if (error.response?.status === 401 && !originalRequest?._retry && !isRefreshRequest && !isLoginRequest) {
+      originalRequest._retry = true
+      return refreshAccessToken()
+        .then(accessToken => {
+          originalRequest.headers = originalRequest.headers || {}
+          originalRequest.headers.Authorization = `Bearer ${accessToken}`
+          return apiClient(originalRequest)
+        })
+        .catch(() => {
+          const customerId = store.getUser?.id
+          clearCustomerStreakState(customerId).catch(() => {})
+          store.removeToken()
+          if (window.location.pathname !== '/login') window.location.href = '/login'
+          return Promise.resolve(null)
+        })
+    }
+
     // const shouldRedirect = error.config?.headers?.['X-Redirect-On-401'] !== 'false'
 
     if (error.response?.status === 401) {

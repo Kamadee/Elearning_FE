@@ -169,6 +169,20 @@ const useCourse = () => {
     return null
   }
 
+  const getLearningStreak = async () => {
+    const { _get } = useAPI()
+    const response = await _get('/api/course/streak', {}, {
+      headers: {
+        'X-Requires-Auth': 'true',
+        'X-Redirect-On-401': 'false'
+      }
+    })
+    if (response) {
+      return response.data
+    }
+    return null
+  }
+
   const submitQuiz = async (quizId, answers) => {
     const { _post } = useAPI()
     const response = await _post('/api/course/quiz/submit', {
@@ -199,6 +213,7 @@ const useCourse = () => {
     getCategories,
     getTags,
     updateVideoProgress,
+    getLearningStreak,
     submitQuiz
   }
 }
