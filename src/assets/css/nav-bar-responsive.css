@@ -13,9 +13,6 @@
     left: 50%; /* Đặt phần tử ở giữa */
     transform: translateX(-50%);
   }
-  .navbar-notification {
-    display: none;
-  }
   .navbar-logo img {
     height: 30px !important;
    }

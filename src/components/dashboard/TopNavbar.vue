@@ -720,9 +720,6 @@ a {
   .navbar-search {
     display: none;
   }
-  .navbar-notification {
-    display: none;
-  }
   .logo {
     font-size: 20px;
   }
