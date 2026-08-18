@@ -94,7 +94,7 @@ apiClient.interceptors.response.use(
         })
         .catch(() => {
           const customerId = store.getUser?.id
-          clearCustomerStreakState(customerId).catch(() => {})
+          clearCustomerStreakState(customerId).catch(() => { })
           store.removeToken()
           if (window.location.pathname !== '/login') window.location.href = '/login'
           return Promise.resolve(null)
@@ -105,7 +105,7 @@ apiClient.interceptors.response.use(
 
     if (error.response?.status === 401) {
       const shouldRedirect = error.config?.headers?.['X-Redirect-On-401'] !== 'false'
-      
+
       if (shouldRedirect) {
         // const { notify } = useNotify()
         // notify('Phiên đăng nhập không hợp lệ', 'error')
@@ -117,7 +117,7 @@ apiClient.interceptors.response.use(
       }
       return Promise.resolve(null)
     }
-    
+
 
     return Promise.reject(error)
   }
@@ -137,10 +137,10 @@ const useAPI = () => {
         ...(queryParams || {})  // Query nằm riêng, không bị nhầm với headers
       }
     };
-  
+
     return apiClient.get(url, finalConfig)
   }
-  
+
   const _post = async (url, data = {}, config = {}) => {
     return apiClient.post(url, data, config)
   };
