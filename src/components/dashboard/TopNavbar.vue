@@ -49,10 +49,19 @@
         <router-link to="/blog" class="navbar-link" :class="{ 'active': isActiveMenu('/blog') }">Bài viết</router-link>
 
         <div class="navbar-notification">
-          <AntBadge v-if="isAuthenticated && !isNotificationSeen" :count="1" @click="watchNotification" :show-zero="true" offset="[0, 5]">
-            <Notification :coursesNew="data.coursesNew" />
+          <AntBadge v-if="isAuthenticated" :count="notificationState.unreadCount.value" :show-zero="false" offset="[0, 5]">
+            <Notification
+              ref="notificationComponent"
+              :notifications="notificationState.notifications.value"
+              :unread-count="notificationState.unreadCount.value"
+              :is-loading="notificationState.isLoading.value"
+              :has-error="notificationState.hasError.value"
+              :is-marking-read="notificationState.markingReadId.value"
+              :action-error="notificationState.actionError.value"
+              @retry="notificationState.refetch"
+              @mark-read="handleNotificationRead"
+            />
           </AntBadge>
-          <Notification v-else :coursesNew="data.coursesNew" />
         </div>
           <!-- Search for Mobile -->
         <SearchOutlined class="icon-search-mobile" @click="toggleOpenSearch" />
@@ -114,6 +123,8 @@ import useCart from "@/composables/useCart"
 import useCourse from "@/composables/useCourse"
 import Notification from '@/components/serviceType/notification/index.vue'
 import emitter from '@/utils/eventBus'
+import { useNotifications } from '@/composables/useNotifications'
+import { useOrderPaymentNotifications } from '@/composables/useOrderPaymentNotifications'
 
 const userProfile = ref({
   firstName: '',
@@ -147,42 +158,12 @@ const data = ref({
   page: 1,
   per_page: 12,
   total: 0,
-  categoryId: "",
-  coursesNew: [],
 })
 const getDataCart = async () => {
   const response = await useCart().getDataCarts()
   if(response) {
     data.value.cartData = response.contents 
   }
-}
-
-// Xử lý chức năng Notification khóa học vừa dc thêm mới
-const getCategoryBestOfUser = async () => {
-  const response = await useCourse().getCategoryBestOfUser()
-  if(response) {
-    data.value.categoryId = response
-  }
-}
-
-const getNewCourses = async () => {
-  const response = await useCourse().getNewCourses(data.value.categoryId)
-  const existingIds = new Set(data.value.coursesNew.map(course => course.id))
-  const result = response.filter(course => !existingIds.has(course.id))
-  return result
-}
-
-const isNotificationSeen = ref(localStorage.getItem('isNotificationSeen') === 'true')
-
-watch(isNotificationSeen, (newVal) => {
-  localStorage.setItem('isNotificationSeen', newVal.toString())
-})
-const pendingCourse = ref([])
-
-const watchNotification = () => {
-  isNotificationSeen.value = true
-  data.value.coursesNew.push(...pendingCourse.value)
-  pendingCourse.value = []
 }
 
 const getUserProfile = async () => {
@@ -211,36 +192,34 @@ const getUserInitials = () => {
   return 'U'
 }
 
-const userSessionInterval = ref(null)
+const notificationComponent = ref(null)
+const customerId = computed(() => stores.getUser?.id ?? null)
+const notificationState = useNotifications({ customerId })
+useOrderPaymentNotifications({
+  customerId,
+  onNotification: notificationState.mergeRealtimeNotification,
+  onReconnect: notificationState.refetchAfterReconnect,
+})
+
+const handleNotificationRead = async notification => {
+  try {
+    await notificationState.markRead(notification.id)
+    notificationComponent.value?.closeDropdown()
+    await router.push('/history')
+  } catch {
+    // The dropdown keeps the item visible and the composable exposes the error.
+  }
+}
 
 const initializeUserSession = async () => {
   await getUserProfile()
   await getDataCart()
-  await getCategoryBestOfUser()
-  await getNewCourses()
-  
-  if (userSessionInterval.value) {
-    clearInterval(userSessionInterval.value)
-  }
-  
-  userSessionInterval.value = setInterval(async () => {
-    const response = await getNewCourses()
-    if(response.length > 0) {
-      const newObjCourse = response.map((res) => { return { ...res, isSeen: false}})
-      pendingCourse.value = [...newObjCourse]
-      isNotificationSeen.value = false
-    }
-  }, 1000)
-  
+
   emitter.off('updateCountCart', getDataCart)
   emitter.on('updateCountCart', getDataCart)
 }
 
 const clearUserSession = () => {
-  if (userSessionInterval.value) {
-    clearInterval(userSessionInterval.value)
-    userSessionInterval.value = null
-  }
   emitter.off('updateCountCart', getDataCart)
 }
 

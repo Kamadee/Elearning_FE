@@ -1,6 +1,4 @@
-// import apiEndpoints from '../config/apiEndpoints';
 import useAPI from '@/composables/useAPI';
-import apiEndpoints from '@/config/apiEndpoints';
 import { invalidateCart } from '@/composables/cartQuery';
 import { queryClient } from '@/plugins/queryClient';
 import { normalizeHotCoursesResponse } from '@/composables/courseQueryUtils';
@@ -111,25 +109,6 @@ const useCourse = () => {
     return null
   }
 
-  const getCategoryBestOfUser = async () => {
-    const { _get } = useAPI()
-    const response = await _get('/api/course/customer/best-category')
-    if (response) {
-      return response.data
-    }
-    return null
-  }
-
-  const getNewCourses = async (id) => {
-    const { _get } = useAPI()
-    const response = await _get(`/api/course/notifications/new-courses/${id}`)
-
-    if (response) {
-      return response.data
-    }
-    return null
-  }
-
   const getCategories = async () => {
     const { _get } = useAPI()
     const response = await _get('/api/course/categories', {}, {
@@ -208,8 +187,6 @@ const useCourse = () => {
     getDataOrders,
     addReview,
     getDataReview,
-    getCategoryBestOfUser,
-    getNewCourses,
     getCategories,
     getTags,
     updateVideoProgress,

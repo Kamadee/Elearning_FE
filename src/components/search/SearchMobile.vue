@@ -31,8 +31,6 @@ const data = ref({
   page: 1,
   per_page: 12,
   total: 0,
-  categoryId: "",
-  coursesNew: [],
 })
 
 const stores = useCounterStore()

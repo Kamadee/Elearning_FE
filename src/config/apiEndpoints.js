@@ -5,14 +5,17 @@ const apiEndpoints = {
   VERIFY_EMAIL: 'api/customer/verify',
   GET_PROFILE: '/api/customer/profile',
   UPDATE_PROFILE: '/api/customer/update-profile',
-  FORGOT_PASSWORD: "/api/customer/forgot-password",
-  RESET_PASSWORD: "/api/customer/reset-password",
+  FORGOT_PASSWORD: '/api/customer/forgot-password',
+  RESET_PASSWORD: '/api/customer/reset-password',
   GET_POST_LIST: '/api/post/list',
   GET_POST_DETAIL: '/api/post',
   GET_COURSE_LIST: '/api/course/list',
   GET_COURSE_DETAIL: '/api/course/detail',
-  PLAY_VIDEO: '/api/video/vimeo'
+  CUSTOMER_NOTIFICATIONS: '/api/customer/notifications',
+  CUSTOMER_NOTIFICATION_READ: (notificationId) =>
+    `/api/customer/notifications/${notificationId}/read`,
+  PLAY_VIDEO: '/api/video/vimeo',
   // Thêm các endpoint khác tại đây
-};
+}
 
-export default apiEndpoints;
+export default apiEndpoints
