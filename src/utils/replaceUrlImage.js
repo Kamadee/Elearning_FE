@@ -1,25 +1,18 @@
-export const replaceUrlImage = (url) => {
-  const isAbsoluteUrl = /^https?:\/\/(www\.)?([\w-]+\.)+\w+/.test(url);
+const stripApiPath = (apiUrl) => apiUrl.replace(/\/+$/, '').replace(/\/api$/, '')
 
-  // Đồng bộ logic với useAPI.js: ưu tiên VITE_API_URL, sau đó mới dùng PROD
-  const getBaseUrl = () => {
-    const url = import.meta.env.VITE_API_URL || 'http://localhost:8081/';
-    return url;
+export const resolveImageUrl = (url, apiUrl) => {
+  const imageUrl = String(url ?? '').trim()
+
+  if (!imageUrl) return ''
+
+  try {
+    new URL(imageUrl)
+    return imageUrl
+  } catch {
+    const baseUrl = stripApiPath(apiUrl)
+    return `${baseUrl}/${imageUrl.replace(/^\/+/, '')}`
   }
+}
 
-  const baseUrl = getBaseUrl()
-
-  if (isAbsoluteUrl) {
-    return url;
-  }
-
-  if (url.startsWith('/')) {
-    return baseUrl.endsWith('/')
-      ? baseUrl + url.slice(1)
-      : baseUrl + url;
-  }
-
-  return baseUrl.endsWith('/')
-    ? baseUrl + url
-    : baseUrl + '/' + url;
-};
+export const replaceUrlImage = (url) =>
+  resolveImageUrl(url, import.meta.env.VITE_API_URL || 'http://localhost:8081')
