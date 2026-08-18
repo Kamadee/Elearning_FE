@@ -4,6 +4,7 @@ import { useCounterStore } from '@/stores/authStore'
 import useAPI from '@/composables/useAPI'
 import apiEndpoints from '@/config/apiEndpoints'
 import {
+  createNotificationUiState,
   markNotificationReadInPage,
   mergeNotificationIntoPage,
   normalizeNotification,
@@ -56,6 +57,7 @@ export const useNotifications = ({ customerId, page = 1, perPage = 10 } = {}) =>
     refetchInterval: false,
     placeholderData: keepPreviousData,
   })
+  const notificationUiState = createNotificationUiState(query)
 
   const markReadMutation = useMutation({
     mutationFn: markNotificationRead,
@@ -115,6 +117,7 @@ export const useNotifications = ({ customerId, page = 1, perPage = 10 } = {}) =>
 
   return {
     ...query,
+    ...notificationUiState,
     notifications: computed(() => query.data.value?.data ?? []),
     unreadCount: computed(() => query.data.value?.meta?.unread_count ?? 0),
     markRead: markReadMutation.mutateAsync,

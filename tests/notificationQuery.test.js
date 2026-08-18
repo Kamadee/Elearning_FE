@@ -1,6 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {
+  createNotificationUiState,
   markNotificationReadInPage,
   mergeNotificationIntoPage,
   normalizeNotificationListResponse,
@@ -26,6 +27,18 @@ const notification = (id, readAt = null) => ({
 test('notification query keys include customer and pagination inputs', () => {
   assert.notDeepEqual(notificationListQueryKey(9, 1, 10), notificationListQueryKey(9, 2, 10))
   assert.notDeepEqual(notificationListQueryKey(9, 1, 10), notificationListQueryKey(10, 1, 10))
+})
+
+test('notification UI state exposes the query error under the hasError contract', () => {
+  const query = {
+    isLoading: { value: false },
+    isError: { value: true },
+  }
+
+  const state = createNotificationUiState(query)
+
+  assert.equal(state.isLoading, query.isLoading)
+  assert.equal(state.hasError, query.isError)
 })
 
 test('notification list response is normalized from the API envelope', () => {

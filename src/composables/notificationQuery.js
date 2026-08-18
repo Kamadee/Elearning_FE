@@ -4,6 +4,11 @@ const assertNotificationId = (notification) => {
   }
 }
 
+export const createNotificationUiState = (query) => ({
+  isLoading: query.isLoading,
+  hasError: query.isError,
+})
+
 export const normalizeNotification = (notification) => {
   assertNotificationId(notification)
 
