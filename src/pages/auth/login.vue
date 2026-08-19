@@ -26,7 +26,7 @@
               </a-input>
             </a-form-item>
 
-            <div class="remember-wrapper">
+            <!-- <div class="remember-wrapper">
               <label class="fui-checkbox-toggle">
                 <input type="checkbox" id="toggle-input" class="toggle-input" />
                 <div class="toggle-bar">
@@ -34,7 +34,11 @@
                 </div>
               </label>
               <span class="remember-label">Remember me</span>
-            </div>
+            </div> -->
+
+            <a-form-item class="forgot-link">
+              <router-link to="/forgot-password"><strong>Quên mật khẩu?</strong></router-link>
+            </a-form-item>
 
             <a-form-item>
               <a-button type="primary" html-type="submit" :disabled="loadingStates.login" class="btn-login">Đăng nhập</a-button>
