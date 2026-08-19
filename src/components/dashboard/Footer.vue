@@ -38,9 +38,9 @@
         <!-- Cột 4: Logo -->
         <div class="col-6 col-md-3 mb-3 text-md-end">
           <div class="logo">
-            <span class="e">e</span><span>Fitness</span>
+            <span class="e">e</span><span>Learning</span>
           </div>
-          <p class="text-white-50 mt-2">&copy; 2025 eFitness, Inc.</p>
+          <p class="text-white-50 mt-2">&copy; 2025 eLearning, Inc.</p>
         </div>
 
       </div>

@@ -8,7 +8,7 @@
       <!-- Logo -->
       <router-link to="/" class="navbar-logo">
         <div class="logo">
-          <span class="e">e</span><span>Fitness</span>
+          <span class="e">e</span><span>Learning</span>
         </div>
       </router-link>
       
