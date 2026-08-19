@@ -7,7 +7,7 @@
           <a-form :model="data" ref="formRef" :rules="rules" @submit.prevent="login()">
             <h3>Login</h3>
             <div class="test">
-              <span>*email: tahieuthang@gmail.com</span>
+              <span>*email: thangtahieu@gmail.com</span>
               <span>*pass: 123456</span>
             </div>
 
@@ -35,10 +35,6 @@
               </label>
               <span class="remember-label">Remember me</span>
             </div>
-
-            <a-form-item class="forgot-link">
-              <router-link to="/forgot-password"><strong>Quên mật khẩu?</strong></router-link>
-            </a-form-item>
 
             <a-form-item>
               <a-button type="primary" html-type="submit" :disabled="loadingStates.login" class="btn-login">Đăng nhập</a-button>
