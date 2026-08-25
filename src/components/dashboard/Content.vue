@@ -28,9 +28,9 @@
 
     <div class="content-first"> 
       <div class="training">
-        <p>Đào tạo 2 người trở lên? Cho phép nhóm của bạn tiếp cận hơn 27.000 khóa học hàng đầu của eFitness</p>
+        <p>Đào tạo 2 người trở lên? Cho phép nhóm của bạn tiếp cận hơn 27.000 khóa học hàng đầu của eLearning</p>
         <div class="double-btn">
-          <button class="udemy">Nhận eFitness Business</button>
+          <button class="udemy">Nhận eLearning Business</button>
           <button class="dismiss">Học viên</button>
         </div>
       </div>
@@ -94,13 +94,13 @@
 
       <!-- Testimonials Section -->
       <div class="testimonials-section">
-        <h2 class="section-title">Học viên nói gì về eFitness</h2>
+        <h2 class="section-title">Học viên nói gì về eLearning</h2>
         <div class="testimonials-grid">
           <div class="testimonial-item">
             <div class="testimonial-rating">
               <span class="star">★★★★★</span>
             </div>
-            <p class="testimonial-text">"eFitness đã giúp tôi nâng cao kỹ năng và tự tin hơn trong công việc. Các khóa học rất chất lượng và dễ hiểu."</p>
+            <p class="testimonial-text">"eLearning đã giúp tôi nâng cao kỹ năng và tự tin hơn trong công việc. Các khóa học rất chất lượng và dễ hiểu."</p>
             <div class="testimonial-author">
               <div class="author-avatar">NV</div>
               <div class="author-info">
@@ -126,7 +126,7 @@
             <div class="testimonial-rating">
               <span class="star">★★★★★</span>
             </div>
-            <p class="testimonial-text">"Giá cả hợp lý và chất lượng vượt mong đợi. Tôi đã học được rất nhiều điều bổ ích từ các khóa học tại eFitness."</p>
+            <p class="testimonial-text">"Giá cả hợp lý và chất lượng vượt mong đợi. Tôi đã học được rất nhiều điều bổ ích từ các khóa học tại eLearning."</p>
             <div class="testimonial-author">
               <div class="author-avatar">TM</div>
               <div class="author-info">
