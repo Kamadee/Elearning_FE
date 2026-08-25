@@ -205,6 +205,8 @@ const formatRating = (rating) => {
   flex-direction: column;
   gap: 2px !important;
   flex: 1;
+  min-height: 174px;
+  box-sizing: border-box;
 }
 
 .course-title {
