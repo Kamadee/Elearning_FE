@@ -1,10 +1,10 @@
 <template>
   <div class="detail-container">
-    <BannerCourse :courseData="data.courseData"/>
+    <BannerCourse :courseData="data.courseData" />
     <div class="main-courses" style="">
-      <ContentCourse :courseData="data.courseData"/>
+      <ContentCourse :courseData="data.courseData" />
       <div class="related-container">
-        <RelatedCourse :categoryList="data.categoryList"/>
+        <RelatedCourse :categoryList="data.categoryList" />
       </div>
       <div class="review-contaner">
         <ReviewCourse :courseData="data.courseData" />
@@ -18,24 +18,24 @@ import BannerCourse from '@/components/course/detail/BannerCourse.vue'
 import ContentCourse from '@/components/course/detail/ContentCourse.vue'
 import RelatedCourse from '@/components/course/detail/RelatedCourse.vue'
 import ReviewCourse from '@/components/course/detail/ReviewCourse.vue'
-import useCourse from '@/composables/useCourse';
-import { ref, watchEffect, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
+import useCourse from '@/composables/useCourse'
+import { ref, watchEffect, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 
 const route = useRoute()
 const courseId = route.params.idCourse
 
 const data = ref({
-  courseData: "",
-  categoryList: []
+  courseData: {},
+  categoryList: [],
 })
 
 const getDetailCourse = async (courseId) => {
   const response = await useCourse().getDetailCourse(courseId)
-  if(response) {
+  if (response) {
     data.value.courseData = response
     const categories = response.course_categories
-    const categoriesName = categories.map(category => category.category_name)
+    const categoriesName = categories.map((category) => category.category_name)
     data.value.categoryList = categoriesName
   }
 }
@@ -79,7 +79,7 @@ watchEffect(() => {
   width: 100%;
 }
 
-@media screen and (max-width:767px) {
+@media screen and (max-width: 767px) {
   .main-courses {
     display: flex;
     flex-direction: column;

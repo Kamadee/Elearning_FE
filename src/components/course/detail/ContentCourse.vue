@@ -2,7 +2,7 @@
   <div class="content-wrapper">
     <div class="content-left">
       <div class="course-tile"></div>
-      <a-tabs style="width: 100%;" v-model:activeKey="activeKey">
+      <a-tabs style="width: 100%" v-model:activeKey="activeKey">
         <a-tab-pane key="1" tab="Tổng quan">
           <p v-html="courseData.content"></p>
         </a-tab-pane>
@@ -20,7 +20,6 @@
               </template>
             </template>
           </a-table>
-
         </a-tab-pane>
         <a-tab-pane key="3" tab="Tác giả">
           <h3>{{ courseData.author }}</h3>
@@ -29,7 +28,7 @@
       </a-tabs>
     </div>
     <div class="content-right">
-      <PriceInfor :courseData="props.courseData"/>
+      <PriceInfor :courseData="props.courseData" />
     </div>
   </div>
 </template>
@@ -41,8 +40,8 @@ import { computed, ref } from 'vue'
 const props = defineProps({
   courseData: {
     type: Object,
-    required: true
-  }
+    required: true,
+  },
 })
 
 const activeKey = ref('1')
@@ -60,12 +59,12 @@ const columns = [
   },
 ]
 
-const lectures = computed(() => 
-  props.courseData.videos.map((video, index) => ({
+const lectures = computed(() =>
+  (props.courseData.videos ?? []).map((video, index) => ({
     id: index,
     name: video.video_title,
     description: video.video_description,
-  })) 
+  })),
 )
 </script>
 
@@ -156,7 +155,7 @@ const lectures = computed(() =>
   color: #5b21b6 !important;
 }
 
-@media screen and (max-width:767px) {
+@media screen and (max-width: 767px) {
   .main-courses {
     padding: 10px;
   }
@@ -187,4 +186,3 @@ const lectures = computed(() =>
   }
 }
 </style>
-
