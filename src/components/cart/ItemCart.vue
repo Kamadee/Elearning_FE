@@ -2,7 +2,13 @@
   <div class="card-course">
     <div class="right-card">
       <div class="thumbnail-wrapper">
-        <img :src="replaceUrlImage(cartData.course.thumbnail)" :alt="cartData.course.title" class="thumbnail-course">
+        <img
+          :src="replaceUrlImage(cartData.course.thumbnail)"
+          :alt="cartData.course.title"
+          class="thumbnail-course"
+          loading="lazy"
+          decoding="async"
+        >
       </div>
       <div class="course-info">
         <h3 class="title-course">{{ cartData.course.title }}</h3>

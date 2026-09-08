@@ -2,7 +2,12 @@
   <div class="card-wrapper">
     <div class="card-course" @click="handleClickCard">
       <div class="thumbnail-wrapper">
-        <img :src="replaceUrlImage(course?.thumbnail || '')" :alt="course.title" />
+        <img
+          :src="replaceUrlImage(course?.thumbnail || '')"
+          :alt="course.title"
+          loading="lazy"
+          decoding="async"
+        />
       </div>
       <div class="course-content">
         <h3 class="course-title">{{ course.title }}</h3>

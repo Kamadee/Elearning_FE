@@ -3,7 +3,13 @@
   <div v-if="isMobile" class="card-course">
     <div class="right-card" @click="handleClickCard"> 
       <div>
-        <img :src="replaceUrlImage(props.dataSearch.thumbnail)" class="thumbnail-course">
+        <img
+          :src="replaceUrlImage(props.dataSearch.thumbnail)"
+          :alt="props.dataSearch.title || 'Course thumbnail'"
+          class="thumbnail-course"
+          loading="lazy"
+          decoding="async"
+        >
       </div>
       <div>
         <div class="title-course">{{ props.dataSearch.title }}</div>
@@ -34,7 +40,13 @@
   <div v-else class="card-course">
     <div class="right-card" @click="handleClickCard"> 
       <div>
-        <img :src="replaceUrlImage(props.dataSearch.thumbnail)" class="thumbnail-course">
+        <img
+          :src="replaceUrlImage(props.dataSearch.thumbnail)"
+          :alt="props.dataSearch.title || 'Course thumbnail'"
+          class="thumbnail-course"
+          loading="lazy"
+          decoding="async"
+        >
       </div>
       <div>
         <div class="title-course">{{ props.dataSearch.title }}</div>
@@ -66,7 +78,6 @@
 import { replaceUrlImage } from '@/utils/replaceUrlImage'
 import { formatCurrency } from '@/utils/formatCurrency'
 import useCart from '@/composables/useCart';
-import { useNotify } from '@/composables/useNotify';
 import  { useCounterStore } from '@/stores/authStore'
 import { computed, ref, onMounted, onBeforeMount } from "vue"
 import { useRouter } from 'vue-router';

@@ -6,12 +6,17 @@
       <div class="mobile-list-container" v-if="isMobile">
         <div 
           class="mobile-course-item" 
-          v-for="(course, index) in displayedCourses" 
+          v-for="course in displayedCourses"
           :key="course.id"
           @click="handleClickCard(course.id)"
         >
           <div class="mobile-thumbnail">
-            <img :src="replaceUrlImage(course?.thumbnail || '')" :alt="course.title" />
+            <img
+              :src="replaceUrlImage(course?.thumbnail || '')"
+              :alt="course.title"
+              loading="lazy"
+              decoding="async"
+            />
           </div>
           <div class="mobile-course-info">
             <h3 class="mobile-course-title">{{ course.title }}</h3>

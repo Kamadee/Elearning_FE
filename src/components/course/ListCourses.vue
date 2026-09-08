@@ -24,7 +24,7 @@ import { useCategoryCoursesQuery } from '@/composables/courseQuery';
 const route = useRoute()
 const categoryName = computed(() => route.params.category)
 const currentPage = ref(1)
-const perPage = ref(12)
+const perPage = ref(15)
 
 const { data: coursesResponse } = useCategoryCoursesQuery({
   category: categoryName,
@@ -72,7 +72,7 @@ const handleClickCard = async (courseId) => {
   gap: 16px;
 }
 .card-course {
-  flex: 0 0 calc((100% - 3 * 16px) / 4);
+  flex: 0 0 calc((100% - 4 * 16px) / 5);
 }
 
 @media screen and (max-width: 1024px) {

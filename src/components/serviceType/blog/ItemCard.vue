@@ -1,7 +1,14 @@
 <template>
   <div class="card-wrapper">
     <div class="card-blog" @click="handleClickCard">
-      <div class="thumbnail-blog"><img :src="replaceUrlImage(blog.thumbnail)" alt=""></div>
+      <div class="thumbnail-blog">
+        <img
+          :src="replaceUrlImage(blog.thumbnail)"
+          :alt="blog.title || 'Blog thumbnail'"
+          loading="lazy"
+          decoding="async"
+        >
+      </div>
       <div class="title-blog">{{ blog.title }}</div>
   </div>
   </div>

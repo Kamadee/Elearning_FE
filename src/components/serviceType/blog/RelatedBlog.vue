@@ -5,7 +5,12 @@
       v-for="(blog, index) in data.relatedBlogs" :key="index">
       <div class="card-related" @click="handleClickCard(blog.id)" v-loading="loadingStates[blog.id]">
         <div class="blog-thumbnail">
-          <img :src="replaceUrlImage(blog.thumbnail)" alt="">
+          <img
+            :src="replaceUrlImage(blog.thumbnail)"
+            :alt="blog.title || 'Blog thumbnail'"
+            loading="lazy"
+            decoding="async"
+          >
         </div>
         <div class="blog-content">
           <span class="blog-title">{{ blog.title }}</span>
